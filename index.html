@@ -151,6 +151,9 @@ body[data-tool=select] .page{touch-action:auto;cursor:text;user-select:text;-web
 #cloud2{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;padding:10px 0;line-height:1.1}
 #cloud2 span{cursor:pointer;font-weight:700}
 #bigv{position:fixed;inset:0;z-index:70;background:rgba(20,24,35,.95);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:6vw;font-size:clamp(28px,5.5vw,76px);font-weight:700;line-height:1.35;white-space:pre-wrap;cursor:pointer;word-break:keep-all}
+#act select{border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;background:#fff}
+#act details{margin-top:14px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+#act summary{cursor:pointer;font-weight:600}
 #bigv small{position:fixed;bottom:18px;font-size:14px;font-weight:400;opacity:.6}
 </style>
 </head>
@@ -217,7 +220,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text;user-select:text;-web
   <main>
     <div id="viewer"><div id="pages"></div></div>
     <aside id="notes" class="hide"></aside>
-    <aside id="act" class="hide"><div class="ah"><div class="atabs"><button data-t="quiz">❓ 퀴즈</button><button data-t="check">🚦 이해도</button><button data-t="ask">🙋 질문함</button><button data-t="ops">💬 의견</button></div><button class="sm" id="aBig" title="크게 (프로젝터)">⤢</button><button class="sm" id="aX">✕</button></div><div class="ab" id="aBody"></div></aside>
+    <aside id="act" class="hide"><div class="ah"><div class="atabs"><button data-t="quiz">❓ 퀴즈</button><button data-t="check">🚦 이해도</button><button data-t="ask">🙋 질문함</button><button data-t="ops">💬 의견</button><button data-t="ai">📓 질문</button></div><button class="sm" id="aBig" title="크게 (프로젝터)">⤢</button><button class="sm" id="aX">✕</button></div><div class="ab" id="aBody"></div></aside>
     <div id="home">
       <div class="wrap">
         <h1>📖 PDF 필기 노트</h1>
@@ -243,6 +246,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text;user-select:text;-web
   <button data-a="edit" title="검색어를 고쳐서 검색">✎</button>
   <button data-a="g" title="구글 검색">구글</button>
   <button data-a="img" title="구글 이미지 검색">이미지</button>
+  <button data-a="ai" title="선택한 문장으로 NotebookLM에서 질문 만들기">📓 질문</button>
   <button data-a="hl" title="선택한 글자를 형광펜으로 칠하기">🖍</button>
   <button data-a="ul" title="밑줄">밑줄</button>
   <button data-a="cp" title="복사">복사</button>
@@ -1265,6 +1269,7 @@ selbar.addEventListener('click',e=>{
   const info=getSelInfo(),q=info?info.text:(S.lastSel||''),a=b.dataset.a;
   if(a==='yt'||a==='g'||a==='img'){openSearch(a,q);return}
   if(a==='edit'){openSearchDialog(q);return}
+  if(a==='ai'){const full=info?info.s.toString().replace(/\s+/g,' ').trim():q;hideSelbar();window.getSelection().removeAllRanges();window.__aiFrom&&window.__aiFrom(full,true);return}
   if(a==='hl'||a==='ul'){markSel(a,info);return}
   if(a==='cp'){const txt=info?info.s.toString():q;(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('복사했어요'),()=>toast('복사하지 못했어요'));hideSelbar()}
 });
@@ -1398,6 +1403,11 @@ function buildMd(){
     if(checks.length){L.push('### 🚦 이해도 체크','');for(const a of checks){const t=a.c[0]+a.c[1]+a.c[2];L.push(`- ${a.page}쪽 (${pad2(new Date(a.created).getHours())}:${pad2(new Date(a.created).getMinutes())}): 😀 이해 ${a.c[0]} · 🤔 애매 ${a.c[1]} · 😵 모름 ${a.c[2]} (이해 ${pct(a.c[0],t)})`)}L.push('')}
     const asks=acts.filter(a=>a.type==='ask');
     if(asks.length){L.push('### 🙋 학생 질문','');for(const a of asks)L.push(`- [${a.status==='done'?'x':' '}] (${a.page}쪽) ${a.txt.replace(/\n/g,' ')}${a.who?' — '+a.who:''}${a.status==='hold'?' ⏸ 보류':''}`);L.push('')}
+    for(const a of acts.filter(a=>a.type==='aiq')){
+      L.push(`### 🤖 생각해볼 질문 · ${a.page}쪽 (${a.grade} ${a.subj})`,'');
+      for(const it of a.items){L.push(`- **[${it.k}]** ${it.q.replace(/\n/g,' ')}`);if(it.opts)it.opts.forEach((o,k)=>L.push(`  - ${'①②③④⑤'[k]} ${o}${k===it.ans?' ✅':''}`));if(it.hint)L.push(`  - 💡 ${it.hint}`)}
+      L.push('');
+    }
     for(const a of acts.filter(a=>a.type==='ops')){
       L.push(`### 💬 ${a.prompt||'의견 모으기'} · ${a.page}쪽`,'');
       for(const it of a.items.slice().sort((x,y)=>y.n-x.n))L.push(`- ${it.t}${it.n>1?' (×'+it.n+')':''}`);
@@ -1525,7 +1535,7 @@ function copyMd(){
       <span style="margin-left:auto;font-size:12px"><button class="sm ${askFilter==='all'?'pri':''}" data-a="askf" data-v="all">전체 ${all.length}</button> <button class="sm ${askFilter==='wait'?'pri':''}" data-a="askf" data-v="wait">대기 ${pend.length}</button> <button class="sm ${askFilter==='done'?'pri':''}" data-a="askf" data-v="done">완료 ${all.length-pend.length}</button></span></div>
     <h4>질문 목록</h4>
     ${sh.map(a=>`<div class="card2 ${a.status==='done'?'done':''}"><div style="white-space:pre-wrap">${esc(a.txt)}</div><div class="meta"><span>${a.page}쪽${a.who?' · '+esc(a.who):''}${a.status==='hold'?' · ⏸ 보류':''}</span>
-      <button class="sm" data-a="askbig" data-id="${a.id}">📺 크게</button><button class="sm" data-a="askdone" data-id="${a.id}">${a.status==='done'?'↩ 대기로':'✅ 답변함'}</button>${a.status!=='done'?`<button class="sm" data-a="askhold" data-id="${a.id}">${a.status==='hold'?'보류 해제':'⏸ 보류'}</button>`:''}<button class="sm red" data-a="askrm" data-id="${a.id}">삭제</button></div></div>`).join('')||'<div style="color:var(--sub)">질문이 없어요.</div>'}`;
+      <button class="sm" data-a="askbig" data-id="${a.id}">📺 크게</button><button class="sm" data-a="asknb" data-id="${a.id}" title="NotebookLM 교과서·지도서에서 답 찾기">📓 지도서에서 답</button><button class="sm" data-a="askdone" data-id="${a.id}">${a.status==='done'?'↩ 대기로':'✅ 답변함'}</button>${a.status!=='done'?`<button class="sm" data-a="askhold" data-id="${a.id}">${a.status==='hold'?'보류 해제':'⏸ 보류'}</button>`:''}<button class="sm red" data-a="askrm" data-id="${a.id}">삭제</button></div></div>`).join('')||'<div style="color:var(--sub)">질문이 없어요.</div>'}`;
   }
   function addAsk(){
     const q=body.querySelector('#aQ'),w=body.querySelector('#aWho');const v=q.value.trim();if(!v)return;
@@ -1537,6 +1547,7 @@ function copyMd(){
     if(a==='askf'){askFilter=el.dataset.v;return true}
     if(a==='askrand'){const p=of('ask').filter(q=>q.status!=='done'&&q.status!=='hold');if(!p.length){toast('대기 중인 질문이 없어요');return false}showBig(p[Math.floor(Math.random()*p.length)].txt);return false}
     if(a==='askbig'){showBig(x.txt+(x.who?'\n\n— '+x.who:''));return false}
+    if(a==='asknb'){sendNb('answer',x.txt);return false}
     if(a==='askdone'){x.status=x.status==='done'?'wait':'done';touch(x);return true}
     if(a==='askhold'){x.status=x.status==='hold'?'wait':'hold';touch(x);return true}
     if(a==='askrm'){delAct(x);return true}
@@ -1586,12 +1597,152 @@ function copyMd(){
     return false;
   }
 
+  /* --- AI 질문 만들기 --- */
+  const DEFAULT_NB='https://notebook.google.com/notebook/65a10ff1-a095-46fb-9826-77128a9e7ef2';
+  const nbUrl=()=>lsGet('pdfnote.nb')||DEFAULT_NB;
+  const ai={src:'',grade:lsGet('pdfnote.aigrade')||'중2',subj:lsGet('pdfnote.aisubj')||'과학',kinds:new Set(['생각 열기','개념 확인','오개념 점검']),n:5,raw:'',view:'input',setId:null,busy:false,showKey:false,showNb:false,task:'more',nbKind:null};
+  const KINDS=[['생각 열기','정답이 하나로 정해지지 않고 학생이 자기 생각을 말하게 하는 열린 질문'],['개념 확인','핵심 개념을 확인하는 객관식 (보기 4개, 정답 포함)'],['토론·찬반','입장이 갈려 토론할 수 있는 질문'],['오개념 점검','학생들이 흔히 잘못 알고 있는 부분을 드러내는 질문'],['실생활 연결','일상이나 사회 사례와 연결해 생각하게 하는 질문'],['탐구 설계','직접 해 볼 수 있는 간단한 실험·조사를 구상하게 하는 질문']];
+  const cite=s=>String(s==null?'':s).replace(/\s*\[\d+(?:\s*[,\-–]\s*\d+)*\]/g,'').trim();
+  function parseItems(txt,defKind){
+    const s=String(txt||'').trim().replace(/^```(?:json)?/i,'').replace(/```\s*$/,'').trim();
+    const a=s.indexOf('['),b=s.lastIndexOf(']');
+    if(a>=0&&b>a){
+      try{
+        const out=JSON.parse(s.slice(a,b+1)).filter(x=>x&&typeof x.q==='string'&&x.q.trim()).map(x=>{
+          const it={k:cite(x.kind||x.k||'질문'),q:cite(x.q),hint:x.hint?cite(x.hint):''};
+          if(Array.isArray(x.opts)&&x.opts.length>=2){it.opts=x.opts.slice(0,5).map(cite);const n=+x.ans;it.ans=n>=1&&n<=it.opts.length?n-1:0}
+          return it});
+        if(out.length)return out;
+      }catch(e){}
+    }
+    return s.split('\n').map(l=>l.replace(/^\s*(?:[-*•]|\d+[.)])\s*/,'').replace(/\*\*/g,'').trim()).filter(l=>l.length>8).slice(0,12).map(q=>({k:defKind||'질문',q:cite(q),hint:''}));
+  }
+  function readAi(){
+    const g=s=>body.querySelector(s);
+    if(g('#aiSrc'))ai.src=g('#aiSrc').value;if(g('#aiGrade'))ai.grade=g('#aiGrade').value;if(g('#aiSubj'))ai.subj=g('#aiSubj').value.trim()||'과학';
+    if(g('#aiN'))ai.n=+g('#aiN').value;if(g('#aiTask'))ai.task=g('#aiTask').value;if(g('#aiRaw'))ai.raw=g('#aiRaw').value;
+    const ks=body.querySelectorAll('[data-k]');if(ks.length)ai.kinds=new Set([...ks].filter(x=>x.checked).map(x=>x.dataset.k));
+    lsSet('pdfnote.aigrade',ai.grade);lsSet('pdfnote.aisubj',ai.subj);
+  }
+  async function pageText(n){
+    const p=await S.pdf.getPage(n),tc=await p.getTextContent();let s='';
+    for(const i of tc.items)s+=i.str+(i.hasEOL?'\n':' ');
+    return s.replace(/[ \t]+/g,' ').replace(/ ?\n ?/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+  }
+  function importRaw(txt,defKind){
+    const items=parseItems(txt,defKind);
+    if(!items.length){toast('질문을 읽지 못했어요. AI 답변을 그대로 다시 붙여넣어 보세요',4500);return false}
+    const a=addAct('aiq',{grade:ai.grade,subj:ai.subj,src:ai.src.slice(0,1500),items});ai.view='set';ai.setId=a.id;return true;
+  }
+  function rAi(){
+    if(ai.view==='set'){const a=find(ai.setId);if(a)return rAiSet(a);ai.view='input'}
+    const sets=of('aiq'),sel=(arr,v)=>arr.map(x=>`<option ${x===v?'selected':''}>${x}</option>`).join('');
+    return `<div style="font-size:12px;color:var(--sub);margin-bottom:6px">교과서 문장을 넣고 버튼을 누르면 <b>내 NotebookLM(교과서·지도서)</b>이 열리고, 프롬프트가 자동으로 복사돼요.</div>
+    <textarea id="aiSrc" rows="6" placeholder="교과서 문장을 붙여넣으세요.&#10;(🔤 글자 선택 → 📓 질문 버튼을 쓰면 자동으로 들어가요)">${esc(ai.src)}</textarea>
+    <div class="row" style="margin-top:6px"><button class="sm" data-a="aipage">📄 ${S.curPage}쪽 글자 가져오기</button><span style="font-size:12px;color:var(--sub);margin-left:auto">${ai.src.length}자</span></div>
+    <div class="row"><select id="aiTask" style="flex:1">${[['more','→ 더 생각해볼 질문 만들기'],['easy','→ 중학생 눈높이로 바꿔 쓰기'],['guide','→ 지도서의 지도 방법·발문 찾기']].map(([v,l])=>`<option value="${v}" ${ai.task===v?'selected':''}>${l}</option>`).join('')}</select></div>
+    <details><summary>질문 설정 (학년·과목·개수·종류)</summary>
+      <div class="row" style="margin-top:8px"><select id="aiGrade">${sel(['중1','중2','중3'],ai.grade)}</select><input type="text" id="aiSubj" value="${esc(ai.subj)}" style="width:100px" placeholder="과목"><select id="aiN">${[3,5,8].map(n=>`<option value="${n}" ${n===ai.n?'selected':''}>${n}개</option>`).join('')}</select></div>
+      ${KINDS.map(([k,d])=>`<label style="display:block;margin-bottom:5px;cursor:pointer"><input type="checkbox" data-k="${k}" ${ai.kinds.has(k)?'checked':''}> <b>${k}</b> <span style="color:var(--sub);font-size:12px">${d}</span></label>`).join('')}
+    </details>
+    <div class="row" style="margin-top:12px"><button class="sm pri" data-a="nbsend" style="flex:1;padding:11px;font-size:1.05em">📓 프롬프트 복사하고 NotebookLM 열기</button></div>
+    <div class="hint">① 버튼을 누르면 노트북이 옆 창으로 열려요 → ② 채팅 입력칸에 <b>Ctrl+V</b> → ③ 나온 답을 복사해 아래에 붙여넣고 <b>카드로 가져오기</b>. 교과서 문장만 전달돼요.</div>
+    <h4>NotebookLM 답변 붙여넣기</h4>
+    <textarea id="aiRaw" rows="4" placeholder="NotebookLM이 준 답을 그대로 붙여넣으세요">${esc(ai.raw)}</textarea>
+    <div class="row" style="margin-top:6px"><button class="sm" data-a="aiimport">카드로 가져오기</button></div>
+    <details ${ai.showNb?'open':''}><summary>📓 노트북 주소 바꾸기</summary>
+      <div class="hint" style="margin:8px 0">현재 연결된 노트북이 기본으로 들어 있어요. 다른 노트북을 쓰려면 주소를 바꾸세요. (NotebookLM은 앱 안에 끼워 넣을 수 없어서 옆 창으로 열어 줘요.)</div>
+      <input type="text" id="nbUrl" value="${esc(nbUrl())}" placeholder="https://notebook.google.com/notebook/...">
+      <label style="display:block;margin:8px 0;font-size:13px;cursor:pointer"><input type="checkbox" id="nbPop" ${lsGet('pdfnote.nbpop')==='0'?'':'checked'}> 화면 오른쪽에 작은 창으로 열기 (끄면 새 탭)</label>
+      <div class="row"><button class="sm pri" data-a="nbsave">저장</button><button class="sm" data-a="nbtest">열어 보기</button><button class="sm" data-a="nbclear">기본 노트북으로</button></div></details>
+    <h4>만든 질문 세트 (${sets.length})</h4>
+    ${sets.map(a=>`<div class="card2"><div style="cursor:pointer" data-a="aiopen" data-id="${a.id}"><b>${esc((a.items[0]||{}).q||'').slice(0,50)}…</b></div><div class="meta">${a.grade} ${esc(a.subj)} · ${a.page}쪽 · ${a.items.length}개 <button class="sm" data-a="aiopen" data-id="${a.id}">열기</button></div></div>`).join('')||'<div style="color:var(--sub)">아직 없어요.</div>'}`;
+  }
+  function rAiSet(a){
+    return `<div class="row"><button class="sm" data-a="aiback">← 돌아가기</button><span style="margin-left:auto;font-size:12px;color:var(--sub)">${a.grade} ${esc(a.subj)} · ${a.page}쪽</span></div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:8px">⚠ 수업에 쓰기 전에 내용(특히 정답)을 한 번 확인해 주세요.</div>
+    ${a.items.map((it,i)=>`<div class="card2"><span class="chip" style="cursor:default;margin:0 0 6px">${esc(it.k)}</span><div style="font-size:1.1em;white-space:pre-wrap;font-weight:600">${esc(it.q)}</div>
+      ${it.opts?`<div style="margin-top:6px">${it.opts.map((o,k)=>`<div>${CIR[k]} ${esc(o)}${k===it.ans?' ✅':''}</div>`).join('')}</div>`:''}
+      ${it.hint?`<div style="font-size:12px;color:var(--sub);margin-top:6px">💡 ${esc(it.hint)}</div>`:''}
+      <div class="meta"><button class="sm" data-a="aibig" data-i="${i}">📺 크게</button><button class="sm" data-a="ainb" data-i="${i}" title="NotebookLM 지도서 근거로 심화">📓 더 깊게</button><button class="sm" data-a="aiops" data-i="${i}">💬 의견 모으기</button>${it.opts?`<button class="sm" data-a="aiquiz" data-i="${i}">❓ 퀴즈로</button>`:''}<button class="sm" data-a="aicp" data-i="${i}">복사</button><button class="sm red" data-a="airm" data-i="${i}">삭제</button></div></div>`).join('')}
+    <div class="row" style="margin-top:10px"><button class="sm red" data-a="aidel">이 질문 세트 삭제</button></div>`;
+  }
+  function onAi(el){
+    const a=el.dataset.a,i=+el.dataset.i;
+    readAi();
+    if(a==='aipage'){
+      pageText(S.curPage).then(tx=>{if(!tx){toast('이 쪽은 글자가 이미지라 가져올 수 없어요. 직접 붙여넣어 주세요',4500);return}ai.src=tx.slice(0,6000);render()},()=>toast('글자를 가져오지 못했어요'));return false}
+    if(a==='aiimport'){if(!ai.raw.trim()){toast('AI 답변을 붙여넣어 주세요');return false}if(importRaw(ai.raw,ai.nbKind)){ai.raw=''}return true}
+    if(a==='nbsend'){if(!ai.src.trim()){toast('먼저 선택한 문장(교과서 내용)을 넣어 주세요');return false}sendNb(ai.task,ai.src);return false}
+    if(a==='nbsave'){const u=body.querySelector('#nbUrl').value.trim();if(u&&!/^https:\/\/(notebook|notebooklm)\.google\.com\//.test(u)){toast('NotebookLM(구글 노트북) 주소가 아니에요');return false}lsSet('pdfnote.nb',u||null);lsSet('pdfnote.nbpop',body.querySelector('#nbPop').checked?null:'0');ai.showNb=false;toast(u?'노트북 주소를 저장했어요':'삭제했어요');return true}
+    if(a==='nbtest'){const u=body.querySelector('#nbUrl').value.trim();if(u)openNb(u);return false}
+    if(a==='nbclear'){lsSet('pdfnote.nb',null);ai.showNb=false;return true}
+    if(a==='aiopen'){ai.setId=el.dataset.id;ai.view='set';return true}
+    if(a==='aiback'){ai.view='input';return true}
+    const s=find(ai.setId);if(!s)return true;
+    const it=s.items[i];
+    if(a==='aidel'){if(confirm('이 질문 세트를 삭제할까요?')){delAct(s);ai.view='input'}return true}
+    if(a==='airm'){s.items.splice(i,1);touch(s);return true}
+    if(a==='ainb'){sendNb('deepen',it.q+(it.opts?'\n'+it.opts.map((o,k)=>CIR[k]+' '+o).join('\n'):''));return false}
+    if(a==='aibig'){showBig(it.q+(it.opts?'\n\n'+it.opts.map((o,k)=>CIR[k]+' '+o).join('\n'):''));return false}
+    if(a==='aicp'){(navigator.clipboard?navigator.clipboard.writeText(it.q+(it.opts?'\n'+it.opts.map((o,k)=>CIR[k]+' '+o).join('\n'):'')):Promise.reject()).then(()=>toast('복사했어요'),()=>{});return false}
+    if(a==='aiops'){const o=addAct('ops',{prompt:it.q,items:[]});opsId=o.id;tab='ops';lsSet('pdfnote.acttab',tab);toast('의견 모으기에 질문을 올렸어요');return true}
+    if(a==='aiquiz'){const q=addAct('quiz',{q:it.q,opts:[...it.opts],ans:it.ans||0,counts:it.opts.map(()=>0),revealed:false});qid=q.id;qmode='run';tab='quiz';lsSet('pdfnote.acttab',tab);toast('퀴즈로 만들었어요');return true}
+    return false;
+  }
+  let nbWin=null;
+  function openNb(url){
+    if(lsGet('pdfnote.nbpop')!=='0'){
+      if(nbWin&&!nbWin.closed){try{nbWin.focus();return}catch(e){}}
+      const w=Math.min(620,Math.round(screen.availWidth*.4));
+      nbWin=window.open(url,'pdfnote_nb',`popup=yes,width=${w},height=${screen.availHeight},left=${screen.availWidth-w},top=0`);
+      if(!nbWin)window.open(url,'_blank');
+    }else window.open(url,'_blank');
+  }
+  function nbPrompt(task,text){
+    const g=ai.grade.replace('중','')+'학년',s=ai.subj,tx=String(text).trim();
+    if(task==='easy')return `아래 [문장]을 중학교 ${g} ${s} 수업에서 학생이 이해하기 쉬운 말로 바꿔 써 줘.\n- 핵심 용어는 처음 나올 때 괄호로 짧게 풀이해 줘.\n- 이 노트북의 교과서·지도서 내용과 어긋나지 않게 하고, 의미를 바꾸지 마.\n- 결과는 바꿔 쓴 문장만 출력해 줘.\n\n[문장]\n${tx}`;
+    if(task==='guide')return `아래 [문장]과 관련해 이 노트북의 지도서에 나온 내용을 정리해 줘.\n- 지도 방법과 발문 예시\n- 학생들이 어려워하거나 헷갈리는 점\n- 평가·수업 시 유의점\n각 항목마다 근거가 된 쪽수나 단원을 함께 적어 줘. 노트북에 없는 내용은 없다고 말해 줘.\n\n[문장]\n${tx}`;
+    if(task==='deepen')return `아래 [질문]에 대해 이 노트북의 지도서·교과서를 근거로 다음을 정리해 줘.\n1) 교사용 예상 답변\n2) 학생이 막힐 때 줄 수 있는 힌트와 후속 발문 3개\n3) 이 질문을 더 깊게 확장하는, 중학교 ${g} 수준의 새 질문 3개\n근거가 된 쪽수를 표시하고, 노트북에 없는 내용은 만들지 마.\n\n[질문]\n${tx}`;
+    if(task==='answer')return `중학교 ${g} 학생이 ${s} 수업 중 이렇게 질문했어.\n\n"${tx}"\n\n이 노트북의 교과서·지도서를 근거로, 학생 눈높이에서 3~4문장으로 답변해 줘. 도움이 되는 예시를 하나 넣고, 근거가 된 쪽수를 알려 줘. 노트북에 근거가 없으면 없다고 말해 줘.`;
+    const ks=KINDS.filter(([k])=>ai.kinds.has(k));
+    return `아래 [선택한 문장]과 관련된 내용을 이 노트북의 교과서와 지도서에서 찾아, 중학교 ${g} ${s} 수업에서 학생들이 더 깊이 생각해 볼 만한 질문 ${ai.n}개를 만들어 줘.
+
+[조건]
+- 질문 종류를 골고루 섞어 줘:
+${ks.map(([k,d])=>`  · ${k}: ${d}`).join('\n')}
+- 지도서에 나온 발문이나 유의점이 있으면 우선 반영하고, 근거 쪽수를 힌트에 적어 줘.
+- 학생 눈높이의 쉬운 말로, 질문 하나는 한두 문장으로 써 줘.
+- 노트북에 근거가 없는 내용은 만들지 마.
+- "개념 확인"은 객관식(보기 4개)으로 만들고 정답 번호(1~4)를 알려 줘.
+
+[출력 형식] 설명 없이 아래 JSON 배열만 출력해 줘.
+[{"kind":"생각 열기","q":"질문","hint":"교사용 힌트(근거 쪽수)"},{"kind":"개념 확인","q":"질문","opts":["보기1","보기2","보기3","보기4"],"ans":2,"hint":"교사용 힌트"}]
+
+[선택한 문장]
+${tx}`;
+  }
+  function sendNb(task,text){
+    const url=nbUrl();
+    if(!url){ai.showNb=true;tab='ai';lsSet('pdfnote.acttab',tab);drawer.classList.remove('hide');if(!ai.src)ai.src=String(text).slice(0,6000);render();toast('먼저 NotebookLM 노트북 주소를 저장해 주세요',4000);return}
+    ai.nbKind={more:'질문',easy:'바꿔쓰기',guide:'지도서',deepen:'심화',answer:'답변'}[task]||'질문';
+    const p=nbPrompt(task,text);
+    (navigator.clipboard?navigator.clipboard.writeText(p):Promise.reject()).then(()=>toast('프롬프트를 복사했어요 → NotebookLM 채팅창에 Ctrl+V 하세요',5000),()=>toast('복사하지 못했어요. 브라우저 권한을 확인해 주세요',4000));
+    openNb(url);
+  }
+  window.__aiFrom=(txt,send)=>{
+    if(!S.pdf)return;
+    ai.src=String(txt||'').slice(0,6000);ai.view='input';tab='ai';lsSet('pdfnote.acttab',tab);
+    drawer.classList.remove('hide');render();
+    if(send)sendNb('more',ai.src);
+  };
+
   /* --- 공통 --- */
   function render(){
     if(!S.pdf){body.innerHTML='<div style="color:var(--sub)">먼저 책(PDF)을 열어 주세요. 활동 기록은 책마다 저장돼요.</div>';return}
     drawer.querySelectorAll('.atabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
     const st=body.scrollTop;
-    body.innerHTML=tab==='quiz'?rQuiz():tab==='check'?rCheck():tab==='ask'?rAsk():rOps();
+    body.innerHTML=tab==='quiz'?rQuiz():tab==='check'?rCheck():tab==='ask'?rAsk():tab==='ai'?rAi():rOps();
     body.scrollTop=st;
     const ta=body.querySelector('#aQ');if(ta)ta.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addAsk()}});
     const oi=body.querySelector('#oIn');if(oi)oi.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addOps()}});
@@ -1603,11 +1754,11 @@ function copyMd(){
     const el=e.target.closest('[data-a]');if(!el||!S.pdf)return;
     // 자식 버튼(−, ✕)이 부모 클릭보다 우선
     let h=false;
-    if(tab==='quiz')h=onQuiz(el,e);else if(tab==='check')h=onCheck(el);else if(tab==='ask')h=onAsk(el);else h=onOps(el);
+    if(tab==='quiz')h=onQuiz(el,e);else if(tab==='check')h=onCheck(el);else if(tab==='ask')h=onAsk(el);else if(tab==='ai')h=onAi(el);else h=onOps(el);
     if(h)render();
   });
   body.addEventListener('change',e=>{const el=e.target.closest('[data-a=opw]');if(el&&S.pdf){if(onOps(el))render()}});
-  drawer.querySelector('.atabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(qmode==='edit')readDraft();tab=b.dataset.t;lsSet('pdfnote.acttab',tab);render()});
+  drawer.querySelector('.atabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(qmode==='edit')readDraft();if(tab==='ai')readAi();tab=b.dataset.t;lsSet('pdfnote.acttab',tab);render()});
   $('#aX').onclick=()=>{drawer.classList.add('hide');drawer.classList.remove('big')};
   $('#aBig').onclick=()=>{drawer.classList.toggle('big');render()};
   $('#bAct').onclick=()=>{
