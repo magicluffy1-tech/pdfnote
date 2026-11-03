@@ -120,6 +120,38 @@ body[data-tool=select] .page{touch-action:auto;cursor:text;user-select:text;-web
 #timer .tc .go{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:700;padding:5px 14px;font-size:13px}
 #timer.big{width:420px}#timer.big #tDisp{font-size:104px}
 #timer.mini .tp,#timer.mini .tc{display:none}#timer.mini #tDisp{font-size:34px;padding:2px 0 6px}
+
+#act{width:440px;flex:none;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;font-size:14px}
+#act.big{position:absolute;inset:0;width:auto;z-index:35;border:none;font-size:17px}
+#act .ah{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
+#act .atabs{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+#act .atabs button,#act .sm{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:inherit}
+#act .atabs button.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:700}
+#act .ab{flex:1;overflow:auto;padding:12px 14px}
+#act .sm:hover{background:#f4f5f8}#act .sm.pri{background:var(--acc);border-color:var(--acc);color:#fff}#act .sm.red{color:#c92a2a}
+#act input[type=text],#act textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical}
+#act h4{margin:14px 0 6px;font-size:13px;color:var(--sub)}
+.row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.qq{font-size:1.5em;font-weight:700;margin:6px 0 14px;white-space:pre-wrap;line-height:1.4}
+.qo{position:relative;display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;cursor:pointer;overflow:hidden;font-size:1.2em;user-select:none}
+.qo .qbar{position:absolute;left:0;top:0;bottom:0;background:#dbe6ff;z-index:0;transition:width .25s}
+.qo>*:not(.qbar){position:relative;z-index:1}
+.qo .qt{flex:1}.qo .qn{font-weight:700;color:var(--acc)}.qo .qc{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}.qo .qc small{font-weight:400;color:var(--sub)}
+.qo button{border:1px solid var(--line);background:#fff;border-radius:6px;width:28px;height:28px;cursor:pointer}
+.qo.ok{border-color:#2f9e44}.qo.ok .qbar{background:#c3f0cd}.qo.dim{opacity:.5}
+.ck{display:flex;align-items:center;gap:12px;border-radius:14px;padding:14px 16px;margin-bottom:10px;cursor:pointer;color:#fff;font-size:1.25em;font-weight:700;user-select:none}
+.ck .n{margin-left:auto;font-size:1.6em;font-variant-numeric:tabular-nums}
+.ck button{border:none;background:rgba(255,255,255,.28);color:#fff;border-radius:6px;width:28px;height:28px;cursor:pointer;font-size:16px}
+.sb{display:flex;height:24px;border-radius:12px;overflow:hidden;background:#eceef2;margin:6px 0 8px}
+.card2{border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:7px}
+.card2.done{opacity:.55}
+.card2 .meta{font-size:12px;color:var(--sub);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{display:inline-block;background:#eef2ff;border:1px solid #d5dcf7;border-radius:16px;padding:4px 11px;margin:3px;cursor:pointer;font-size:1.05em}
+.chip b{color:var(--acc);margin-left:4px}
+#cloud2{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;padding:10px 0;line-height:1.1}
+#cloud2 span{cursor:pointer;font-weight:700}
+#bigv{position:fixed;inset:0;z-index:70;background:rgba(20,24,35,.95);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:6vw;font-size:clamp(28px,5.5vw,76px);font-weight:700;line-height:1.35;white-space:pre-wrap;cursor:pointer;word-break:keep-all}
+#bigv small{position:fixed;bottom:18px;font-size:14px;font-weight:400;opacity:.6}
 </style>
 </head>
 <body data-tool="pen">
@@ -161,6 +193,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text;user-select:text;-web
     </div>
     <div class="grp" style="margin-left:auto">
       <label class="grp" style="font-size:12px;color:var(--sub);cursor:pointer" title="켜면 손가락은 스크롤만 하고 펜/마우스로만 필기합니다"><input type="checkbox" id="fingerScroll" checked>손가락=스크롤</label>
+      <button class="btn" id="bAct" title="퀴즈 · 이해도 체크 · 학생 질문함 · 의견 모으기">🎓 수업 활동</button>
       <button class="btn" id="bYt" title="검색어를 직접 입력해 유튜브 검색 (Y)">▶ 유튜브</button>
       <button class="btn" id="bTimer" title="수업 타이머">⏱ 타이머</button>
       <button class="btn" id="bNotes">📝 메모 모아보기</button>
@@ -168,6 +201,8 @@ body[data-tool=select] .page{touch-action:auto;cursor:text;user-select:text;-web
         <summary class="btn pri">💾 저장 / 내보내기</summary>
         <div class="pop">
           <button class="btn" id="mSave">지금 저장 + Drive 동기화 (Ctrl+S)</button>
+          <button class="btn" id="mMd">옵시디언용 마크다운(.md) 내보내기</button>
+          <button class="btn" id="mMdCopy">옵시디언용 마크다운 복사</button>
           <button class="btn" id="mPdf">필기 포함 PDF로 내보내기</button>
           <button class="btn" id="mJson">필기 파일(.json) 내보내기</button>
           <button class="btn" id="mImport">필기 파일(.json) 불러오기</button>
@@ -182,6 +217,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text;user-select:text;-web
   <main>
     <div id="viewer"><div id="pages"></div></div>
     <aside id="notes" class="hide"></aside>
+    <aside id="act" class="hide"><div class="ah"><div class="atabs"><button data-t="quiz">❓ 퀴즈</button><button data-t="check">🚦 이해도</button><button data-t="ask">🙋 질문함</button><button data-t="ops">💬 의견</button></div><button class="sm" id="aBig" title="크게 (프로젝터)">⤢</button><button class="sm" id="aX">✕</button></div><div class="ab" id="aBody"></div></aside>
     <div id="home">
       <div class="wrap">
         <h1>📖 PDF 필기 노트</h1>
@@ -217,6 +253,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text;user-select:text;-web
   <div class="tp" id="tPre"><button data-m="1">1분</button><button data-m="3">3분</button><button data-m="5">5분</button><button data-m="10">10분</button><button data-m="15">15분</button></div>
   <div class="tc"><input type="number" id="tM" min="0" max="180" value="5">분 <input type="number" id="tS" min="0" max="59" value="0">초 <button class="go" id="tGo">시작</button><button id="tRs">초기화</button><label style="cursor:pointer"><input type="checkbox" id="tUp">스톱워치</label></div>
 </div>
+<div id="bigv" class="hide"></div>
 <div id="toast"></div>
 
 <script type="text/plain" id="pdfworker">/**
@@ -296,7 +333,7 @@ const S={
   pdf:null,id:null,name:'',bytes:null,zoom:1.2,pages:[],tool:'pen',
   width:{pen:2,hl:16,eraser:20,text:18},
   color:{pen:'#111111',hl:'#ffd43b',text:'#111111'},
-  tomb:{},syncKey:null,driveId:null,md5:null,notesId:null,remoteMod:null,remoteDirty:false,fresh:false,
+  tomb:{},acts:[],syncKey:null,driveId:null,md5:null,notesId:null,remoteMod:null,remoteDirty:false,fresh:false,
   undo:[],redo:[],dirty:false,penDown:false,fingerScroll:true,lastPage:1,curPage:1
 };
 const viewer=$('#viewer'),pagesEl=$('#pages');
@@ -355,7 +392,7 @@ function closeDoc(){
   if(io){io.disconnect();io=null}
   for(const pg of S.pages){if(pg.task)try{pg.task.cancel()}catch(e){}}
   if(S.pdf){try{S.pdf.destroy()}catch(e){}}
-  S.pdf=null;S.pages=[];S.id=null;S.bytes=null;S.tomb={};S.syncKey=S.driveId=S.md5=S.notesId=S.remoteMod=null;S.remoteDirty=false;S.undo=[];S.redo=[];S.dirty=false;
+  S.pdf=null;S.pages=[];S.id=null;S.bytes=null;S.tomb={};S.acts=[];S.syncKey=S.driveId=S.md5=S.notesId=S.remoteMod=null;S.remoteDirty=false;S.undo=[];S.redo=[];S.dirty=false;
   pagesEl.innerHTML='';updateUndo();
 }
 async function openBlob(blob,name,opts={}){
@@ -368,7 +405,7 @@ async function openBlob(blob,name,opts={}){
     S.pdf=pdf;S.driveId=opts.driveId||null;S.md5=opts.md5||null;S.syncKey=S.driveId||pdf.fingerprints[0];S.id=S.driveId?'drive:'+S.driveId:pdf.fingerprints[0];S.name=name.replace(/\.pdf$/i,'');
     const rec=await DB.get('docs',S.id);
     const annots=(rec&&rec.annots)||{};
-    S.tomb=(rec&&rec.tomb)||{};S.notesId=rec&&rec.notesId||null;S.remoteMod=rec&&rec.remoteMod||null;S.remoteDirty=!!(rec&&rec.remoteDirty);S.fresh=!rec;
+    S.tomb=(rec&&rec.tomb)||{};S.acts=(rec&&rec.acts)||[];S.notesId=rec&&rec.notesId||null;S.remoteMod=rec&&rec.remoteMod||null;S.remoteDirty=!!(rec&&rec.remoteDirty);S.fresh=!rec;
     // 쪽 크기 읽기
     const n=pdf.numPages,sizes=new Array(n);
     for(let i=0;i<n;i+=40){
@@ -386,7 +423,7 @@ async function openBlob(blob,name,opts={}){
     const lp=(rec&&rec.lastPage)||1;S.curPage=lp;S.lastPage=lp;$('#pageno').value=lp;
     requestAnimationFrame(()=>gotoPage(lp,false));
     // 최초 저장 (파일 보관 포함)
-    const meta={...(rec||{}),id:S.id,name:S.name,size:buf.byteLength,pages:n,annots,tomb:S.tomb,updated:rec?rec.updated:Date.now(),lastPage:lp,zoom:S.zoom,hasFile:true,driveId:S.driveId,syncKey:S.syncKey,md5:S.md5||(rec&&rec.md5)||null};
+    const meta={...(rec||{}),id:S.id,name:S.name,size:buf.byteLength,pages:n,annots,tomb:S.tomb,acts:S.acts,updated:rec?rec.updated:Date.now(),lastPage:lp,zoom:S.zoom,hasFile:true,driveId:S.driveId,syncKey:S.syncKey,md5:S.md5||(rec&&rec.md5)||null};
     try{const has=await DB.tx('files','readonly',st=>st.count(S.id));if(!has||(S.md5&&rec&&rec.md5!==S.md5))await DB.put('files',new Blob([buf],{type:'application/pdf'}),S.id)}catch(e){meta.hasFile=false;toast('저장 공간이 부족해 PDF 파일은 보관하지 못했어요(필기는 저장됩니다).',4000)}
     await DB.put('docs',meta);
     setStatus(rec?'필기 불러옴 ✓':'저장됨 ✓');
@@ -699,7 +736,7 @@ async function saveNow(silent){
   try{
     const prev=await DB.get('docs',S.id)||{};
     const cut=Date.now()-90*864e5;for(const k in S.tomb)if(S.tomb[k]<cut)delete S.tomb[k];
-    await DB.put('docs',{...prev,id:S.id,name:S.name,pages:S.pages.length,annots:collect(),tomb:S.tomb,updated:Date.now(),lastPage:S.lastPage,zoom:S.zoom,driveId:S.driveId,syncKey:S.syncKey,notesId:S.notesId,remoteMod:S.remoteMod,remoteDirty:S.remoteDirty});
+    await DB.put('docs',{...prev,id:S.id,name:S.name,pages:S.pages.length,annots:collect(),tomb:S.tomb,acts:S.acts,updated:Date.now(),lastPage:S.lastPage,zoom:S.zoom,driveId:S.driveId,syncKey:S.syncKey,notesId:S.notesId,remoteMod:S.remoteMod,remoteDirty:S.remoteDirty});
     S.dirty=false;const d=new Date();setStatus(`저장됨 ✓ ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
     if(silent!==true&&saveNow.manual){toast('저장했어요');saveNow.manual=false}
   }catch(e){console.error(e);setStatus('저장 실패 ⚠');toast('저장에 실패했어요: '+e.message,3500)}
@@ -822,6 +859,8 @@ $('#fJson').addEventListener('change',e=>{if(e.target.files[0])importJson(e.targ
 const closeMenu=()=>$('#saveMenu').removeAttribute('open');
 $('#mSave').onclick=()=>{closeMenu();saveNow.manual=true;saveNow();scheduleSync(50)};
 $('#mPdf').onclick=()=>{closeMenu();exportPdf()};
+$('#mMd').onclick=()=>{closeMenu();exportMd()};
+$('#mMdCopy').onclick=()=>{closeMenu();copyMd()};
 $('#mJson').onclick=()=>{closeMenu();exportJson()};
 $('#mImport').onclick=()=>{closeMenu();if(S.pdf)$('#fJson').click()};
 $('#mClear').onclick=()=>{closeMenu();clearAll()};
@@ -922,7 +961,7 @@ async function findNotes(key){
   const r=await (await gapi(`${API}/files?q=${enc(q)}&orderBy=${enc('modifiedTime desc')}&pageSize=1&fields=files(id,modifiedTime)&supportsAllDrives=true&includeItemsFromAllDrives=true`)).json();
   return r.files&&r.files[0]||null;
 }
-function payload(){return {app:'pdfnote',version:2,syncKey:S.syncKey,name:S.name,pages:S.pages.length,lastPage:S.lastPage,zoom:S.zoom,updated:Date.now(),annots:collect(),tomb:S.tomb}}
+function payload(){return {app:'pdfnote',version:2,syncKey:S.syncKey,name:S.name,pages:S.pages.length,lastPage:S.lastPage,zoom:S.zoom,updated:Date.now(),annots:collect(),tomb:S.tomb,acts:S.acts}}
 async function pushNotes(retry=true){
   const body=JSON.stringify(payload());
   try{
@@ -952,6 +991,13 @@ function mergeRemote(remote){
     for(const a of map.values()){const tm=S.tomb[a.id];if(tm&&tm>=(a.m||0))continue;if(tm)delete S.tomb[a.id];out.push(a)}
     const sig=x=>x.map(a=>a.id+':'+(a.m||0)).join('|');
     if(sig(out)!==sig(pg.annots)){pg.annots=out;changed=true;if(pg.visible)redrawAnn(pg);renderTexts(pg)}
+  }
+  if(Array.isArray(remote.acts)){
+    const map=new Map(S.acts.map(a=>[a.id,a]));
+    for(const r of remote.acts){const l=map.get(r.id);if(!l||(r.m||0)>(l.m||0))map.set(r.id,r)}
+    const out=[...map.values()].filter(a=>{const tm=S.tomb[a.id];if(tm&&tm>=(a.m||0))return false;if(tm)delete S.tomb[a.id];return true});
+    const sg=x=>x.map(a=>a.id+':'+(a.m||0)).sort().join('|');
+    if(sg(out)!==sg(S.acts)){S.acts=out;changed=true;refreshAct()}
   }
   if(changed){S.undo=[];S.redo=[];updateUndo();scheduleNotes()}
   return changed;
@@ -1200,6 +1246,7 @@ function searchUrl(kind,q){
 }
 function openSearch(kind,q){
   q=cleanQ(q);if(!q){toast('검색어가 없어요');return}
+  logSearch(kind,q);
   window.open(searchUrl(kind,q),'_blank','noopener');
 }
 function openSearchDialog(prefill){
@@ -1225,6 +1272,7 @@ $('#bYt').onclick=()=>openSearchDialog(S.lastSel||'');
 function markSel(kind,info){
   info=info||getSelInfo();if(!info){toast('먼저 글자를 드래그해서 선택하세요');return}
   // 줄별 사각형 수집 → 같은 줄 병합
+  const full=info.s.toString().replace(/-\s*\n\s*/g,'').replace(/\s+/g,' ').trim().slice(0,600),grp=uid();
   const seen=new Set(),rects=[];
   for(const r of info.range.getClientRects()){
     if(r.width<2||r.height<2)continue;
@@ -1246,8 +1294,8 @@ function markSel(kind,info){
     const q=pg.el.getBoundingClientRect(),z=S.zoom;
     const x1=+((L.l-q.left)/z).toFixed(2),x2=+((L.r-q.left)/z).toFixed(2),h=(L.b-L.t)/z;
     let ann;
-    if(kind==='hl')ann={id:uid(),t:'hl',c:S.color.hl,w:+(h*.92).toFixed(2),pts:[[x1,+(((L.t+L.b)/2-q.top)/z).toFixed(2),.5],[x2,+(((L.t+L.b)/2-q.top)/z).toFixed(2),.5]],m:Date.now()};
-    else{const y=+((L.b-q.top)/z-h*.12).toFixed(2);ann={id:uid(),t:'pen',c:S.color.pen==='#111111'?'#e03131':S.color.pen,w:1.4,pts:[[x1,y,.5],[x2,y,.5]],m:Date.now()}}
+    if(kind==='hl')ann={id:uid(),t:'hl',c:S.color.hl,w:+(h*.92).toFixed(2),pts:[[x1,+(((L.t+L.b)/2-q.top)/z).toFixed(2),.5],[x2,+(((L.t+L.b)/2-q.top)/z).toFixed(2),.5]],m:Date.now(),g:grp,q:full};
+    else{const y=+((L.b-q.top)/z-h*.12).toFixed(2);ann={id:uid(),t:'pen',c:S.color.pen==='#111111'?'#e03131':S.color.pen,w:1.4,pts:[[x1,y,.5],[x2,y,.5]],m:Date.now(),g:grp,q:full}}
     pg.annots.push(ann);redrawAnn(pg);acts.push({type:'add',page:pg.num,ann});
   }
   if(!acts.length){toast('칠할 수 있는 영역을 찾지 못했어요');return}
@@ -1308,6 +1356,272 @@ function markSel(kind,info){
     h.addEventListener('pointermove',mv);h.addEventListener('pointerup',up);
   });
   $('#tM').value=Math.floor(T.dur/60);$('#tS').value=T.dur%60;render();
+})();
+
+
+/* ---------- 검색 기록 / 마크다운(옵시디언) ---------- */
+function refreshAct(){if(window.__actRender)window.__actRender()}
+function logSearch(kind,q){
+  if(!S.pdf)return;
+  if(S.acts.some(a=>a.type==='search'&&a.kind===kind&&a.q===q&&a.page===S.curPage))return;
+  S.acts.push({id:uid(),type:'search',kind,q,page:S.curPage,created:Date.now(),m:Date.now()});markDirty();
+}
+const pad2=n=>String(n).padStart(2,'0');
+function buildMd(){
+  const d=new Date(),ymd=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  const L=['---',`title: "${S.name.replace(/"/g,"'")} 수업 노트"`,`date: ${ymd}`,'source: PDF필기노트','tags: [수업노트]'];
+  if(S.driveId)L.push(`pdf: "https://drive.google.com/file/d/${S.driveId}/view"`);
+  L.push('---','',`# ${S.name} 수업 노트`,'');
+  const mdLink=(k,q)=>`[${k==='yt'?'▶ 유튜브':k==='img'?'🖼 이미지':'🔎 구글'}: ${q.replace(/[\[\]]/g,'')}](${searchUrl(k,q).replace(/\(/g,'%28').replace(/\)/g,'%29')})`;
+  let any=false;
+  for(const pg of S.pages){
+    const out=[];
+    for(const a of pg.annots.filter(a=>a.t==='text').sort((a,b)=>a.y-b.y))out.push('- 📝 '+a.txt.replace(/\n/g,'\n  '));
+    const seen=new Set();
+    for(const a of pg.annots)if((a.t==='hl'||a.t==='pen')&&a.q&&!seen.has(a.g)){seen.add(a.g);out.push(a.t==='hl'?`- ==${a.q}==`:`- <u>${a.q}</u>`)}
+    const strokes=pg.annots.filter(a=>(a.t==='pen'||a.t==='hl')&&!a.q).length;
+    if(strokes)out.push(`- ✏️ 손글씨·형광펜 ${strokes}개 (PDF 원본에서 확인)`);
+    for(const a of S.acts.filter(a=>a.type==='search'&&a.page===pg.num))out.push('- '+mdLink(a.kind,a.q));
+    if(out.length){any=true;L.push(`## ${pg.num}쪽`,'',...out,'')}
+  }
+  const acts=S.acts.filter(a=>a.type!=='search').sort((a,b)=>(a.page||0)-(b.page||0)||a.created-b.created);
+  if(acts.length){
+    L.push('## 수업 활동 기록','');any=true;
+    const pct=(n,t)=>t?Math.round(n/t*100)+'%':'-';
+    for(const a of acts.filter(a=>a.type==='quiz')){
+      const tot=a.counts.reduce((x,y)=>x+y,0);
+      L.push(`### ❓ 퀴즈 · ${a.page}쪽`,'',`**${a.q.replace(/\n/g,' ')}**`,'','| 보기 | 응답 | 비율 |','|---|---|---|');
+      a.opts.forEach((o,i)=>L.push(`| ${'①②③④⑤'[i]} ${o.replace(/\|/g,'/')}${i===a.ans?' ✅':''} | ${a.counts[i]} | ${pct(a.counts[i],tot)} |`));
+      L.push('',`정답률: ${pct(a.counts[a.ans]||0,tot)} (응답 ${tot}명)`,'');
+    }
+    const checks=acts.filter(a=>a.type==='check');
+    if(checks.length){L.push('### 🚦 이해도 체크','');for(const a of checks){const t=a.c[0]+a.c[1]+a.c[2];L.push(`- ${a.page}쪽 (${pad2(new Date(a.created).getHours())}:${pad2(new Date(a.created).getMinutes())}): 😀 이해 ${a.c[0]} · 🤔 애매 ${a.c[1]} · 😵 모름 ${a.c[2]} (이해 ${pct(a.c[0],t)})`)}L.push('')}
+    const asks=acts.filter(a=>a.type==='ask');
+    if(asks.length){L.push('### 🙋 학생 질문','');for(const a of asks)L.push(`- [${a.status==='done'?'x':' '}] (${a.page}쪽) ${a.txt.replace(/\n/g,' ')}${a.who?' — '+a.who:''}${a.status==='hold'?' ⏸ 보류':''}`);L.push('')}
+    for(const a of acts.filter(a=>a.type==='ops')){
+      L.push(`### 💬 ${a.prompt||'의견 모으기'} · ${a.page}쪽`,'');
+      for(const it of a.items.slice().sort((x,y)=>y.n-x.n))L.push(`- ${it.t}${it.n>1?' (×'+it.n+')':''}`);
+      L.push('');
+    }
+  }
+  if(!any)L.push('_아직 기록된 내용이 없어요._','');
+  return L.join('\n');
+}
+function exportMd(){
+  if(!S.pdf)return;
+  const d=new Date();
+  download(new Blob([buildMd()],{type:'text/markdown;charset=utf-8'}),`${S.name}_수업노트_${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}.md`);
+  toast('마크다운 파일을 내보냈어요. 옵시디언 볼트 폴더에 넣으면 됩니다',3500);
+}
+function copyMd(){
+  if(!S.pdf)return;
+  (navigator.clipboard?navigator.clipboard.writeText(buildMd()):Promise.reject()).then(()=>toast('마크다운을 복사했어요. 옵시디언 노트에 붙여넣으세요',3500),()=>toast('복사하지 못했어요. 내보내기(.md)를 이용해 주세요',3500));
+}
+
+/* ---------- 수업 활동 (교사 입력형) ---------- */
+(()=>{
+  const drawer=$('#act'),body=$('#aBody'),bigv=$('#bigv');
+  let tab=lsGet('pdfnote.acttab')||'quiz';
+  let qmode='list',qid=null,qdraft=null,ckId=null,opsId=null,askFilter='all',opsView='card',opsWords=false;
+  const find=id=>S.acts.find(a=>a.id===id);
+  const of=t=>S.acts.filter(a=>a.type===t).sort((a,b)=>b.created-a.created);
+  const touch=a=>{a.m=Date.now();markDirty()};
+  const addAct=(type,data)=>{const a={id:uid(),type,page:S.curPage,created:Date.now(),m:Date.now(),...data};S.acts.push(a);markDirty();return a};
+  const delAct=a=>{S.acts=S.acts.filter(x=>x.id!==a.id);S.tomb[a.id]=Date.now();markDirty()};
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const CIR='①②③④⑤';
+  const showBig=txt=>{bigv.innerHTML='';bigv.append(document.createTextNode(txt));const s=document.createElement('small');s.textContent='클릭하거나 Esc를 누르면 닫혀요';bigv.append(s);bigv.classList.remove('hide')};
+  bigv.onclick=()=>bigv.classList.add('hide');
+  window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!bigv.classList.contains('hide')){bigv.classList.add('hide');e.stopPropagation()}},true);
+
+  /* --- 퀴즈 --- */
+  function rQuiz(){
+    if(qmode==='edit'){
+      const d=qdraft;
+      return `<div class="row"><b>문제 만들기</b><span style="margin-left:auto;color:var(--sub);font-size:12px">${S.curPage}쪽에 연결</span></div>
+      <textarea id="qQ" rows="3" placeholder="문제를 입력하세요">${esc(d.q)}</textarea>
+      <h4>보기 (정답에 체크)</h4>
+      ${d.opts.map((o,i)=>`<div class="row"><input type="radio" name="qa" data-a="qans" data-i="${i}" ${d.ans===i?'checked':''} title="정답"><span>${CIR[i]}</span><input type="text" data-opt="${i}" value="${esc(o)}" placeholder="보기 ${i+1}">${d.opts.length>2?`<button class="sm red" data-a="qdel" data-i="${i}">✕</button>`:''}</div>`).join('')}
+      ${d.opts.length<5?'<button class="sm" data-a="qadd">＋ 보기 추가</button>':''}
+      <div class="row" style="margin-top:14px"><button class="sm pri" data-a="qsave">저장하고 시작</button><button class="sm" data-a="qcancel">취소</button></div>`;
+    }
+    if(qmode==='run'){
+      const a=find(qid);if(!a){qmode='list';return rQuiz()}
+      const tot=a.counts.reduce((x,y)=>x+y,0);
+      return `<div class="row"><button class="sm" data-a="qlist">← 목록</button><button class="sm" data-a="qedit">✎ 수정</button><button class="sm" data-a="qtimer">⏱ 타이머</button><span style="margin-left:auto;font-size:12px;color:var(--sub)">${a.page}쪽 · 응답 ${tot}</span></div>
+      <div class="qq">${esc(a.q)}</div>
+      ${a.opts.map((o,i)=>{const p=tot?Math.round(a.counts[i]/tot*100):0;return `<div class="qo ${a.revealed?(i===a.ans?'ok':'dim'):''}" data-a="qplus" data-i="${i}"><div class="qbar" style="width:${p}%"></div><span class="qn">${CIR[i]}</span><span class="qt">${esc(o)}${a.revealed&&i===a.ans?' ✅':''}</span><span class="qc">${a.counts[i]}<small> ${p}%</small></span><button data-a="qminus" data-i="${i}" title="1 줄이기">−</button></div>`}).join('')}
+      <div class="row" style="margin-top:10px"><button class="sm pri" data-a="qreveal">${a.revealed?'정답 숨기기':'정답 공개'}</button><button class="sm" data-a="qreset">응답 초기화</button><span style="font-size:12px;color:var(--sub);margin-left:auto">키보드 1~5 = +1 (Shift = −1)</span></div>
+      ${a.revealed&&tot?`<div style="margin-top:10px;font-size:1.1em">정답률 <b>${Math.round((a.counts[a.ans]||0)/tot*100)}%</b> (${a.counts[a.ans]||0}/${tot}명)</div>`:''}`;
+    }
+    const list=of('quiz');
+    return `<div class="row"><button class="sm pri" data-a="qnew">＋ 새 퀴즈 만들기</button></div>
+    <h4>이 책의 퀴즈 (${list.length})</h4>
+    ${list.map(a=>`<div class="card2"><div style="cursor:pointer" data-a="qopen" data-id="${a.id}"><b>${esc(a.q.slice(0,60))}</b></div><div class="meta">${a.page}쪽 · 응답 ${a.counts.reduce((x,y)=>x+y,0)} <button class="sm" data-a="qopen" data-id="${a.id}">시작</button><button class="sm red" data-a="qrm" data-id="${a.id}">삭제</button></div></div>`).join('')||'<div style="color:var(--sub)">아직 퀴즈가 없어요. 문제를 만들어 수업 화면에 띄워 보세요.</div>'}`;
+  }
+  function onQuiz(el,e){
+    const a=el.dataset.a,i=+el.dataset.i;
+    if(qmode==='edit')readDraft();
+    if(a==='qnew'){qdraft={q:'',opts:['','','',''],ans:0};qid=null;qmode='edit';return true}
+    if(a==='qadd'){qdraft.opts.push('');return true}
+    if(a==='qdel'){qdraft.opts.splice(i,1);if(qdraft.ans>=qdraft.opts.length)qdraft.ans=0;return true}
+    if(a==='qans'){qdraft.ans=i;return false}
+    if(a==='qcancel'){qmode=qid?'run':'list';return true}
+    if(a==='qsave'){
+      const d=qdraft,opts=d.opts.map(x=>x.trim()),filled=opts.filter(Boolean);
+      if(!d.q.trim()||filled.length<2){toast('문제와 보기를 2개 이상 입력해 주세요');return false}
+      const keep=opts.map((x,k)=>x?k:-1).filter(k=>k>=0),ans=Math.max(0,keep.indexOf(d.ans));
+      if(qid){const q=find(qid);q.q=d.q.trim();q.opts=filled;q.ans=ans;q.counts=filled.map((_,k)=>(q.counts[keep[k]]||0));touch(q)}
+      else{const q=addAct('quiz',{q:d.q.trim(),opts:filled,ans,counts:filled.map(()=>0),revealed:false});qid=q.id}
+      qmode='run';return true}
+    if(a==='qopen'){qid=el.dataset.id;qmode='run';return true}
+    if(a==='qrm'){if(confirm('이 퀴즈를 삭제할까요?'))delAct(find(el.dataset.id));return true}
+    if(a==='qlist'){qmode='list';return true}
+    if(a==='qedit'){const q=find(qid);qdraft={q:q.q,opts:[...q.opts],ans:q.ans};qmode='edit';return true}
+    if(a==='qtimer'){$('#bTimer').click();return false}
+    const q=find(qid);
+    if(a==='qplus'){q.counts[i]++;touch(q);return true}
+    if(a==='qminus'){q.counts[i]=Math.max(0,q.counts[i]-1);touch(q);return true}
+    if(a==='qreveal'){q.revealed=!q.revealed;touch(q);return true}
+    if(a==='qreset'){if(confirm('응답 수를 모두 0으로 되돌릴까요?')){q.counts=q.counts.map(()=>0);q.revealed=false;touch(q)}return true}
+    return false;
+  }
+  function readDraft(){
+    const q=body.querySelector('#qQ');if(q)qdraft.q=q.value;
+    body.querySelectorAll('[data-opt]').forEach(x=>qdraft.opts[+x.dataset.opt]=x.value);
+  }
+
+  /* --- 이해도 체크 --- */
+  const CK=[['😀','이해했어요','#2f9e44'],['🤔','애매해요','#f08c00'],['😵','모르겠어요','#e03131']];
+  function rCheck(){
+    const a=ckId&&find(ckId),c=a?a.c:[0,0,0],tot=c[0]+c[1]+c[2];
+    const hist=of('check').filter(x=>x.id!==ckId);
+    const adv=!tot?'학생들의 손가락·카드 신호를 눌러 세어 보세요.':(c[1]+c[2])/tot>=.4?'⚠ 애매·모름이 40% 이상이에요. 한 번 더 설명해 볼까요?':(c[1]+c[2])/tot>=.2?'일부 학생이 헷갈려 해요. 예시를 하나 더 들어 주세요.':'👍 대부분 이해했어요. 다음으로 넘어가도 좋아요.';
+    return `<div class="row"><b>${S.curPage}쪽 이해도 체크</b><button class="sm" data-a="cknew" style="margin-left:auto">기록하고 새로 시작</button></div>
+    ${CK.map((k,i)=>`<div class="ck" style="background:${k[2]}" data-a="ckplus" data-i="${i}"><span style="font-size:1.5em">${k[0]}</span><span>${k[1]}</span><button data-a="ckminus" data-i="${i}">−</button><span class="n">${c[i]}</span></div>`).join('')}
+    <div class="sb">${CK.map((k,i)=>`<div style="width:${tot?c[i]/tot*100:0}%;background:${k[2]}"></div>`).join('')}</div>
+    <div style="font-size:1.05em;margin:6px 0 4px">${tot?`이해 ${Math.round(c[0]/tot*100)}% · 애매 ${Math.round(c[1]/tot*100)}% · 모름 ${Math.round(c[2]/tot*100)}% (총 ${tot})`:''}</div>
+    <div style="color:var(--sub);margin-bottom:6px">${adv}</div><div style="font-size:12px;color:var(--sub)">키보드 1·2·3 = +1 (Shift = −1)</div>
+    <h4>지난 체크 (${hist.length})</h4>
+    ${hist.map(h=>`<div class="card2"><div>${h.page}쪽 · 😀${h.c[0]} 🤔${h.c[1]} 😵${h.c[2]}</div><div class="meta">${fmtTime(h.created)} <button class="sm red" data-a="ckrm" data-id="${h.id}">삭제</button></div></div>`).join('')||'<div style="color:var(--sub)">기록이 없어요.</div>'}`;
+  }
+  function onCheck(el){
+    const a=el.dataset.a,i=+el.dataset.i;
+    if(a==='cknew'){ckId=null;return true}
+    if(a==='ckrm'){delAct(find(el.dataset.id));return true}
+    if(a==='ckplus'||a==='ckminus'){
+      let x=ckId&&find(ckId);
+      if(!x){if(a==='ckminus')return false;x=addAct('check',{c:[0,0,0]});ckId=x.id}
+      x.c[i]=Math.max(0,x.c[i]+(a==='ckplus'?1:-1));touch(x);return true}
+    return false;
+  }
+
+  /* --- 학생 질문함 --- */
+  function rAsk(){
+    const all=of('ask'),pend=all.filter(a=>a.status!=='done'),sh=all.filter(a=>askFilter==='all'||(askFilter==='wait'?a.status!=='done':a.status==='done'));
+    return `<div class="row"><textarea id="aQ" rows="2" placeholder="학생 질문 입력 (Enter = 추가, Shift+Enter = 줄바꿈)"></textarea></div>
+    <div class="row"><input type="text" id="aWho" placeholder="이름/번호 (선택)" style="flex:1"><button class="sm pri" data-a="askadd">추가</button></div>
+    <div class="row" style="margin-top:10px"><button class="sm" data-a="askrand">🎲 대기 질문 무작위 뽑기</button>
+      <span style="margin-left:auto;font-size:12px"><button class="sm ${askFilter==='all'?'pri':''}" data-a="askf" data-v="all">전체 ${all.length}</button> <button class="sm ${askFilter==='wait'?'pri':''}" data-a="askf" data-v="wait">대기 ${pend.length}</button> <button class="sm ${askFilter==='done'?'pri':''}" data-a="askf" data-v="done">완료 ${all.length-pend.length}</button></span></div>
+    <h4>질문 목록</h4>
+    ${sh.map(a=>`<div class="card2 ${a.status==='done'?'done':''}"><div style="white-space:pre-wrap">${esc(a.txt)}</div><div class="meta"><span>${a.page}쪽${a.who?' · '+esc(a.who):''}${a.status==='hold'?' · ⏸ 보류':''}</span>
+      <button class="sm" data-a="askbig" data-id="${a.id}">📺 크게</button><button class="sm" data-a="askdone" data-id="${a.id}">${a.status==='done'?'↩ 대기로':'✅ 답변함'}</button>${a.status!=='done'?`<button class="sm" data-a="askhold" data-id="${a.id}">${a.status==='hold'?'보류 해제':'⏸ 보류'}</button>`:''}<button class="sm red" data-a="askrm" data-id="${a.id}">삭제</button></div></div>`).join('')||'<div style="color:var(--sub)">질문이 없어요.</div>'}`;
+  }
+  function addAsk(){
+    const q=body.querySelector('#aQ'),w=body.querySelector('#aWho');const v=q.value.trim();if(!v)return;
+    addAct('ask',{txt:v,who:w.value.trim(),status:'wait'});q.value='';render();body.querySelector('#aQ').focus();
+  }
+  function onAsk(el){
+    const a=el.dataset.a,x=el.dataset.id&&find(el.dataset.id);
+    if(a==='askadd'){addAsk();return false}
+    if(a==='askf'){askFilter=el.dataset.v;return true}
+    if(a==='askrand'){const p=of('ask').filter(q=>q.status!=='done'&&q.status!=='hold');if(!p.length){toast('대기 중인 질문이 없어요');return false}showBig(p[Math.floor(Math.random()*p.length)].txt);return false}
+    if(a==='askbig'){showBig(x.txt+(x.who?'\n\n— '+x.who:''));return false}
+    if(a==='askdone'){x.status=x.status==='done'?'wait':'done';touch(x);return true}
+    if(a==='askhold'){x.status=x.status==='hold'?'wait':'hold';touch(x);return true}
+    if(a==='askrm'){delAct(x);return true}
+    return false;
+  }
+
+  /* --- 단답·의견 모으기 --- */
+  const PAL=['#3b6cf6','#e03131','#2f9e44','#f08c00','#ae3ec9','#0c8599','#d6336c'];
+  const hash=s=>[...s].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7);
+  function rOps(){
+    const a=opsId&&find(opsId);
+    if(!a){
+      const list=of('ops');
+      return `<div class="row"><input type="text" id="oP" placeholder="질문/주제 (예: 증발과 끓음의 차이는?)"><button class="sm pri" data-a="opnew">시작</button></div>
+      <h4>지난 의견 모음 (${list.length})</h4>
+      ${list.map(o=>`<div class="card2"><div style="cursor:pointer" data-a="opopen" data-id="${o.id}"><b>${esc(o.prompt||'(주제 없음)')}</b></div><div class="meta">${o.page}쪽 · 의견 ${o.items.reduce((s,i)=>s+i.n,0)}개 <button class="sm" data-a="opopen" data-id="${o.id}">열기</button><button class="sm red" data-a="oprm" data-id="${o.id}">삭제</button></div></div>`).join('')||'<div style="color:var(--sub)">아직 없어요.</div>'}`;
+    }
+    let items=a.items;
+    if(opsWords){const m=new Map();for(const it of a.items)for(const w of it.t.split(/[\s,.!?·~]+/)){if(w.length<2)continue;m.set(w,(m.get(w)||0)+it.n)}items=[...m].map(([t,n])=>({t,n}))}
+    const max=Math.max(1,...items.map(i=>i.n)),tot=a.items.reduce((s,i)=>s+i.n,0);
+    const view=opsView==='cloud'?`<div id="cloud2">${items.map(i=>`<span data-a="opbig" data-t="${esc(i.t)}" style="font-size:${16+Math.round(Math.sqrt(i.n/max)*(drawer.classList.contains('big')?64:34))}px;color:${PAL[hash(i.t)%PAL.length]}">${esc(i.t)}</span>`).join('')||'<span style="color:var(--sub);font-weight:400">의견을 추가하세요</span>'}</div>`
+      :`<div>${items.slice().sort((x,y)=>y.n-x.n).map(i=>`<span class="chip" data-a="opbig" data-t="${esc(i.t)}">${esc(i.t)}${i.n>1?`<b>×${i.n}</b>`:''}${opsWords?'':` <span data-a="oprmi" data-t="${esc(i.t)}" style="color:#c92a2a;margin-left:4px" title="삭제">✕</span>`}</span>`).join('')||'<span style="color:var(--sub)">의견을 추가하세요</span>'}</div>`;
+    return `<div class="row"><button class="sm" data-a="opdone">← 마치기</button><b style="flex:1">${esc(a.prompt||'의견 모으기')}</b><span style="font-size:12px;color:var(--sub)">${tot}개</span></div>
+    <div class="row"><textarea id="oIn" rows="2" placeholder="답을 입력 (Enter = 추가, 여러 줄 붙여넣기 = 줄마다 추가)"></textarea></div>
+    <div class="row"><button class="sm pri" data-a="opadd">추가</button><button class="sm ${opsView==='card'?'pri':''}" data-a="opv" data-v="card">카드</button><button class="sm ${opsView==='cloud'?'pri':''}" data-a="opv" data-v="cloud">워드클라우드</button><label style="font-size:12px;cursor:pointer"><input type="checkbox" data-a="opw" ${opsWords?'checked':''}> 단어로 쪼개기</label><button class="sm" data-a="oprand" style="margin-left:auto">🎲 하나 뽑기</button></div>
+    ${view}`;
+  }
+  function addOps(){
+    const a=find(opsId),inp=body.querySelector('#oIn');
+    const lines=inp.value.split(/\n+/).map(s=>s.trim()).filter(Boolean);if(!lines.length)return;
+    for(const t of lines){const k=t.toLowerCase();const ex=a.items.find(i=>i.t.toLowerCase()===k);if(ex)ex.n++;else a.items.push({t,n:1})}
+    touch(a);render();body.querySelector('#oIn').focus();
+  }
+  function onOps(el){
+    const a=el.dataset.a;
+    if(a==='opnew'){const p=body.querySelector('#oP').value.trim();opsId=addAct('ops',{prompt:p,items:[]}).id;return true}
+    if(a==='opopen'){opsId=el.dataset.id;return true}
+    if(a==='oprm'){if(confirm('삭제할까요?'))delAct(find(el.dataset.id));return true}
+    if(a==='opdone'){opsId=null;return true}
+    const x=find(opsId);
+    if(a==='opadd'){addOps();return false}
+    if(a==='opv'){opsView=el.dataset.v;return true}
+    if(a==='opw'){opsWords=el.checked;return true}
+    if(a==='opbig'){showBig(el.dataset.t);return false}
+    if(a==='oprmi'){x.items=x.items.filter(i=>i.t!==el.dataset.t);touch(x);return true}
+    if(a==='oprand'){if(!x.items.length)return false;const pool=x.items.flatMap(i=>Array(i.n).fill(i.t));showBig(pool[Math.floor(Math.random()*pool.length)]);return false}
+    return false;
+  }
+
+  /* --- 공통 --- */
+  function render(){
+    if(!S.pdf){body.innerHTML='<div style="color:var(--sub)">먼저 책(PDF)을 열어 주세요. 활동 기록은 책마다 저장돼요.</div>';return}
+    drawer.querySelectorAll('.atabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+    const st=body.scrollTop;
+    body.innerHTML=tab==='quiz'?rQuiz():tab==='check'?rCheck():tab==='ask'?rAsk():rOps();
+    body.scrollTop=st;
+    const ta=body.querySelector('#aQ');if(ta)ta.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addAsk()}});
+    const oi=body.querySelector('#oIn');if(oi)oi.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addOps()}});
+    const op=body.querySelector('#oP');if(op)op.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();body.querySelector('[data-a=opnew]').click()}});
+    body.querySelectorAll('input,textarea').forEach(x=>x.addEventListener('keydown',e=>e.stopPropagation()));
+  }
+  window.__actRender=()=>{if(!drawer.classList.contains('hide'))render()};
+  body.addEventListener('click',e=>{
+    const el=e.target.closest('[data-a]');if(!el||!S.pdf)return;
+    // 자식 버튼(−, ✕)이 부모 클릭보다 우선
+    let h=false;
+    if(tab==='quiz')h=onQuiz(el,e);else if(tab==='check')h=onCheck(el);else if(tab==='ask')h=onAsk(el);else h=onOps(el);
+    if(h)render();
+  });
+  body.addEventListener('change',e=>{const el=e.target.closest('[data-a=opw]');if(el&&S.pdf){if(onOps(el))render()}});
+  drawer.querySelector('.atabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(qmode==='edit')readDraft();tab=b.dataset.t;lsSet('pdfnote.acttab',tab);render()});
+  $('#aX').onclick=()=>{drawer.classList.add('hide');drawer.classList.remove('big')};
+  $('#aBig').onclick=()=>{drawer.classList.toggle('big');render()};
+  $('#bAct').onclick=()=>{
+    if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}
+    drawer.classList.toggle('hide');if(!drawer.classList.contains('hide'))render();
+  };
+  window.addEventListener('keydown',e=>{
+    if(drawer.classList.contains('hide')||e.ctrlKey||e.metaKey||e.altKey)return;
+    const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;
+    const n=+e.key;if(!(n>=1&&n<=5))return;
+    const d=e.shiftKey?-1:1;
+    if(tab==='quiz'&&qmode==='run'){const q=find(qid);if(q&&n<=q.opts.length){q.counts[n-1]=Math.max(0,q.counts[n-1]+d);touch(q);render()}}
+    else if(tab==='check'&&n<=3){let x=ckId&&find(ckId);if(!x){if(d<0)return;x=addAct('check',{c:[0,0,0]});ckId=x.id}x.c[n-1]=Math.max(0,x.c[n-1]+d);touch(x);render()}
+  });
 })();
 
 /* 시작 */
