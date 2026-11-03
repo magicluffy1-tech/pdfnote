@@ -802,7 +802,7 @@ window.addEventListener('keydown',e=>{
 viewer.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();setZoom(S.zoom*(e.deltaY<0?1.1:1/1.1))}},{passive:false});
 
 /* ---------- Google Drive ---------- */
-const DEFAULT_CID='';   // ← 여기에 OAuth 클라이언트 ID를 넣어 두면 모든 기기에서 입력할 필요가 없어요
+const DEFAULT_CID='900768185883-8lqs9sled2fp6i7m9l9e118la1gm0c7k.apps.googleusercontent.com';   // ← 여기에 OAuth 클라이언트 ID를 넣어 두면 모든 기기에서 입력할 필요가 없어요
 const SCOPE='https://www.googleapis.com/auth/drive';
 const API='https://www.googleapis.com/drive/v3',UP='https://www.googleapis.com/upload/drive/v3';
 const G={cid:'',tok:null,exp:0,state:'off',lastReauth:0};
