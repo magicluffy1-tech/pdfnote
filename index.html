@@ -185,6 +185,33 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #act select{border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;background:#fff}
 #act details{margin-top:14px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 #act summary{cursor:pointer;font-weight:600}
+#timer .tset{padding:2px 12px 10px;font-size:12px;color:#444}
+#timer .tset summary{cursor:pointer;font-weight:600}
+#timer .tset .tr{display:flex;gap:10px;align-items:center;margin-top:7px;flex-wrap:wrap}
+#timer .tset select{border:1px solid var(--line);border-radius:7px;padding:4px;font:inherit;font-size:12px;max-width:150px}
+#timer .tset button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;cursor:pointer;font-size:12px}
+#timer.mini .tset{display:none}
+#tEnd{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;background:#d9480f;cursor:pointer;padding:24px}
+@media (prefers-reduced-motion:no-preference){#tEnd{animation:tpulse 1s ease-in-out infinite alternate}}
+@keyframes tpulse{from{background:#c92a2a}to{background:#f76707}}
+#tEnd .ico{font-size:clamp(64px,14vw,170px);line-height:1}
+#tEnd .msg{font-family:"Do Hyeon","Noto Sans KR",sans-serif;font-size:clamp(46px,11vw,150px);line-height:1.15;margin:.1em 0}
+#tEnd .sub{font-size:clamp(16px,2.6vw,28px);opacity:.92;min-height:1.4em}
+#tEnd .btns{display:flex;gap:14px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+#tEnd .btns button{font:inherit;font-size:clamp(18px,2.6vw,30px);font-weight:700;padding:.5em 1.4em;border-radius:14px;border:3px solid #fff;background:#fff;color:#c92a2a;cursor:pointer}
+#tEnd .btns button+button{background:transparent;color:#fff}
+#tEnd .hintx{margin-top:22px;font-size:14px;opacity:.75}
+#act .simcard{border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:10px;background:#fff}
+#act .simcard h5{margin:0;font-size:1.08em;display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+#act .fit{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:700;color:#fff}
+#act .fit.s{background:#2f9e44}#act .fit.m{background:#f08c00}#act .fit.l{background:#868e96}
+#act .simcard .en{font-size:12px;color:var(--sub);margin:1px 0 6px}
+#act .simcard .ln{font-size:12.5px;line-height:1.55;margin:4px 0;padding-left:8px;border-left:3px solid #d8e2fb}
+#act .simcard .ln b{color:var(--acc)}
+#act .chk{background:#fff4e5;color:#b45309;border-radius:6px;padding:0 6px;font-size:11px}
+#act .opened{color:#2f9e44;font-size:12px}
+#act .fchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 11px;cursor:pointer;font-size:12.5px}
+#act .fchip.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:700}
 #bigv small{position:fixed;bottom:18px;font-size:14px;font-weight:400;opacity:.6}
 
 #clsSel,#grpSel{border:1px solid var(--line);border-radius:8px;padding:5px 6px;background:#fff;font:inherit;max-width:140px}
@@ -206,7 +233,10 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bDrive" title="Google Drive에서 PDF 열기">☁ Drive에서 열기</button>
     </div>
     <div class="grp"><select id="clsSel" title="반 선택 — 필기·수업 활동·모둠 명단이 반마다 따로 저장돼요"></select><button class="btn" id="bCls" title="반 추가·이름 바꾸기·삭제">✎ 반</button></div>
-    <span id="title" class="hide"></span>
+    <span id="title" class="hide" title="더블클릭해서 이름 바꾸기"></span>
+    <button class="btn hide" id="bUnit" title="이 책의 학년·단원 (시뮬레이션 연결에 써요)">🧪 단원 고르기</button>
+    <button class="btn hide" id="bAttach" title="칠판 노트에 교과서 PDF 붙이기">📖 교과서 붙이기</button>
+    <input type="file" id="fAttach" accept="application/pdf,.pdf" class="hide">
     <div class="sep"></div>
     <div class="grp" id="tools">
       <button class="btn" data-tool="hand" title="이동 · 스크롤 (V)">✋ 이동</button>
@@ -234,15 +264,20 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bPrev">◀</button>
       <input id="pageno" inputmode="numeric"><span id="pagecnt" style="font-size:13px;color:var(--sub)"></span>
       <button class="btn" id="bNext">▶</button>
+      <button class="btn" id="bImg" title="스크린샷·사진을 새 쪽으로 불러오기 (Ctrl+V 붙여넣기, 끌어다 놓기도 돼요)">🖼 이미지 쪽</button>
+      <input type="file" id="fImg" accept="image/*" multiple class="hide">
       <details class="menu" id="pageMenu"><summary class="btn" title="빈 칠판·모눈 쪽 끼우기">＋ 쪽</summary><div class="pop" style="left:0;right:auto;min-width:230px">
         <div class="hint" style="padding:4px 8px">현재 쪽을 기준으로 끼워 넣어요</div>
         <div style="padding:2px 8px 6px;font-size:13px"><label style="cursor:pointer"><input type="radio" name="pw" value="after" checked> 뒤에</label> &nbsp; <label style="cursor:pointer"><input type="radio" name="pw" value="before"> 앞에</label></div>
         <button class="btn" data-pk="blank">⬜ 흰 쪽</button><button class="btn" data-pk="board">🟩 칠판 쪽</button><button class="btn" data-pk="grid">▦ 모눈 쪽</button><button class="btn" data-pk="coord">➕ 좌표 쪽</button><button class="btn" data-pk="lined">📝 줄 쪽</button>
+        <button class="btn" id="pImg">🖼 이미지 쪽 (사진·스크린샷)</button>
+        <div class="hint" style="padding:2px 8px 6px">붙여넣기(Ctrl+V)나 끌어다 놓기도 돼요</div>
         <button class="btn" id="pDel" style="color:#c92a2a">🗑 이 쪽 삭제 (끼운 쪽만)</button></div></details>
     </div>
     <div class="grp" style="margin-left:auto">
       <label class="grp" style="font-size:12px;color:var(--sub);cursor:pointer" title="켜면 손가락은 스크롤만 하고 펜/마우스로만 필기합니다"><input type="checkbox" id="fingerScroll" checked>손가락=스크롤</label>
       <button class="btn" id="bGrp" title="모둠 배치기 (반별 명단·기록)">👥 모둠</button>
+      <button class="btn" id="bSim" title="단원별 PhET 시뮬레이션">🧪 시뮬</button>
       <button class="btn" id="bAct" title="퀴즈 · 이해도 체크 · 학생 질문함 · 의견 모으기">🎓 수업 활동</button>
       <button class="btn" id="bYt" title="검색어를 직접 입력해 유튜브 검색 (Y)">▶ 유튜브</button>
       <button class="btn" id="bTimer" title="수업 타이머">⏱ 타이머</button>
@@ -268,7 +303,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
   <main>
     <div id="viewer"><div id="pages"></div></div>
     <aside id="notes" class="hide"></aside>
-    <aside id="act" class="hide"><div class="ah"><div class="atabs"><button data-t="quiz">❓ 퀴즈</button><button data-t="check">🚦 이해도</button><button data-t="ask">🙋 질문함</button><button data-t="ops">💬 의견</button><button data-t="ai">📓 질문</button></div><button class="sm" id="aBig" title="크게 (프로젝터)">⤢</button><button class="sm" id="aX">✕</button></div><div class="ab" id="aBody"></div></aside>
+    <aside id="act" class="hide"><div class="ah"><div class="atabs"><button data-t="quiz">❓ 퀴즈</button><button data-t="check">🚦 이해도</button><button data-t="ask">🙋 질문함</button><button data-t="ops">💬 의견</button><button data-t="ai">📓 질문</button><button data-t="sim">🧪 시뮬</button></div><button class="sm" id="aBig" title="크게 (프로젝터)">⤢</button><button class="sm" id="aX">✕</button></div><div class="ab" id="aBody"></div></aside>
     <div id="home">
       <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="chalk" x="-5%" y="-10%" width="110%" height="125%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
       <div class="wrap">
@@ -278,15 +313,16 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
               <svg class="stroke" viewBox="0 0 440 30" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 18 C 70 6, 130 26, 200 14 S 330 8, 434 17"/></svg></h1>
             <p class="tag">교과서 위에 판서하고, 질문하고, 모둠까지 짜는 나만의 칠판</p>
             <div id="drop">
-              <div class="dz">PDF를 여기로 끌어다 놓으면 바로 열려요</div>
+              <div class="dz">PDF를 끌어다 놓거나, 책 없이 칠판부터 시작해도 돼요</div>
               <button class="btn pri" id="bOpen2">PDF 파일 열기</button>
+              <button class="btn" id="bNewBoard">🟩 칠판 노트 시작</button>
               <button class="btn" id="bOpenDrive">Google Drive에서 열기</button>
             </div>
           </div>
           <div class="ledge"><span class="chalks" aria-hidden="true"><i></i><i></i><i></i></span><span class="madeby"><span class="av" aria-hidden="true">C</span><span class="by">Made by</span><span class="nm">Cho</span></span></div>
         </header>
         <p class="homehint">필기는 이 브라우저에 자동 저장돼요. Google Drive에 연결하면 어느 기기에서나 이어서 쓸 수 있어요.</p>
-        <h3 style="margin:0 0 10px">최근 책</h3>
+        <h3 style="margin:0 0 10px">최근 책 · 칠판 노트</h3>
         <div id="recent"></div>
       </div>
     </div>
@@ -311,7 +347,12 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
   <div id="tDisp">05:00</div>
   <div class="tp" id="tPre"><button data-m="1">1분</button><button data-m="3">3분</button><button data-m="5">5분</button><button data-m="10">10분</button><button data-m="15">15분</button></div>
   <div class="tc"><input type="number" id="tM" min="0" max="180" value="5">분 <input type="number" id="tS" min="0" max="59" value="0">초 <button class="go" id="tGo">시작</button><button id="tRs">초기화</button><label style="cursor:pointer"><input type="checkbox" id="tUp">스톱워치</label></div>
+  <details class="tset"><summary>🔔 알림 설정</summary>
+    <div class="tr"><label><input type="checkbox" id="tSnd"> 🔊 소리</label><label><input type="checkbox" id="tOv"> 🖥 전체 화면 알림</label></div>
+    <div class="tr"><select id="tKind"><option value="school">딩동댕동 종소리</option><option value="alarm">삐삐삐 알람</option><option value="soft">부드러운 차임</option></select><button id="tTest">들어보기</button></div>
+  </details>
 </div>
+<div id="tEnd" class="hide" role="alertdialog" aria-live="assertive" aria-label="타이머 종료"><div class="box"><div class="ico" aria-hidden="true">⏰</div><div class="msg">시간이 끝났어요!</div><div class="sub" id="tEndSub"></div><div class="btns"><button id="tEndOk">확인</button><button id="tEnd1">1분 더</button></div><div class="hintx">화면 아무 곳이나 눌러도 닫혀요</div></div></div>
 <div id="grp" class="hide"><div class="gbar"><b>👥 모둠 배치기</b><select id="grpSel" title="반 선택"></select><button class="btn" id="grpCls" title="반 추가·이름 바꾸기·삭제">✎ 반 관리</button><span class="hint">위의 학년(반) 탭을 누르면 그 반의 명단이 열려요 · 학생 명단은 이 브라우저와 내 Drive에만 저장돼요</span><button class="btn" id="grpX" style="margin-left:auto">닫기</button></div><iframe id="grpFrame" title="모둠 배치기"></iframe></div>
 <div id="bigv" class="hide"></div>
 <div id="toast"></div>
@@ -393,7 +434,7 @@ const S={
   pdf:null,id:null,name:'',bytes:null,zoom:1.2,pages:[],tool:'pen',
   width:{pen:2,hl:16,eraser:20,text:18},
   color:{pen:'#111111',hl:'#ffd43b',text:'#111111'},
-  tomb:{},acts:[],ins:[],layers:{},cls:null,sizes:[],syncKey:null,driveId:null,md5:null,notesId:null,remoteMod:null,remoteDirty:false,fresh:false,
+  tomb:{},acts:[],ins:[],layers:{},cls:null,sizes:[],sim:null,board:false,attach:null,simAsked:false,noGuard:false,syncKey:null,driveId:null,md5:null,notesId:null,remoteMod:null,remoteDirty:false,fresh:false,
   undo:[],redo:[],dirty:false,penDown:false,fingerScroll:true,lastPage:1,curPage:1
 };
 const viewer=$('#viewer'),pagesEl=$('#pages');
@@ -418,10 +459,11 @@ const emptyLayer=()=>({annots:{},tomb:{},acts:[],ins:[]});
 function normLayer(L){L=L||{};const a={};for(const k in (L.annots||{}))a[/^\d+$/.test(k)?'p'+k:k]=L.annots[k];return {annots:a,tomb:L.tomb||{},acts:L.acts||[],ins:L.ins||[]}}
 function collectLayer(){return {annots:collect(),tomb:S.tomb,acts:S.acts,ins:S.ins}}
 function allLayers(){return {...S.layers,[S.cls]:collectLayer()}}
-const KIND_NAME={blank:'흰',board:'칠판',grid:'모눈',coord:'좌표',lined:'줄'};
+const KIND_NAME={blank:'흰',board:'칠판',grid:'모눈',coord:'좌표',lined:'줄',image:'이미지'};
 function pgn(a){const i=a&&a.pk?S.pages.findIndex(p=>p.key===a.pk):-1;return i>=0?i+1:((a&&a.page)||0)}
 function insSorted(){return S.ins.slice().sort((a,b)=>a.after-b.after||a.o-b.o)}
 function makePages(annotMap){
+  if(!S.sizes.length&&!S.ins.length&&!S.noGuard)S.ins.push({id:uid(),after:0,o:0,kind:'board',w:842,h:474,m:Date.now(),created:Date.now()});
   const n=S.sizes.length,by={};for(const x of insSorted())(by[x.after]=by[x.after]||[]).push(x);
   const seq=[];
   for(let p=0;p<=n;p++){
@@ -463,11 +505,17 @@ function paintBg(ctx,kind,W,H,s){
   }
   ctx.restore();
 }
-function drawInsBg(pg){
-  const s=S.zoom*dpr(),c=pg.pdfC;c.width=Math.floor(pg.w*s);c.height=Math.floor(pg.h*s);
-  paintBg(c.getContext('2d'),pg.ins.kind,pg.w,pg.h,s);pg.rendered=true;pg.renderedZoom=S.zoom;
+async function drawInsBg(pg){
+  const s=S.zoom*dpr(),c=pg.pdfC,w=Math.floor(pg.w*s),h=Math.floor(pg.h*s);
+  if(pg.ins.kind!=='image'){c.width=w;c.height=h;paintBg(c.getContext('2d'),pg.ins.kind,pg.w,pg.h,s);pg.rendered=true;pg.renderedZoom=S.zoom;return}
+  const token=++pg.token;
+  const im=await getImage(pg.ins.img);
+  if(token!==pg.token)return;
+  c.width=w;c.height=h;const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+  if(im){ctx.imageSmoothingQuality='high';ctx.drawImage(im.bmp,0,0,w,h);pg.rendered=true;pg.renderedZoom=S.zoom}
+  else{ctx.fillStyle='#8a94a6';ctx.font=`${15*s}px sans-serif`;ctx.textAlign='center';ctx.fillText('이미지를 불러오는 중…  (Drive 동기화 후 나타나요)',w/2,h/2)}
 }
-function insertPage(kind,where){
+function insertPage(kind,where,extra){
   if(!S.pdf)return;const cp=S.pages[S.curPage-1];if(!cp)return;
   const list=a=>insSorted().filter(x=>x.after===a);
   let anchor,k;
@@ -475,8 +523,8 @@ function insertPage(kind,where){
   else{anchor=cp.ins.after;const L=list(anchor),j=L.findIndex(y=>y.id===cp.ins.id);k=where==='before'?j:j+1}
   const L=list(anchor);let o;
   if(!L.length)o=0;else if(k<=0)o=L[0].o-1;else if(k>=L.length)o=L[L.length-1].o+1;else o=(L[k-1].o+L[k].o)/2;
-  const ref=S.sizes[Math.max(0,Math.min(anchor,S.sizes.length)-1)]||S.sizes[0];
-  const x={id:uid(),after:anchor,o,kind,w:ref[0],h:ref[1],m:Date.now(),created:Date.now()};
+  const ref=S.sizes[Math.max(0,Math.min(anchor,S.sizes.length)-1)]||S.sizes[0]||[842,474];
+  const x={id:uid(),after:anchor,o,kind,w:ref[0],h:ref[1],m:Date.now(),created:Date.now(),...(extra||{})};
   const ann=collect();S.ins.push(x);
   rebuildPages(ann,'b'+x.id);markDirty();
   toast(kind==='board'?'칠판 쪽을 끼웠어요. 펜 색을 흰색이나 노랑으로 바꿔 쓰세요':`${KIND_NAME[kind]} 쪽을 끼웠어요`,3500);
@@ -484,6 +532,7 @@ function insertPage(kind,where){
 function deleteInsPage(){
   const cp=S.pages[S.curPage-1];
   if(!cp||!cp.ins){toast('끼워 넣은 쪽만 삭제할 수 있어요. (교과서 원본 쪽은 삭제되지 않아요)');return}
+  if(!S.sizes.length&&S.pages.length<=1){toast('마지막 한 쪽은 삭제할 수 없어요. 다른 쪽을 먼저 추가해 주세요');return}
   if(cp.annots.length&&!confirm('이 쪽의 필기도 함께 삭제돼요. 삭제할까요?'))return;
   const ann=collect();delete ann[cp.key];
   S.tomb[cp.ins.id]=Date.now();S.ins=S.ins.filter(x=>x.id!==cp.ins.id);
@@ -514,8 +563,8 @@ function renderClassUi(){
 /* ---------- IndexedDB ---------- */
 const DB={
   db:null,
-  open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);const r=indexedDB.open('pdfnote',1);
-    r.onupgradeneeded=()=>{r.result.createObjectStore('docs',{keyPath:'id'});r.result.createObjectStore('files')};
+  open(){return new Promise((res,rej)=>{if(this.db)return res(this.db);const r=indexedDB.open('pdfnote',2);
+    r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('docs'))d.createObjectStore('docs',{keyPath:'id'});if(!d.objectStoreNames.contains('files'))d.createObjectStore('files');if(!d.objectStoreNames.contains('imgs'))d.createObjectStore('imgs')};
     r.onsuccess=()=>{this.db=r.result;res(r.result)};r.onerror=()=>rej(r.error)})},
   async tx(store,mode,fn){const db=await this.open();return new Promise((res,rej)=>{const t=db.transaction(store,mode);const st=t.objectStore(store);const rq=fn(st);t.oncomplete=()=>res(rq&&rq.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})},
   get:(s,k)=>DB.tx(s,'readonly',st=>st.get(k)),
@@ -533,16 +582,18 @@ async function showHome(){
   setStatus('열린 책 없음');
   const list=(await DB.all('docs')).sort((a,b)=>b.updated-a.updated);
   const box=$('#recent');box.innerHTML='';
-  if(!list.length){box.innerHTML='<div style="color:var(--sub)">아직 연 책이 없어요.</div>';showRemoteList(list);return}
+  if(!list.length){box.innerHTML='<div style="color:var(--sub)">아직 연 책이나 칠판 노트가 없어요.</div>';showRemoteList(list);return}
   for(const d of list){
     const cnt=o=>Object.values(o||{}).reduce((a,l)=>a+l.length,0);const n=d.layers?Object.values(d.layers).reduce((s,L)=>s+cnt(L.annots),0):cnt(d.annots);
     const el=document.createElement('div');el.className='rec';
-    el.innerHTML=`<div style="font-size:26px">${d.driveId?'☁️':'📘'}</div><div class="n"><b></b><small>${d.pages}쪽 · 필기 ${n}개 · ${fmtSize(d.size||0)} · ${fmtTime(d.updated)}${d.hasFile?'':' · (파일 미보관)'}</small></div><button class="btn">삭제</button>`;
+    const insN=d.layers?Math.max(0,...Object.values(d.layers).map(L=>(L.ins||[]).length)):0;
+    el.innerHTML=`<div style="font-size:26px">${d.board?'🟩':d.driveId?'☁️':'📘'}</div><div class="n"><b></b><small>${d.board?'칠판 노트 · '+((d.pages||0)+insN)+'쪽':d.pages+'쪽'} · 필기 ${n}개 · ${d.board?'':fmtSize(d.size||0)+' · '}${fmtTime(d.updated)}${(d.hasFile||d.board)?'':' · (파일 미보관)'}</small></div><button class="btn">삭제</button>`;
     el.querySelector('b').textContent=d.name;
     el.addEventListener('click',async e=>{
       if(e.target.tagName==='BUTTON'){
         if(confirm(`"${d.name}"와 이 책의 필기를 앱에서 삭제할까요?\n(되돌릴 수 없어요)`)){await DB.del('docs',d.id);await DB.del('files',d.id);showHome()}
         return}
+      if(d.board){openBoard({rec:d});return}
       const blob=await DB.get('files',d.id);
       if(!blob){toast('PDF 파일이 보관돼 있지 않아요. 같은 PDF를 다시 열면 필기가 이어집니다.',3500);return}
       openBlob(blob,d.name,{driveId:d.driveId,md5:d.md5})
@@ -557,7 +608,7 @@ function closeDoc(){
   if(io){io.disconnect();io=null}
   for(const pg of S.pages){if(pg.task)try{pg.task.cancel()}catch(e){}}
   if(S.pdf){try{S.pdf.destroy()}catch(e){}}
-  S.pdf=null;S.pages=[];S.id=null;S.bytes=null;S.tomb={};S.acts=[];S.ins=[];S.layers={};S.cls=null;S.sizes=[];S.syncKey=S.driveId=S.md5=S.notesId=S.remoteMod=null;S.remoteDirty=false;S.undo=[];S.redo=[];S.dirty=false;
+  S.pdf=null;S.pages=[];S.id=null;S.bytes=null;S.tomb={};S.acts=[];S.ins=[];S.layers={};S.cls=null;S.sizes=[];S.sim=null;S.board=false;S.attach=null;S.simAsked=false;S.noGuard=false;S.syncKey=S.driveId=S.md5=S.notesId=S.remoteMod=null;S.remoteDirty=false;S.undo=[];S.redo=[];S.dirty=false;
   pagesEl.innerHTML='';updateUndo();
 }
 async function openBlob(blob,name,opts={}){
@@ -574,6 +625,7 @@ async function openBlob(blob,name,opts={}){
     else if(rec&&(rec.annots||rec.acts)){legacy=true;layers={[CFG.active]:{annots:rec.annots||{},tomb:rec.tomb||{},acts:rec.acts||[],ins:[]}}}
     S.cls=CFG.classes.some(c=>c.id===CFG.active)?CFG.active:CFG.classes[0].id;CFG.active=S.cls;
     const L=normLayer(layers[S.cls]);S.layers={};for(const k in layers)if(k!==S.cls)S.layers[k]=normLayer(layers[k]);
+    S.sim=(rec&&rec.sim)||null;S.simAsked=!!(rec&&rec.simAsked);
     S.tomb=L.tomb;S.acts=L.acts;S.ins=L.ins;S.notesId=rec&&rec.notesId||null;S.remoteMod=rec&&rec.remoteMod||null;S.remoteDirty=!!(rec&&rec.remoteDirty);S.fresh=!rec;
     // 쪽 크기 읽기
     const n=pdf.numPages,sizes=new Array(n);
@@ -598,7 +650,7 @@ async function openBlob(blob,name,opts={}){
     setStatus(rec?'필기 불러옴 ✓':'저장됨 ✓');
     if(legacy&&(Object.keys(L.annots).length||L.acts.length))toast(`기존 필기를 ‘${activeClass().name}’ 필기장으로 옮겼어요. 위쪽 반 선택에서 반을 바꾸면 다른 필기장이 열려요`,7000);
     else if(rec&&(Object.keys(L.annots).length||L.ins.length))toast('이전에 하던 필기를 불러왔어요');
-    scheduleSync(300);
+    scheduleSync(300);updateDocUi();setTimeout(maybeAskUnit,400);
   }catch(err){console.error(err);toast('PDF를 열 수 없어요: '+(err.message||err),4000);closeDoc();$('#home').classList.remove('hide')}
   finally{busy('')}
 }
@@ -630,6 +682,7 @@ function buildPages(){
   }
 }
 function sizePage(pg){pg.el.style.width=pg.w*S.zoom+'px';pg.el.style.height=pg.h*S.zoom+'px'}
+const adjInk=(c,pg)=>(pg&&pg.ins&&pg.ins.kind==='board'&&String(c).toLowerCase()==='#111111')?'#f3f5ef':c;
 const dpr=()=>Math.min(window.devicePixelRatio||1,2);
 function ensure(pg){sizeAnn(pg);renderPdf(pg);if(S.tool==='select')buildText(pg)}
 function release(pg){
@@ -756,7 +809,7 @@ function onDown(e,pg){
   if(tool==='text'){const p=pt(e,pg);createText(pg,p[0],p[1]);return}
   if(tool==='eraser'){cur={kind:'erase',pg,id:e.pointerId,removed:[]};eraseAt(e,pg);return}
   const p=pt(e,pg);
-  const ann={id:uid(),t:tool==='hl'?'hl':'pen',c:S.color[tool],w:S.width[tool],pts:[p],m:Date.now()};
+  const ann={id:uid(),t:tool==='hl'?'hl':'pen',c:adjInk(S.color[tool],pg),w:S.width[tool],pts:[p],m:Date.now()};
   cur={kind:'stroke',pg,id:e.pointerId,ann};scheduleLive();
 }
 function onMove(e,pg){
@@ -847,7 +900,7 @@ function makeBox(pg,a,isNew){
   return el;
 }
 function createText(pg,x,y){
-  const a={id:uid(),t:'text',x,y,txt:'',c:S.color.text,s:S.width.text,m:Date.now()};
+  const a={id:uid(),t:'text',x,y,txt:'',c:adjInk(S.color.text,pg),s:S.width.text,m:Date.now()};
   const el=makeBox(pg,a,true);pg.tl.appendChild(el);
   setTimeout(()=>startEdit(pg,el,a,true),0);
 }
@@ -908,7 +961,7 @@ async function saveNow(silent){
   try{
     const prev=await DB.get('docs',S.id)||{};
     const cut=Date.now()-90*864e5;for(const k in S.tomb)if(S.tomb[k]<cut)delete S.tomb[k];
-    const rec={...prev,id:S.id,name:S.name,pages:S.sizes.length,layers:allLayers(),updated:Date.now(),lastPage:S.lastPage,zoom:S.zoom,driveId:S.driveId,syncKey:S.syncKey,notesId:S.notesId,remoteMod:S.remoteMod,remoteDirty:S.remoteDirty};
+    const rec={...prev,id:S.id,name:S.name,pages:S.sizes.length,layers:allLayers(),sim:S.sim,simAsked:S.simAsked,board:S.board,attach:S.attach,updated:Date.now(),lastPage:S.lastPage,zoom:S.zoom,driveId:S.driveId,syncKey:S.syncKey,notesId:S.notesId,remoteMod:S.remoteMod,remoteDirty:S.remoteDirty};
     delete rec.annots;delete rec.tomb;delete rec.acts;await DB.put('docs',rec);
     S.dirty=false;const d=new Date();setStatus(`저장됨 ✓ ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
     if(silent!==true&&saveNow.manual){toast('저장했어요');saveNow.manual=false}
@@ -937,10 +990,13 @@ function refreshNotes(){
 
 /* ---------- 내보내기 / 가져오기 ---------- */
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
-function exportJson(){
+async function exportJson(){
   if(!S.pdf)return;
   const names={};for(const c of CFG.classes)names[c.id]=c.name;
-  download(new Blob([JSON.stringify({app:'pdfnote',version:3,id:S.id,name:S.name,pages:S.sizes.length,classes:names,layers:allLayers()})],{type:'application/json'}),S.name+'_필기.json');
+  const images={};
+  for(const id of imgIds()){const r=await DB.get('imgs',id);if(!r)continue;
+    images[id]={w:r.w,h:r.h,dataUrl:await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(r.blob)})}}
+  download(new Blob([JSON.stringify({app:'pdfnote',version:3,id:S.id,name:S.name,pages:S.sizes.length,classes:names,layers:allLayers(),images})],{type:'application/json'}),S.name+'_필기.json');
 }
 async function importJson(file){
   try{
@@ -948,6 +1004,7 @@ async function importJson(file){
     if(j.app!=='pdfnote')throw new Error('이 앱에서 내보낸 필기 파일이 아니에요');
     const all=!!j.layers;
     if(!confirm(all?'이 책의 모든 반 필기를 불러온 파일의 내용으로 바꿀까요?\n(되돌릴 수 없어요)':`현재 반(${activeClass().name})의 필기를 불러온 파일의 필기로 바꿀까요?\n(되돌릴 수 없어요)`))return;
+    if(j.images)for(const id in j.images){const d=j.images[id];const bl=await (await fetch(d.dataUrl)).blob();await putImg(id,bl,d.w,d.h);IMGC.delete(id)}
     const keyNow=(S.pages[S.curPage-1]||{}).key;let L;
     if(all){S.layers={};for(const k in j.layers)if(k!==S.cls)S.layers[k]=normLayer(j.layers[k]);L=normLayer(j.layers[S.cls])}
     else L={annots:normLayer({annots:j.annots}).annots,tomb:{},acts:S.acts,ins:S.ins};
@@ -959,7 +1016,7 @@ async function exportPdf(){
   if(!S.pdf)return;
   busy('필기를 PDF에 합치는 중…');
   try{
-    const doc=await PDFLib.PDFDocument.load(S.bytes.slice(0),{ignoreEncryption:true});
+    const doc=S.bytes?await PDFLib.PDFDocument.load(S.bytes.slice(0),{ignoreEncryption:true}):await PDFLib.PDFDocument.create();
     const orig=doc.getPages();let skipped=0,done=0,pos=0;
     const SC=2;
     const overlay=async(page,pg,withBg)=>{
@@ -987,7 +1044,11 @@ async function exportPdf(){
         await overlay(page,pg,false);
       }else{
         const page=doc.insertPage(pos,[pg.w,pg.h]);pos++;
-        if(pg.ins.kind!=='blank'||pg.annots.length)await overlay(page,pg,true);
+        if(pg.ins.kind==='image'){
+          const im=await getImage(pg.ins.img);
+          if(im){const bytes=new Uint8Array(await im.blob.arrayBuffer());const emb=im.blob.type==='image/png'?await doc.embedPng(bytes):await doc.embedJpg(bytes);page.drawImage(emb,{x:0,y:0,width:pg.w,height:pg.h})}
+          if(pg.annots.length)await overlay(page,pg,false);
+        }else if(pg.ins.kind!=='blank'||pg.annots.length)await overlay(page,pg,true);
       }
       done++;busy(`필기를 PDF에 합치는 중… ${done}쪽`);
       await new Promise(r=>setTimeout(r));
@@ -1057,7 +1118,7 @@ $('#mClear').onclick=()=>{closeMenu();clearAll()};
 const drop=$('#drop');
 window.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
 window.addEventListener('dragleave',e=>{if(!e.relatedTarget)drop.classList.remove('over')});
-window.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');const f=e.dataTransfer.files[0];if(f)openFile(f)});
+window.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');const fs=[...e.dataTransfer.files];const im=fs.filter(f=>/^image\//.test(f.type));if(S.pdf&&im.length){insertImages(im,'after');return}const f=fs[0];if(f)openFile(f)});
 
 /* 키보드 단축키 / 휠 줌 */
 window.addEventListener('keydown',e=>{
@@ -1149,7 +1210,7 @@ async function findNotes(key){
   const r=await (await gapi(`${API}/files?q=${enc(q)}&orderBy=${enc('modifiedTime desc')}&pageSize=1&fields=files(id,modifiedTime)&supportsAllDrives=true&includeItemsFromAllDrives=true`)).json();
   return r.files&&r.files[0]||null;
 }
-function payload(){return {app:'pdfnote',version:3,syncKey:S.syncKey,name:S.name,pages:S.sizes.length,lastPage:S.lastPage,zoom:S.zoom,updated:Date.now(),layers:allLayers()}}
+function payload(){return {app:'pdfnote',version:3,syncKey:S.syncKey,name:S.name,pages:S.sizes.length,lastPage:S.lastPage,zoom:S.zoom,updated:Date.now(),layers:allLayers(),sim:S.sim,board:S.board,attach:S.attach}}
 async function pushNotes(retry=true){
   const body=JSON.stringify(payload());
   try{
@@ -1157,7 +1218,7 @@ async function pushNotes(retry=true){
       return await (await gapi(`${UP}/files/${S.notesId}?uploadType=media&fields=id,modifiedTime&supportsAllDrives=true`,{method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body})).json();
     }
     const folder=await notesFolder();
-    const meta={name:S.name+'.필기.json',mimeType:'application/json',parents:[folder],appProperties:{pdfnoteKind:'notes',pdfnoteId:S.syncKey,pdfnoteSrc:S.driveId?'drive':'local'}};
+    const meta={name:S.name+'.필기.json',mimeType:'application/json',parents:[folder],appProperties:{pdfnoteKind:'notes',pdfnoteId:S.syncKey,pdfnoteSrc:S.board?'board':(S.driveId?'drive':'local')}};
     const b='pn'+uid();
     const mp=`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${body}\r\n--${b}--`;
     return await (await gapi(`${UP}/files?uploadType=multipart&fields=id,modifiedTime&supportsAllDrives=true`,{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:mp})).json();
@@ -1185,6 +1246,8 @@ function mergeLayerData(L,R){
 }
 /* 두 기기의 필기를 합침: 반(필기장)마다 따로, 같은 id는 최신(m) 우선, 삭제 표시(tomb)는 이후에 수정되지 않았다면 우선 */
 function mergeRemote(remote){
+  if(!S.sim&&remote.sim){S.sim=remote.sim;updateDocUi()}
+  if(S.board&&!S.attach&&remote.attach){S.attach=remote.attach;tryAutoAttach()}
   const rl=remote.layers||{[S.cls]:{annots:remote.annots,tomb:remote.tomb,acts:remote.acts}};
   const keyNow=(S.pages[S.curPage-1]||{}).key;let any=false;
   for(const cid in rl){
@@ -1237,13 +1300,14 @@ async function syncDoc(){
     }
     if(merged)S.remoteDirty=S.remoteDirty;
     await saveNow(true);
+    try{await syncImages()}catch(ie){console.warn('image sync',ie)}
     setCloud('ok');
   }catch(e){
     console.error(e);
     if(e.auth)setCloud('auth',e.message);
     else if(!navigator.onLine)setCloud('offline');
     else setCloud('err',e.message);
-  }finally{syncing=false;if(syncAgain){syncAgain=false;scheduleSync(600)}}
+  }finally{syncing=false;if(S.noGuard){S.noGuard=false;if(!S.sizes.length&&!S.ins.length){try{rebuildPages(collect(),null)}catch(e){}}}if(syncAgain){syncAgain=false;scheduleSync(600)}}
 }
 window.addEventListener('online',()=>scheduleSync(500));
 window.addEventListener('offline',()=>{if(S.pdf&&G.state!=='off')setCloud('offline')});
@@ -1339,16 +1403,17 @@ async function showRemoteList(local){
     const r=await (await gapi(`${API}/files?q=${enc(q)}&orderBy=${enc('modifiedTime desc')}&pageSize=100&fields=files(id,name,modifiedTime,appProperties)&supportsAllDrives=true&includeItemsFromAllDrives=true`)).json();
     if(S.pdf)return;
     const have=new Set(local.map(d=>d.id));
-    const rest=(r.files||[]).filter(f=>f.appProperties&&f.appProperties.pdfnoteSrc==='drive'&&!have.has('drive:'+f.appProperties.pdfnoteId));
+    const rest=(r.files||[]).filter(f=>f.appProperties&&(f.appProperties.pdfnoteSrc==='drive'||f.appProperties.pdfnoteSrc==='board')&&!have.has((f.appProperties.pdfnoteSrc==='board'?'':'drive:')+f.appProperties.pdfnoteId));
     if(!rest.length)return;
     const box=$('#recent');
     if(!local.length)box.innerHTML='';
     const h=document.createElement('div');h.className='hint';h.style.margin='14px 0 8px';h.textContent='☁ 다른 기기에서 작업한 책 (이 기기에는 아직 없어요)';box.appendChild(h);
     for(const f of rest){
       const el=document.createElement('div');el.className='rec';
-      el.innerHTML=`<div style="font-size:26px">☁️</div><div class="n"><b></b><small>${fmtTime(f.modifiedTime)} 마지막 저장</small></div>`;
+      const isB=f.appProperties.pdfnoteSrc==='board';
+      el.innerHTML=`<div style="font-size:26px">${isB?'🟩':'☁️'}</div><div class="n"><b></b><small>${isB?'칠판 노트 · ':''}${fmtTime(f.modifiedTime)} 마지막 저장</small></div>`;
       el.querySelector('b').textContent=f.name.replace(/\.필기\.json$/,'');
-      el.onclick=()=>openDrivePdf({id:f.appProperties.pdfnoteId});
+      el.onclick=()=>isB?openBoard({id:f.appProperties.pdfnoteId,name:f.name.replace(/\.필기\.json$/,'')}):openDrivePdf({id:f.appProperties.pdfnoteId});
       box.appendChild(el);
     }
   }catch(e){console.warn('remote list',e)}
@@ -1549,26 +1614,78 @@ function markSel(kind,info){
     $('#tGo').textContent=T.running?'일시정지':'시작';
     document.querySelectorAll('#tPre button').forEach(b=>b.classList.toggle('on',!T.up&&+b.dataset.m*60===T.dur));
   }
-  function beep(){
+  function beepOld(){
     try{const ac=new (window.AudioContext||window.webkitAudioContext)();
       [0,.35,.7,1.2,1.55,1.9].forEach((t0,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='sine';o.frequency.value=i<3?880:1175;o.connect(g);g.connect(ac.destination);
         g.gain.setValueAtTime(0,ac.currentTime+t0);g.gain.linearRampToValueAtTime(.35,ac.currentTime+t0+.02);g.gain.linearRampToValueAtTime(0,ac.currentTime+t0+.28);o.start(ac.currentTime+t0);o.stop(ac.currentTime+t0+.3)});
       setTimeout(()=>ac.close(),3000)}catch(_){}
   }
+  /* --- 알림: 소리 + 전체 화면 --- */
+  const prefs={snd:true,ov:true,kind:'school'};
+  try{Object.assign(prefs,JSON.parse(lsGet('pdfnote.talarm')||'{}'))}catch(_){}
+  const savePrefs=()=>lsSet('pdfnote.talarm',JSON.stringify(prefs));
+  let AC=null;
+  function ac(){
+    if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){return null}}
+    if(AC.state==='suspended'){try{AC.resume()}catch(_){}}
+    return AC;
+  }
+  window.__tAudio=()=>AC&&AC.state;
+  document.addEventListener('pointerdown',()=>{if(AC&&AC.state==='suspended'){try{AC.resume()}catch(_){}}},true);
+  function note(c,f,t0,d,amp,type){
+    const o=c.createOscillator(),g=c.createGain();o.type=type||'sine';o.frequency.value=f;o.connect(g);g.connect(c.destination);
+    const s=c.currentTime+t0;g.gain.setValueAtTime(.0001,s);g.gain.linearRampToValueAtTime(amp,s+.015);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.start(s);o.stop(s+d+.05);
+  }
+  function playKind(kind){
+    const c=ac();if(!c)return 0;
+    if(kind==='school'){[[659.25,0],[523.25,.85],[587.33,1.7],[392,2.55]].forEach(([f,t])=>{note(c,f,t,1.7,.3);note(c,f*2,t,1.1,.1);note(c,f*3,t,.6,.05)});return 4.4}
+    if(kind==='alarm'){for(let r=0;r<2;r++)for(let i=0;i<4;i++)note(c,1000,r*1.15+i*.22,.14,.22,'square');return 2.5}
+    [523.25,659.25,783.99,1046.5].forEach((f,i)=>{note(c,f,i*.28,1.3,.3);note(c,f*2,i*.28,.7,.07)});return 2.7;
+  }
+  let alarming=false,alarmTimer=null,wl=null,oldTitle=document.title;
+  function startAlarm(){
+    if(!prefs.snd)return;alarming=true;let reps=0;
+    const loop=()=>{if(!alarming||reps>=5)return;reps++;const d=playKind(prefs.kind);alarmTimer=setTimeout(loop,(d+1.2)*1000)};loop();
+  }
+  function stopAlarm(){alarming=false;clearTimeout(alarmTimer)}
+  function showEnd(){
+    $('#tEndSub').textContent=(T.up?'':fmt(T.dur)+' 타이머가 끝났어요')+((prefs.snd&&AC&&AC.state!=='running')?' · 소리가 안 나면 화면을 한 번 터치하세요':'');
+    $('#tEnd').classList.remove('hide');document.title='⏰ 시간이 끝났어요! — 수업판';
+  }
+  function hideEnd(){$('#tEnd').classList.add('hide');stopAlarm();if(document.title.startsWith('⏰'))document.title=oldTitle}
+  function onFinish(){
+    el.classList.add('done');setTimeout(()=>el.classList.remove('done'),8000);
+    if(prefs.ov)showEnd();
+    startAlarm();
+    try{navigator.vibrate&&navigator.vibrate([500,250,500,250,500])}catch(_){}
+  }
+  async function getWake(){try{if(navigator.wakeLock&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(_){}}
+  function releaseWake(){try{wl&&wl.release()}catch(_){}wl=null}
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&T.running)getWake()});
+  $('#tEnd').addEventListener('click',e=>{if(e.target.closest('#tEnd1'))return;hideEnd()});
+  $('#tEnd1').addEventListener('click',e=>{e.stopPropagation();hideEnd();T.up=false;$('#tUp').checked=false;T.left=60;startT()});
+  $('#tEndOk').addEventListener('click',e=>{e.stopPropagation();hideEnd()});
+  window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#tEnd').classList.contains('hide'))hideEnd()},true);
+  $('#tSnd').checked=!!prefs.snd;$('#tOv').checked=!!prefs.ov;$('#tKind').value=prefs.kind;
+  $('#tSnd').onchange=e=>{prefs.snd=e.target.checked;savePrefs();if(prefs.snd)ac()};
+  $('#tOv').onchange=e=>{prefs.ov=e.target.checked;savePrefs()};
+  $('#tKind').onchange=e=>{prefs.kind=e.target.value;savePrefs();stopAlarm();playKind(prefs.kind)};
+  $('#tTest').onclick=()=>{stopAlarm();const d=playKind(prefs.kind);if(!d)toast('이 기기에서는 소리를 낼 수 없어요');else if(AC&&AC.state!=='running')toast('소리가 안 나면 기기 볼륨과 무음 모드를 확인해 주세요',3500)};
+  $('#tEndOk').setAttribute('type','button');
   function tick(){
     if(T.up)T.elapsed=(Date.now()-T.start)/1000;
-    else{T.left=Math.max(0,(T.end-Date.now())/1000);if(T.left<=0){pause();el.classList.add('done');beep();setTimeout(()=>el.classList.remove('done'),8000)}}
+    else{T.left=Math.max(0,(T.end-Date.now())/1000);if(T.left<=0){pause();onFinish()}}
     render();
   }
   function startT(){
-    el.classList.remove('done');
+    ac();getWake();el.classList.remove('done');
     if(T.up)T.start=Date.now()-T.elapsed*1000;else{if(T.left<=0)T.left=T.dur;T.end=Date.now()+T.left*1000}
     T.running=true;clearInterval(T.iv);T.iv=setInterval(tick,200);render();
   }
-  function pause(){T.running=false;clearInterval(T.iv);render()}
-  function reset(){pause();el.classList.remove('done');T.left=T.dur;T.elapsed=0;render()}
+  function pause(){T.running=false;clearInterval(T.iv);releaseWake();render()}
+  function reset(){pause();hideEnd();el.classList.remove('done');T.left=T.dur;T.elapsed=0;render()}
   function setDur(sec){T.dur=Math.max(1,Math.min(sec,3*3600));lsSet('pdfnote.tdur',String(T.dur));T.left=T.dur;$('#tM').value=Math.floor(T.dur/60);$('#tS').value=T.dur%60;if(T.running&&!T.up)startT();else{T.elapsed=0;render()}}
-  $('#tGo').onclick=()=>T.running?pause():startT();
+  $('#tGo').onclick=()=>{ac();T.running?pause():startT()};
   $('#tRs').onclick=reset;
   $('#tPre').onclick=e=>{const b=e.target.closest('button');if(!b)return;$('#tUp').checked=false;T.up=false;setDur(+b.dataset.m*60)};
   const fromInputs=()=>{const s=(+$('#tM').value||0)*60+(+$('#tS').value||0);if(s>0)setDur(s)};
@@ -1592,6 +1709,7 @@ function markSel(kind,info){
 })();
 
 
+const SIMDATA=[{"g":1,"u":"1. 과학과 인류의 지속가능한 삶","std":[{"c":"9과01-01","s":"과학적 탐구 방법 이해, 문제 해결 방안 제안","use":"PhET 공통 탐구 활동(변인 통제 등)으로 대체 가능","sims":[]},{"c":"9과01-02","s":"과학 발전이 문명에 미친 영향, 첨단 기술 조사·발표","use":"","sims":[]},{"c":"9과01-03","s":"지속가능한 삶을 위한 과학기술 토의·실천","use":"온실가스 변화에 따른 지구 온도 변화를 근거로 토의","sims":[{"k":"greenhouse-effect","n":"The Greenhouse Effect","ko":"온실 효과","url":"https://phet.colorado.edu/ko/simulations/greenhouse-effect","f":"하"}]}]},{"g":1,"u":"2. 생물의 구성과 다양성","std":[{"c":"9과02-01","s":"세포의 구조와 기능","use":"","sims":[]},{"c":"9과02-02","s":"생물의 유기적 구성, 동물·식물 비교","use":"","sims":[]},{"c":"9과02-03","s":"생물다양성과 변이의 관계 추론","use":"토끼 털색·이빨 변이가 개체수에 미치는 영향 관찰(변이 개념 도입)","sims":[{"k":"natural-selection","n":"Natural Selection","ko":"자연선택","url":"https://phet.colorado.edu/ko/simulations/natural-selection","f":"중"}]},{"c":"9과02-04","s":"종·분류 체계, 계 수준 분류","use":"","sims":[]},{"c":"9과02-05","s":"생물다양성 보전 방안","use":"","sims":[]}]},{"g":1,"u":"3. 열","std":[{"c":"9과03-01","s":"온도와 열평형을 입자 배치·움직임으로 설명","use":"물체를 접촉시켜 열평형 관찰 / 온도에 따른 입자 운동 비교","sims":[{"k":"energy-forms-and-changes","n":"Energy Forms and Changes","ko":"에너지의 형태와 변화","url":"https://phet.colorado.edu/ko/simulations/energy-forms-and-changes","f":"상"},{"k":"states-of-matter-basics","n":"States of Matter: Basics","ko":"물질의 상태: 기초편","url":"https://phet.colorado.edu/ko/simulations/states-of-matter-basics","f":"중"}]},{"c":"9과03-02","s":"전도·대류·복사, 열전달 모형 표현","use":"전도(블록-물 사이 열 이동) / 복사(적외선) 사례","sims":[{"k":"energy-forms-and-changes","n":"Energy Forms and Changes","ko":"에너지의 형태와 변화","url":"https://phet.colorado.edu/ko/simulations/energy-forms-and-changes","f":"중"},{"k":"greenhouse-effect","n":"The Greenhouse Effect","ko":"온실 효과","url":"https://phet.colorado.edu/ko/simulations/greenhouse-effect","f":"중"}]},{"c":"9과03-03","s":"비열·열팽창 차이와 활용","use":"철·벽돌·물·올리브유를 같은 열로 가열해 비열 비교(열팽창은 없음)","sims":[{"k":"energy-forms-and-changes","n":"Energy Forms and Changes","ko":"에너지의 형태와 변화","url":"https://phet.colorado.edu/ko/simulations/energy-forms-and-changes","f":"상"}]}]},{"g":1,"u":"4. 물질의 상태 변화","std":[{"c":"9과04-01","s":"확산·증발 관찰, 입자 운동 추론","use":"두 기체의 확산 속도를 온도·입자 질량별로 비교","sims":[{"k":"diffusion","n":"Diffusion","ko":"확산","url":"https://phet.colorado.edu/ko/simulations/diffusion","f":"상"}]},{"c":"9과04-02","s":"세 가지 상태의 특징, 입자 모형","use":"고체·액체·기체 입자 배열과 운동을 모형으로 확인","sims":[{"k":"states-of-matter-basics","n":"States of Matter: Basics","ko":"물질의 상태: 기초편","url":"https://phet.colorado.edu/ko/simulations/states-of-matter-basics","f":"상"}]},{"c":"9과04-03","s":"상태 변화 관찰, 입자 모형 설명","use":"가열·냉각에 따른 상태 변화를 입자 수준에서 관찰","sims":[{"k":"states-of-matter-basics","n":"States of Matter: Basics","ko":"물질의 상태: 기초편","url":"https://phet.colorado.edu/ko/simulations/states-of-matter-basics","f":"상"},{"k":"states-of-matter","n":"States of Matter","ko":"물질의 상태","url":"https://phet.colorado.edu/ko/simulations/states-of-matter","f":"중"}]},{"c":"9과04-04","s":"상태 변화와 열에너지 출입","use":"가열/냉각 시 온도·입자 운동 변화 연결","sims":[{"k":"states-of-matter-basics","n":"States of Matter: Basics","ko":"물질의 상태: 기초편","url":"https://phet.colorado.edu/ko/simulations/states-of-matter-basics","f":"중"},{"k":"energy-forms-and-changes","n":"Energy Forms and Changes","ko":"에너지의 형태와 변화","url":"https://phet.colorado.edu/ko/simulations/energy-forms-and-changes","f":"중"}]}]},{"g":1,"u":"5. 힘의 작용","std":[{"c":"9과05-01","s":"힘의 화살표 표현, 힘의 평형 조건","use":"힘 화살표와 알짜힘 표시로 평형 조건 확인","sims":[{"k":"forces-and-motion-basics","n":"Forces and Motion: Basics","ko":"힘과 운동: 기초","url":"https://phet.colorado.edu/ko/simulations/forces-and-motion-basics","f":"상"}]},{"c":"9과05-02","s":"중력·탄성력·마찰력·부력의 특징","use":"힘별로 변인 조작: 중력(중력 실험), 탄성력(훅의 법칙), 마찰력(힘과 운동의 마찰 슬라이더), 부력(부력·밀도)","sims":[{"k":"gravity-force-lab-basics","n":"Gravity Force Lab: Basics","ko":"중력 실험: 기초","url":"https://phet.colorado.edu/ko/simulations/gravity-force-lab-basics","f":"상"},{"k":"hookes-law","n":"Hooke's Law","ko":"후크의 법칙","url":"https://phet.colorado.edu/ko/simulations/hookes-law","f":"상"},{"k":"forces-and-motion-basics","n":"Forces and Motion: Basics","ko":"힘과 운동: 기초","url":"https://phet.colorado.edu/ko/simulations/forces-and-motion-basics","f":"상"},{"k":"buoyancy","n":"Buoyancy","ko":"부력","url":"https://phet.colorado.edu/ko/simulations/buoyancy","f":"상"},{"k":"density","n":"Density","ko":"밀도","url":"https://phet.colorado.edu/ko/simulations/density","f":"상"}]},{"c":"9과05-03","s":"알짜힘이 0이 아닐 때 운동 상태 변화","use":"알짜힘 크기에 따른 속도 변화 관찰","sims":[{"k":"forces-and-motion-basics","n":"Forces and Motion: Basics","ko":"힘과 운동: 기초","url":"https://phet.colorado.edu/ko/simulations/forces-and-motion-basics","f":"상"}]},{"c":"9과05-04","s":"힘과 평형 사례, 힘 이용 기구 설계","use":"일상 사례(줄다리기, 경사면)로 확장","sims":[{"k":"forces-and-motion-basics","n":"Forces and Motion: Basics","ko":"힘과 운동: 기초","url":"https://phet.colorado.edu/ko/simulations/forces-and-motion-basics","f":"중"},{"k":"the-ramp","n":"The Ramp","ko":"경사면 *","url":"https://phet.colorado.edu/ko/simulations/the-ramp","f":"하"}]}]},{"g":1,"u":"6. 기체의 성질","std":[{"c":"9과06-01","s":"압력의 의미, 기체 압력을 입자 운동으로 설명","use":"입자 충돌과 압력 관계 관찰","sims":[{"k":"gas-properties","n":"Gas Properties","ko":"기체의 성질","url":"https://phet.colorado.edu/ko/simulations/gas-properties","f":"상"}]},{"c":"9과06-02","s":"기체의 압력-부피 관계(보일)","use":"온도 고정 후 부피 변화에 따른 압력 측정","sims":[{"k":"gas-properties","n":"Gas Properties","ko":"기체의 성질","url":"https://phet.colorado.edu/ko/simulations/gas-properties","f":"상"}]},{"c":"9과06-03","s":"기체의 온도-부피 관계(샤를)","use":"압력 고정 후 온도 변화에 따른 부피 측정","sims":[{"k":"gas-properties","n":"Gas Properties","ko":"기체의 성질","url":"https://phet.colorado.edu/ko/simulations/gas-properties","f":"상"}]}]},{"g":1,"u":"7. 태양계","std":[{"c":"9과07-01","s":"태양계 천체 특징, 행성 구분","use":"행성 공전 관찰(행성 분류 자체는 별도 자료 필요)","sims":[{"k":"gravity-and-orbits","n":"Gravity and Orbits","ko":"중력과 궤도","url":"https://phet.colorado.edu/ko/simulations/gravity-and-orbits","f":"하"},{"k":"my-solar-system","n":"My Solar System","ko":"우리의 태양계","url":"https://phet.colorado.edu/ko/simulations/my-solar-system","f":"하"}]},{"c":"9과07-02","s":"태양 활동과 지구에 미치는 영향","use":"","sims":[]},{"c":"9과07-03","s":"자전·공전에 의한 천체 겉보기 운동","use":"","sims":[]},{"c":"9과07-04","s":"달의 위상 변화, 일식·월식","use":"","sims":[]}]},{"g":2,"u":"1. 물질의 특성","std":[{"c":"9과08-01","s":"밀도·용해도·녹는점·끓는점 설명","use":"밀도 측정 / 용질 양에 따른 농도·포화(녹는점·끓는점은 없음)","sims":[{"k":"density","n":"Density","ko":"밀도","url":"https://phet.colorado.edu/ko/simulations/density","f":"상"},{"k":"sugar-and-salt-solutions","n":"Sugar and Salt Solutions","ko":"설탕과 소금 용액 *","url":"https://phet.colorado.edu/ko/simulations/sugar-and-salt-solutions","f":"중"}]},{"c":"9과08-02","s":"순물질과 혼합물 분류","use":"","sims":[]},{"c":"9과08-03","s":"혼합물 분리 원리","use":"","sims":[]}]},{"g":2,"u":"2. 지권의 변화","std":[{"c":"9과09-01","s":"지구계 구성 요소, 지권 층상 구조","use":"","sims":[]},{"c":"9과09-02","s":"조암 광물 특성, 암석·광물 활용","use":"","sims":[]},{"c":"9과09-03","s":"암석 분류, 암석 순환","use":"","sims":[]},{"c":"9과09-04","s":"풍화 과정, 토양 생성","use":"","sims":[]},{"c":"9과09-05","s":"대륙 이동설, 지진·화산 분포와 판 경계","use":"판 경계 이동·충돌 관찰, 산·화산 생성(지진·화산 분포 지도는 별도 자료 필요)","sims":[{"k":"plate-tectonics","n":"Plate Tectonics","ko":"판 구조론 *","url":"https://phet.colorado.edu/ko/simulations/plate-tectonics","f":"중"}]}]},{"g":2,"u":"3. 빛과 파동","std":[{"c":"9과10-01","s":"빛의 반사·굴절 원리, 보는 과정","use":"매질에 따른 굴절·반사 관찰","sims":[{"k":"bending-light","n":"Bending Light","ko":"빛의 굴절","url":"https://phet.colorado.edu/ko/simulations/bending-light","f":"상"}]},{"c":"9과10-02","s":"평면거울 상, 거울·렌즈 분류","use":"거울·렌즈 종류별 상의 특징 비교","sims":[{"k":"geometric-optics","n":"Geometric Optics","ko":"기하 광학","url":"https://phet.colorado.edu/ko/simulations/geometric-optics","f":"상"}]},{"c":"9과10-03","s":"물체의 색, 빛의 합성","use":"RGB 빛의 합성은 직접 확인, 물체 색(반사)은 필터 사용으로 간접 확인","sims":[{"k":"color-vision","n":"Color Vision","ko":"색상 보기","url":"https://phet.colorado.edu/ko/simulations/color-vision","f":"중"}]},{"c":"9과10-04","s":"파동의 발생·전달, 소리의 특성","use":"진폭·진동수와 소리 관계 / 파동 전달 관찰","sims":[{"k":"sound-waves","n":"Sound","ko":"소리 파동 *","url":"https://phet.colorado.edu/ko/simulations/sound-waves","f":"상"},{"k":"wave-on-a-string","n":"Wave on a String","ko":"줄의 파동","url":"https://phet.colorado.edu/ko/simulations/wave-on-a-string","f":"상"},{"k":"wave-interference","n":"Wave Interference","ko":"파동의 간섭","url":"https://phet.colorado.edu/ko/simulations/wave-interference","f":"하"}]}]},{"g":2,"u":"4. 물질의 구성","std":[{"c":"9과11-01","s":"원소와 화합물, 화학식 표현","use":"원자를 조합해 분자와 화학식 만들기","sims":[{"k":"build-a-molecule","n":"Build a Molecule","ko":"분자 만들기","url":"https://phet.colorado.edu/ko/simulations/build-a-molecule","f":"중"}]},{"c":"9과11-02","s":"원자 구성, 양성자 수에 따른 원소 종류","use":"양성자·중성자·전자를 넣어 원소 변화 확인","sims":[{"k":"build-an-atom","n":"Build an Atom","ko":"원자 만들기","url":"https://phet.colorado.edu/ko/simulations/build-an-atom","f":"상"}]},{"c":"9과11-03","s":"주기율표 배치, 유사 원소","use":"양성자 수와 주기율표 위치 연결(주기율표 성질 비교는 별도)","sims":[{"k":"build-an-atom","n":"Build an Atom","ko":"원자 만들기","url":"https://phet.colorado.edu/ko/simulations/build-an-atom","f":"중"}]},{"c":"9과11-04","s":"원자·분자·이온, 이온의 전하","use":"전자 수 변화로 이온(전하) 생성 확인","sims":[{"k":"build-an-atom","n":"Build an Atom","ko":"원자 만들기","url":"https://phet.colorado.edu/ko/simulations/build-an-atom","f":"상"}]}]},{"g":2,"u":"5. 식물과 에너지","std":[{"c":"9과12-01","s":"광합성과 환경요인 실험 설계","use":"","sims":[]},{"c":"9과12-02","s":"식물의 호흡과 광합성","use":"","sims":[]},{"c":"9과12-03","s":"광합성 산물의 저장·이용","use":"","sims":[]}]},{"g":2,"u":"6. 동물과 에너지","std":[{"c":"9과13-01","s":"소화계 구조·기능","use":"","sims":[]},{"c":"9과13-02","s":"순환계 구조·기능","use":"","sims":[]},{"c":"9과13-03","s":"호흡계 구조·기능","use":"","sims":[]},{"c":"9과13-04","s":"배설계 구조·기능","use":"","sims":[]},{"c":"9과13-05","s":"세포호흡과 에너지 통합 설명","use":"섭취·운동에 따른 에너지 균형(세포호흡 과정은 다루지 않음)","sims":[{"k":"eating-and-exercise","n":"Eating & Exercise","ko":"먹기와 운동 *","url":"https://phet.colorado.edu/ko/simulations/eating-and-exercise","f":"하"}]}]},{"g":2,"u":"7. 전기와 자기","std":[{"c":"9과14-01","s":"마찰 전기·정전기 유도","use":"전하 이동·정전기 유도 관찰","sims":[{"k":"balloons-and-static-electricity","n":"Balloons and Static Electricity","ko":"풍선과 정전기","url":"https://phet.colorado.edu/ko/simulations/balloons-and-static-electricity","f":"상"},{"k":"john-travoltage","n":"John Travoltage","ko":"정전기: 죤 트라볼티지","url":"https://phet.colorado.edu/ko/simulations/john-travoltage","f":"상"}]},{"c":"9과14-02","s":"전류 모형, 저항·전류·전압 관계","use":"전압·저항 조작 후 전류 측정","sims":[{"k":"ohms-law","n":"Ohm's Law","ko":"옴의 법칙","url":"https://phet.colorado.edu/ko/simulations/ohms-law","f":"상"},{"k":"circuit-construction-kit-dc","n":"Circuit Construction Kit: DC","ko":"회로제작 키트: DC","url":"https://phet.colorado.edu/ko/simulations/circuit-construction-kit-dc","f":"상"}]},{"c":"9과14-03","s":"직렬·병렬 연결, 전기 에너지 전환","use":"직렬·병렬 회로 구성 후 전류·전압 비교","sims":[{"k":"circuit-construction-kit-dc","n":"Circuit Construction Kit: DC","ko":"회로제작 키트: DC","url":"https://phet.colorado.edu/ko/simulations/circuit-construction-kit-dc","f":"상"}]},{"c":"9과14-04","s":"자기장 안 전류가 흐르는 코일의 힘, 전동기","use":"전류에 의한 자기장 관찰(전동기 자체는 없음)","sims":[{"k":"magnets-and-electromagnets","n":"Magnets and Electromagnets","ko":"자석과 전자석","url":"https://phet.colorado.edu/ko/simulations/magnets-and-electromagnets","f":"하"}]}]},{"g":2,"u":"8. 별과 우주","std":[{"c":"9과15-01","s":"연주시차, 별의 등급·밝기, 표면 온도와 색","use":"온도에 따른 스펙트럼 피크·색 변화로 '표면 온도와 색' 설명(연주시차·별의 등급은 없음)","sims":[{"k":"blackbody-spectrum","n":"Blackbody Spectrum","ko":"흑체 스펙트럼","url":"https://phet.colorado.edu/ko/simulations/blackbody-spectrum","f":"중"}]},{"c":"9과15-02","s":"우리은하 구조, 성운·성단","use":"","sims":[]},{"c":"9과15-03","s":"우주 팽창 모형","use":"","sims":[]},{"c":"9과15-04","s":"우주 탐사의 의의","use":"","sims":[]}]},{"g":3,"u":"1. 화학 반응의 규칙과 에너지 변화","std":[{"c":"9과17-01","s":"물리 변화와 화학 변화","use":"","sims":[]},{"c":"9과17-02","s":"화학 반응식, 계수비=입자 수 비","use":"계수 조절로 반응식 완성","sims":[{"k":"balancing-chemical-equations","n":"Balancing Chemical Equations","ko":"화학반응식 완결하기","url":"https://phet.colorado.edu/ko/simulations/balancing-chemical-equations","f":"상"}]},{"c":"9과17-03","s":"질량 보존 법칙, 모형 설명","use":"반응 전후 원자 수 보존 확인","sims":[{"k":"balancing-chemical-equations","n":"Balancing Chemical Equations","ko":"화학반응식 완결하기","url":"https://phet.colorado.edu/ko/simulations/balancing-chemical-equations","f":"상"}]},{"c":"9과17-04","s":"일정 성분비 법칙","use":"","sims":[]},{"c":"9과17-05","s":"기체 반응 법칙","use":"","sims":[]},{"c":"9과17-06","s":"화학 반응에서 에너지 출입","use":"","sims":[]}]},{"g":3,"u":"2. 기권과 날씨","std":[{"c":"9과18-01","s":"기권 층상 구조, 온실 효과·지구 온난화","use":"대기 성분·복사 평형 관찰(층상 구조는 없음)","sims":[{"k":"greenhouse-effect","n":"The Greenhouse Effect","ko":"온실 효과","url":"https://phet.colorado.edu/ko/simulations/greenhouse-effect","f":"상"}]},{"c":"9과18-02","s":"상대 습도, 단열 팽창, 구름·강수","use":"","sims":[]},{"c":"9과18-03","s":"기압, 바람이 부는 이유","use":"압력 차이에 따른 입자 이동(기상 현상은 직접 다루지 않음)","sims":[{"k":"gas-properties","n":"Gas Properties","ko":"기체의 성질","url":"https://phet.colorado.edu/ko/simulations/gas-properties","f":"하"}]},{"c":"9과18-04","s":"기단·전선, 일기도","use":"","sims":[]}]},{"g":3,"u":"3. 운동과 에너지","std":[{"c":"9과19-01","s":"등속 운동의 시간-거리·속력 그래프","use":"위치·속도 그래프 동시 확인","sims":[{"k":"moving-man","n":"The Moving Man","ko":"움직이는 사람 *","url":"https://phet.colorado.edu/ko/simulations/moving-man","f":"상"}]},{"c":"9과19-02","s":"자유 낙하 운동, 속력 변화 일정","use":"수직으로 던져 속도 변화 관찰(자유 낙하 전용 시뮬레이션은 없음)","sims":[{"k":"projectile-motion","n":"Projectile Motion","ko":"포물선 운동","url":"https://phet.colorado.edu/ko/simulations/projectile-motion","f":"중"}]},{"c":"9과19-03","s":"일, 중력이 한 일, 위치·운동 에너지","use":"높이에 따른 위치·운동 에너지 막대 그래프(일 개념은 별도)","sims":[{"k":"energy-skate-park-basics","n":"Energy Skate Park: Basics","ko":"에너지 스케이트 공원: 기초","url":"https://phet.colorado.edu/ko/simulations/energy-skate-park-basics","f":"중"}]}]},{"g":3,"u":"4. 자극과 반응","std":[{"c":"9과20-01","s":"감각기관, 자극이 뇌로 전달","use":"","sims":[]},{"c":"9과20-02","s":"뉴런과 신경계, 자극→반응 과정","use":"신경 신호 전달 관찰(내용이 중학 수준보다 높아 일부만 활용)","sims":[{"k":"neuron","n":"Neuron","ko":"뉴런","url":"https://phet.colorado.edu/ko/simulations/neuron","f":"하"}]},{"c":"9과20-03","s":"호르몬 조절","use":"","sims":[]}]},{"g":3,"u":"5. 생식과 유전","std":[{"c":"9과21-01","s":"세포 분열과 생장","use":"","sims":[]},{"c":"9과21-02","s":"염색체·유전자, 체세포 분열·생식 세포 형성","use":"","sims":[]},{"c":"9과21-03","s":"수정란에서 개체 발생","use":"","sims":[]},{"c":"9과21-04","s":"멘델 유전","use":"","sims":[]},{"c":"9과21-05","s":"사람의 유전, 가계도","use":"","sims":[]}]},{"g":3,"u":"6. 에너지 전환과 보존","std":[{"c":"9과22-01","s":"역학적 에너지 전환·보존","use":"마찰 없는 트랙에서 총 에너지 보존 확인","sims":[{"k":"energy-skate-park-basics","n":"Energy Skate Park: Basics","ko":"에너지 스케이트 공원: 기초","url":"https://phet.colorado.edu/ko/simulations/energy-skate-park-basics","f":"상"}]},{"c":"9과22-02","s":"전자기 유도, 역학적→전기 에너지","use":"자석 운동에 따른 유도 전류 관찰","sims":[{"k":"faradays-electromagnetic-lab","n":"Faraday's Electromagnetic Lab","ko":"파라데이 전자석 실험","url":"https://phet.colorado.edu/ko/simulations/faradays-electromagnetic-lab","f":"상"},{"k":"generator","n":"Generator","ko":"발전기","url":"https://phet.colorado.edu/ko/simulations/generator","f":"상"}]},{"c":"9과22-03","s":"전기 에너지 전환, 소비 전력","use":"전구 밝기와 에너지 전환 연결(소비 전력 계산은 별도)","sims":[{"k":"circuit-construction-kit-dc","n":"Circuit Construction Kit: DC","ko":"회로제작 키트: DC","url":"https://phet.colorado.edu/ko/simulations/circuit-construction-kit-dc","f":"하"},{"k":"energy-forms-and-changes","n":"Energy Forms and Changes","ko":"에너지의 형태와 변화","url":"https://phet.colorado.edu/ko/simulations/energy-forms-and-changes","f":"중"}]}]},{"g":3,"u":"7. 별과 우주","std":[{"c":"9과23-01","s":"연주시차, 별의 등급·밝기, 표면 온도와 색","use":"온도에 따른 스펙트럼 피크·색 변화로 '표면 온도와 색' 설명(연주시차·별의 등급은 없음)","sims":[{"k":"blackbody-spectrum","n":"Blackbody Spectrum","ko":"흑체 스펙트럼","url":"https://phet.colorado.edu/ko/simulations/blackbody-spectrum","f":"중"}]},{"c":"9과23-02","s":"우리은하 구조, 성운·성단","use":"","sims":[]},{"c":"9과23-03","s":"우주 팽창 모형","use":"","sims":[]},{"c":"9과23-04","s":"우주 탐사의 의의","use":"","sims":[]}]},{"g":3,"u":"8. 과학기술과 인류 문명","std":[{"c":"9과24-01","s":"과학기술과 인류 문명의 관계","use":"","sims":[]},{"c":"9과24-02","s":"생활을 편리하게 하는 방안 고안","use":"","sims":[]}]}];
 /* ---------- 검색 기록 / 마크다운(옵시디언) ---------- */
 function refreshAct(){if(window.__actRender)window.__actRender()}
 function logSearch(kind,q){
@@ -1617,9 +1735,10 @@ function buildMd(){
     const strokes=pg.annots.filter(a=>(a.t==='pen'||a.t==='hl')&&!a.q).length;
     if(strokes)out.push(`- ✏️ 손글씨·형광펜 ${strokes}개 (PDF 원본에서 확인)`);
     for(const a of S.acts.filter(a=>a.type==='search'&&pgn(a)===pg.num))out.push('- '+mdLink(a.kind,a.q));
+    for(const a of S.acts.filter(a=>a.type==='sim'&&pgn(a)===pg.num))out.push(`- 🧪 [${a.name}](${a.url}) · 성취기준 ${[...new Set(a.codes)].join(', ')}`);
     if(out.length){any=true;L.push(`## ${pg.num}쪽${pg.ins?` (${KIND_NAME[pg.ins.kind]} 쪽 · 끼움)`:''}`,'',...out,'')}
   }
-  const acts=S.acts.filter(a=>a.type!=='search').sort((a,b)=>pgn(a)-pgn(b)||a.created-b.created);
+  const acts=S.acts.filter(a=>a.type!=='search'&&a.type!=='sim').sort((a,b)=>pgn(a)-pgn(b)||a.created-b.created);
   if(acts.length){
     L.push('## 수업 활동 기록','');any=true;
     const pct=(n,t)=>t?Math.round(n/t*100)+'%':'-';
@@ -1643,6 +1762,12 @@ function buildMd(){
       for(const it of a.items.slice().sort((x,y)=>y.n-x.n))L.push(`- ${it.t}${it.n>1?' (×'+it.n+')':''}`);
       L.push('');
     }
+  }
+  const sims=S.acts.filter(a=>a.type==='sim');
+  if(sims.length){
+    any=true;L.push('## 🧪 사용한 시뮬레이션','');
+    for(const a of sims)L.push(`- [${a.name}](${a.url}) (${a.en}) — ${a.g}학년 ${a.unit} · ${pgn(a)}쪽 · 성취기준 ${[...new Set(a.codes)].join(', ')}`);
+    L.push('','> Simulation by PhET Interactive Simulations, University of Colorado Boulder, licensed under CC-BY-4.0 (https://phet.colorado.edu)','');
   }
   if(!any)L.push('_아직 기록된 내용이 없어요._','');
   return L.join('\n');
@@ -1998,12 +2123,78 @@ ${tx}`;
     if(send)sendNb('more',ai.src);
   };
 
+  /* --- PhET 시뮬레이션 (학년·단원을 직접 고르면 그 단원의 시뮬레이션을 보여줘요) --- */
+  const FITN={'상':0,'중':1,'하':2},FITC={'상':'s','중':'m','하':'l'};
+  const simFits={상:true,중:true,하:false};
+  try{Object.assign(simFits,JSON.parse(lsGet('pdfnote.simfits')||'{}'))}catch(_){}
+  let simMap=new Map(),simU=null,showNone=false;
+  const gradeOfName=n=>{const m=String(n||'').match(/([123])\s*학년/)||String(n||'').match(/^\s*([123])\s*[-–]/);return m?+m[1]:null};
+  function simSel(){
+    if(!S.sim||!S.sim.g){S.sim={g:gradeOfName(activeClass().name)||+lsGet('pdfnote.simg')||1,u:null}}
+    const units=SIMDATA.filter(x=>x.g===S.sim.g);
+    if(!units.some(x=>x.u===S.sim.u))S.sim.u=(units[0]||{}).u||null;
+    return S.sim;
+  }
+  function rSim(){
+    const sel=simSel(),units=SIMDATA.filter(x=>x.g===sel.g),U=units.find(x=>x.u===sel.u);simU=U;
+    simMap=new Map();
+    if(U)for(const st of U.std)for(const sm of st.sims){
+      let o=simMap.get(sm.k);if(!o){o={...sm,best:sm.f,lines:[]};simMap.set(sm.k,o)}
+      if(FITN[sm.f]<FITN[o.best])o.best=sm.f;o.lines.push({c:st.c,s:st.s,use:st.use});
+    }
+    const sims=[...simMap.values()].sort((a,b)=>FITN[a.best]-FITN[b.best]);
+    const shown=sims.filter(s=>simFits[s.best]),hidden=sims.length-shown.length;
+    const noSim=U?U.std.filter(st=>!st.sims.length):[];
+    const opened=new Set(S.acts.filter(a=>a.type==='sim').map(a=>a.k));
+    const cnt={상:0,중:0,하:0};sims.forEach(s=>cnt[s.best]++);
+    return `<div class="row"><select id="simG" style="width:92px">${[1,2,3].map(g=>`<option value="${g}" ${g===sel.g?'selected':''}>${g}학년</option>`).join('')}</select>
+      <select id="simU" style="flex:1;min-width:0">${units.map(x=>`<option value="${esc(x.u)}" ${x.u===sel.u?'selected':''}>${esc(x.u)}</option>`).join('')}</select></div>
+    <div class="row" style="margin-top:6px;flex-wrap:wrap"><span class="hint">적합도</span>${['상','중','하'].map(f=>`<button class="fchip ${simFits[f]?'on':''}" data-a="simf" data-v="${f}">${f} ${cnt[f]}</button>`).join('')}<span class="hint" style="margin-left:auto">${sims.length}개</span></div>
+    <div class="hint" style="margin:6px 0 10px">${sel.g===3?'3학년은 2015 개정 성취기준 기준이에요. ':'2022 개정 성취기준 기준이에요. '}시뮬레이션은 큰 새 창으로 열려요.</div>
+    ${shown.map(s=>{
+      const nm=(s.ko||'').trim(),chk=nm.endsWith('*'),title=(nm.replace(/\*$/,'')||s.n);
+      return `<div class="simcard"><h5><span>${esc(title)}</span><span class="fit ${FITC[s.best]}">${s.best}</span>${chk?'<span class="chk" title="한글 이름을 PhET 목록에서 확인하지 못했어요">이름 확인 필요</span>':''}${opened.has(s.k)?'<span class="opened">✓ 열어 봄</span>':''}</h5>
+      <div class="en">${esc(s.n)}</div>
+      ${s.lines.map(l=>`<div class="ln"><b>${esc(l.c)}</b> ${esc(l.s)}${l.use?`<br>💡 ${esc(l.use)}`:''}</div>`).join('')}
+      <div class="row" style="margin-top:8px"><button class="sm pri" data-a="simopen" data-k="${esc(s.k)}">▶ 새 창으로 열기</button><button class="sm" data-a="simcp" data-k="${esc(s.k)}">🔗 링크 복사</button></div></div>`}).join('')
+      ||`<div class="card2" style="color:var(--sub)">${sims.length?'선택한 적합도에 해당하는 시뮬레이션이 없어요.':'이 단원에는 연결된 시뮬레이션이 없어요.'}</div>`}
+    ${hidden>0?`<div class="hint" style="margin-bottom:8px">숨겨진 시뮬레이션 ${hidden}개 — 위의 적합도 버튼으로 볼 수 있어요.</div>`:''}
+    ${noSim.length?`<details ${showNone?'open':''} data-a="simnone"><summary>대응하는 시뮬레이션이 없는 성취기준 (${noSim.length})</summary>${noSim.map(st=>`<div class="ln" style="margin:6px 0;font-size:12.5px"><b style="color:var(--acc)">${esc(st.c)}</b> ${esc(st.s)}${st.use?`<br>💡 ${esc(st.use)}`:''}</div>`).join('')}<div class="row"><button class="sm" data-a="simhome">PhET 홈에서 직접 찾아보기</button></div></details>`:''}
+    <div class="hint" style="margin-top:14px;font-size:11px;line-height:1.5">Simulation by PhET Interactive Simulations, University of Colorado Boulder, licensed under CC-BY-4.0 (https://phet.colorado.edu). 연결 목록은 직접 조작해 확인한 것이 아니니 수업 전에 한 번 실행해 보세요.</div>`;
+  }
+  function openSim(url){
+    const w=Math.round(screen.availWidth*.92),h=Math.round(screen.availHeight*.92),l=Math.round((screen.availWidth-w)/2),tp=Math.round((screen.availHeight-h)/2);
+    const win=window.open(url,'pdfnote_sim',`popup=yes,width=${w},height=${h},left=${l},top=${tp}`);
+    if(!win){const x=window.open(url,'_blank');if(!x)toast('팝업이 차단됐어요. 주소창의 팝업 허용을 눌러 주세요',4500)}
+    else{try{win.focus()}catch(_){}}
+  }
+  function logSim(sm){
+    if(!S.pdf||!simU)return;
+    const pk=(S.pages[S.curPage-1]||{}).key;
+    if(S.acts.some(a=>a.type==='sim'&&a.k===sm.k&&a.pk===pk))return;
+    addAct('sim',{k:sm.k,name:(sm.ko||sm.n).replace(/\*$/,''),en:sm.n,url:sm.url,codes:sm.lines.map(l=>l.c),unit:simU.u,g:simU.g,page:S.curPage,pk});
+  }
+  function onSim(el){
+    const a=el.dataset.a;
+    if(a==='simf'){simFits[el.dataset.v]=!simFits[el.dataset.v];lsSet('pdfnote.simfits',JSON.stringify(simFits));return true}
+    if(a==='simhome'){window.open('https://phet.colorado.edu/ko','_blank');return false}
+    if(a==='simnone')return false;
+    const sm=simMap.get(el.dataset.k);if(!sm)return false;
+    if(a==='simopen'){openSim(sm.url);logSim(sm);return true}
+    if(a==='simcp'){(navigator.clipboard?navigator.clipboard.writeText(sm.url):Promise.reject()).then(()=>toast('링크를 복사했어요'),()=>toast('복사하지 못했어요'));return false}
+    return false;
+  }
+  $('#bSim').onclick=()=>{
+    if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}
+    tab='sim';lsSet('pdfnote.acttab',tab);drawer.classList.remove('hide');render();
+  };
+
   /* --- 공통 --- */
   function render(){
     if(!S.pdf){body.innerHTML='<div style="color:var(--sub)">먼저 책(PDF)을 열어 주세요. 활동 기록은 책마다 저장돼요.</div>';return}
     drawer.querySelectorAll('.atabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
     const st=body.scrollTop;
-    body.innerHTML=tab==='quiz'?rQuiz():tab==='check'?rCheck():tab==='ask'?rAsk():tab==='ai'?rAi():rOps();
+    body.innerHTML=tab==='quiz'?rQuiz():tab==='check'?rCheck():tab==='ask'?rAsk():tab==='ai'?rAi():tab==='sim'?rSim():rOps();
     body.scrollTop=st;
     const ta=body.querySelector('#aQ');if(ta)ta.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addAsk()}});
     const oi=body.querySelector('#oIn');if(oi)oi.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();addOps()}});
@@ -2015,10 +2206,14 @@ ${tx}`;
     const el=e.target.closest('[data-a]');if(!el||!S.pdf)return;
     // 자식 버튼(−, ✕)이 부모 클릭보다 우선
     let h=false;
-    if(tab==='quiz')h=onQuiz(el,e);else if(tab==='check')h=onCheck(el);else if(tab==='ask')h=onAsk(el);else if(tab==='ai')h=onAi(el);else h=onOps(el);
+    if(tab==='quiz')h=onQuiz(el,e);else if(tab==='check')h=onCheck(el);else if(tab==='ask')h=onAsk(el);else if(tab==='ai')h=onAi(el);else if(tab==='sim')h=onSim(el);else h=onOps(el);
     if(h)render();
   });
-  body.addEventListener('change',e=>{const el=e.target.closest('[data-a=opw]');if(el&&S.pdf){if(onOps(el))render()}});
+  body.addEventListener('change',e=>{
+    const tg=e.target;
+    if(tg.id==='simG'){S.sim={g:+tg.value,u:null};lsSet('pdfnote.simg',tg.value);markDirty();render();return}
+    if(tg.id==='simU'){S.sim={...S.sim,u:tg.value};markDirty();render();return}
+    const el=tg.closest('[data-a=opw]');if(el&&S.pdf){if(onOps(el))render()}});
   drawer.querySelector('.atabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(qmode==='edit')readDraft();if(tab==='ai')readAi();tab=b.dataset.t;lsSet('pdfnote.acttab',tab);render()});
   $('#aX').onclick=()=>{drawer.classList.add('hide');drawer.classList.remove('big')};
   $('#aBig').onclick=()=>{drawer.classList.toggle('big');render()};
@@ -2105,6 +2300,254 @@ window.addEventListener('message',e=>{
 });
 $('#grpCls').onclick=openClassMgr;
 $('#bGrp').onclick=openGrp;$('#grpX').onclick=()=>{$('#grp').classList.add('hide');renderClassUi()};
+
+/* ---------- 이미지 쪽 (스크린샷·사진을 새 쪽으로) ---------- */
+const IMGC=new Map();
+const imgIds=()=>{const s=new Set();const add=ins=>(ins||[]).forEach(x=>x.img&&s.add(x.img));add(S.ins);Object.values(S.layers||{}).forEach(L=>add(L.ins));return [...s]};
+const putImg=(id,blob,w,h)=>DB.put('imgs',{blob,w,h,type:blob.type,t:Date.now()},id);
+async function prepImage(file){
+  const bmp=await createImageBitmap(file);
+  const sc=Math.min(1,2000/Math.max(bmp.width,bmp.height));
+  const w=Math.max(1,Math.round(bmp.width*sc)),h=Math.max(1,Math.round(bmp.height*sc));
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(bmp,0,0,w,h);
+  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.88));
+  return {blob,w,h};
+}
+function imgPageSize(iw,ih){
+  const a=iw/ih,rw=S.sizes.length?Math.max(...S.sizes.map(s=>s[0])):842,rh=S.sizes.length?Math.max(...S.sizes.map(s=>s[1])):842;
+  if(a>=1)return [Math.round(rw),Math.round(rw/a)];
+  let w=rh*a,h=rh;if(w>rw){w=rw;h=rw/a}
+  return [Math.max(120,Math.round(w)),Math.round(h)];
+}
+async function getImage(id){
+  if(IMGC.has(id))return IMGC.get(id);
+  let r=await DB.get('imgs',id);
+  if(!r&&G.cid&&G.state!=='off'&&navigator.onLine){try{r=await downloadImg(id)}catch(e){}}
+  if(!r)return null;
+  const bmp=await createImageBitmap(r.blob);const o={bmp,blob:r.blob,w:bmp.width,h:bmp.height};IMGC.set(id,o);return o;
+}
+let imgBusy=false;
+async function insertImages(files,where){
+  if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}
+  files=[...files].filter(f=>/^image\//.test(f.type)||/\.(png|jpe?g|webp|gif|bmp|heic)$/i.test(f.name));
+  if(!files.length||imgBusy)return;
+  imgBusy=true;busy('이미지를 쪽으로 만드는 중…');
+  try{
+    let n=0;
+    for(const f of files){
+      const {blob,w,h}=await prepImage(f);const id='i'+uid();
+      await putImg(id,blob,w,h);IMGC.delete(id);
+      const [pw,ph]=imgPageSize(w,h);
+      insertPage('image',n===0?(where||'after'):'after',{img:id,w:pw,h:ph,iw:w,ih:h});n++;
+      await new Promise(r=>setTimeout(r,30));
+    }
+    toast(n>1?`이미지 ${n}장을 새 쪽으로 넣었어요`:'이미지를 새 쪽으로 넣었어요. 그 위에 바로 필기할 수 있어요',3500);
+  }catch(e){console.error(e);toast('이미지를 불러오지 못했어요: '+(e.message||e),4500)}
+  finally{imgBusy=false;busy('')}
+}
+// 이미지 선택 / 붙여넣기
+$('#bImg').onclick=()=>{if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}insertImages.where='after';$('#fImg').click()};
+$('#pImg').onclick=()=>{$('#pageMenu').removeAttribute('open');if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}insertImages.where=$('#pageMenu input[name=pw]:checked').value;$('#fImg').click()};
+$('#fImg').addEventListener('change',e=>{const fs=[...e.target.files];e.target.value='';insertImages(fs,insertImages.where||'after')});
+document.addEventListener('paste',e=>{
+  if(!S.pdf)return;const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  const items=[...((e.clipboardData&&e.clipboardData.items)||[])].filter(i=>i.kind==='file'&&/^image\//.test(i.type));
+  const files=items.map(i=>i.getAsFile()).filter(Boolean);
+  if(!files.length)return;
+  e.preventDefault();insertImages(files,'after');
+});
+// Drive: 이미지 파일을 따로 올리고 내려받기 (필기 JSON이 커지지 않도록)
+const imgRemote=new Set();
+async function findImgFile(id){
+  const q=`appProperties has { key='pdfnoteImg' and value='${qs(id)}' } and trashed=false`;
+  const r=await (await gapi(`${API}/files?q=${enc(q)}&pageSize=1&fields=files(id)&supportsAllDrives=true&includeItemsFromAllDrives=true`)).json();
+  return r.files&&r.files[0]||null;
+}
+async function uploadImg(id){
+  const rec=await DB.get('imgs',id);if(!rec)return;
+  const folder=await notesFolder(),b='pn'+uid();
+  const meta={name:`수업판-이미지-${id}.jpg`,mimeType:rec.blob.type||'image/jpeg',parents:[folder],appProperties:{pdfnoteKind:'img',pdfnoteImg:id}};
+  const body=new Blob([`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: ${rec.blob.type||'image/jpeg'}\r\n\r\n`,rec.blob,`\r\n--${b}--`]);
+  await gapi(`${UP}/files?uploadType=multipart&fields=id&supportsAllDrives=true`,{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body});
+}
+async function downloadImg(id){
+  const f=await findImgFile(id);if(!f)return null;
+  const blob=await (await gapi(`${API}/files/${f.id}?alt=media&supportsAllDrives=true`)).blob();
+  const bmp=await createImageBitmap(blob);const rec={blob,w:bmp.width,h:bmp.height,type:blob.type,t:Date.now()};
+  await DB.put('imgs',rec,id);return rec;
+}
+async function syncImages(){
+  let got=false;
+  for(const id of imgIds()){
+    if(imgRemote.has(id))continue;
+    const local=await DB.get('imgs',id),remote=await findImgFile(id);
+    if(!remote&&local)await uploadImg(id);
+    else if(remote&&!local){await downloadImg(id);got=true}
+    imgRemote.add(id);
+  }
+  if(got)for(const pg of S.pages)if(pg.ins&&pg.ins.kind==='image'){pg.rendered=false;if(pg.visible)renderPdf(pg)}
+}
+
+/* ---------- 칠판 노트(책 없이 시작) · 교과서 붙이기 · 학년/단원 선택 ---------- */
+const nullPdf=id=>({numPages:0,fingerprints:[id],destroy(){},getPage(){return Promise.reject(new Error('no pdf'))}});
+async function readSizes(pdf){
+  const n=pdf.numPages,sizes=new Array(n);
+  for(let i=0;i<n;i+=40){
+    busy(`쪽 정보 읽는 중… ${Math.min(i+40,n)}/${n}`);
+    await Promise.all(Array.from({length:Math.min(40,n-i)},async(_,k)=>{const p=await pdf.getPage(i+k+1);const v=p.getViewport({scale:1});sizes[i+k]=[v.width,v.height]}));
+  }
+  return sizes;
+}
+const pad0=n=>String(n).padStart(2,'0');
+const boardName=()=>{const d=new Date();return `칠판 노트 ${pad0(d.getMonth()+1)}.${pad0(d.getDate())} ${pad0(d.getHours())}:${pad0(d.getMinutes())}`};
+async function openBoard(o){
+  busy('칠판 노트를 여는 중…');
+  try{
+    await flushSave();closeDoc();
+    const id=o.id||(o.rec&&o.rec.id)||('board:'+uid());
+    const rec=o.rec||await DB.get('docs',id);
+    S.id=id;S.syncKey=id;S.driveId=null;S.md5=null;S.board=true;S.name=(rec&&rec.name)||o.name||boardName();
+    S.attach=(rec&&rec.attach)||null;
+    const blob=rec&&rec.hasFile?await DB.get('files',id):null;
+    if(blob){const buf=await blob.arrayBuffer();S.bytes=buf;S.pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;S.sizes=await readSizes(S.pdf)}
+    else{S.bytes=null;S.pdf=nullPdf(id);S.sizes=[]}
+    let layers=(rec&&rec.layers)||{};
+    S.cls=CFG.classes.some(c=>c.id===CFG.active)?CFG.active:CFG.classes[0].id;CFG.active=S.cls;
+    const L=normLayer(layers[S.cls]);S.layers={};for(const k in layers)if(k!==S.cls)S.layers[k]=normLayer(layers[k]);
+    S.sim=(rec&&rec.sim)||null;S.simAsked=!!(rec&&rec.simAsked);
+    S.tomb=L.tomb;S.acts=L.acts;S.ins=L.ins;S.notesId=rec&&rec.notesId||null;S.remoteMod=rec&&rec.remoteMod||null;S.remoteDirty=!!(rec&&rec.remoteDirty);S.fresh=!rec;
+    S.noGuard=!rec&&!!o.id&&!o.kind;
+    if(!rec&&o.kind&&!S.ins.length)S.ins.push({id:uid(),after:0,o:0,kind:o.kind,w:842,h:474,m:Date.now(),created:Date.now()});
+    S.pages=makePages(L.annots);
+    if(S.noGuard){const idg=id;setTimeout(()=>{if(S.id===idg&&S.noGuard){S.noGuard=false;if(!S.sizes.length&&!S.ins.length)rebuildPages(collect(),null)}},10000)}
+    const baseW=S.sizes.length?Math.max(...S.sizes.map(s=>s[0])):842;
+    S.zoom=rec&&rec.zoom?rec.zoom:Math.min(1.6,Math.max(.5,(viewer.clientWidth-40)/baseW));
+    buildPages();
+    $('#home').classList.add('hide');
+    $('#title').textContent=S.name;$('#title').classList.remove('hide');$('#title').title='더블클릭해서 이름 바꾸기';
+    $('#pagecnt').textContent='/ '+S.pages.length;
+    updateZoomLabel();renderClassUi();
+    const lp=(rec&&rec.lastPage)||1;S.curPage=Math.min(lp,S.pages.length)||1;S.lastPage=S.curPage;$('#pageno').value=S.curPage;
+    requestAnimationFrame(()=>gotoPage(S.curPage,false));
+    const meta={...(rec||{}),id:S.id,name:S.name,size:0,pages:S.sizes.length,layers:allLayers(),updated:rec?rec.updated:Date.now(),lastPage:S.curPage,zoom:S.zoom,hasFile:!!blob,board:true,attach:S.attach,sim:S.sim,simAsked:S.simAsked,syncKey:S.syncKey};
+    delete meta.annots;delete meta.tomb;delete meta.acts;
+    await DB.put('docs',meta);
+    setStatus(rec?'불러옴 ✓':'저장됨 ✓');
+    scheduleSync(300);updateDocUi();
+    if(S.attach&&S.attach.driveId&&!blob)tryAutoAttach();
+  }catch(err){console.error(err);toast('칠판 노트를 열 수 없어요: '+(err.message||err),4000);closeDoc();$('#home').classList.remove('hide')}
+  finally{busy('')}
+}
+function chooseBoardKind(){
+  const card=$('#mcard');$('#modal').classList.remove('hide');
+  card.innerHTML=`<div class="hd"><span>🟩 칠판 노트 시작</span><button class="btn x" id="kX">닫기</button></div><div class="bd2">
+    <div class="hint" style="margin-bottom:10px">책 없이 칠판만 쓰는 노트예요. 나중에 ＋ 쪽으로 쪽을 더하거나, <b>📖 교과서 붙이기</b>로 교과서 PDF를 이어 붙일 수 있어요.</div>
+    <div class="row" style="flex-wrap:wrap;gap:10px">
+      ${[['board','🟩 칠판','초록 칠판 (펜이 분필색으로)'],['blank','⬜ 흰 판','빈 흰 화면'],['grid','▦ 모눈','수학·과학 그래프'],['coord','➕ 좌표','좌표평면'],['lined','📝 줄','필기 노트']].map(([k,a,b])=>`<button class="btn" data-k="${k}" style="flex:1 1 140px;text-align:left;padding:12px 14px"><b>${a}</b><br><small style="color:var(--sub)">${b}</small></button>`).join('')}
+    </div></div>`;
+  $('#kX').onclick=closeModal;
+  card.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{closeModal();openBoard({kind:b.dataset.k})});
+}
+$('#bNewBoard').onclick=chooseBoardKind;
+// 이름 바꾸기
+$('#title').ondblclick=()=>{
+  if(!S.pdf)return;const v=prompt('노트 이름을 바꿔요',S.name);
+  if(v&&v.trim()&&v.trim()!==S.name){S.name=v.trim();$('#title').textContent=S.name;markDirty()}
+};
+// ---- 학년·단원
+function unitCount(g,u){const U=SIMDATA.find(x=>x.g===g&&x.u===u);return U?new Set(U.std.flatMap(s=>s.sims.map(m=>m.k))).size:0}
+const gradeFromName=n=>{const m=String(n||'').match(/([123])\s*학년/)||String(n||'').match(/^\s*([123])\s*[-–]/);return m?+m[1]:null};
+function unitSelectsHtml(sel){
+  const units=SIMDATA.filter(x=>x.g===sel.g);if(!units.some(x=>x.u===sel.u))sel.u=(units[0]||{}).u;
+  return `<div class="row"><select id="uG" style="width:92px;padding:6px;border:1px solid var(--line);border-radius:8px">${[1,2,3].map(g=>`<option value="${g}" ${g===sel.g?'selected':''}>${g}학년</option>`).join('')}</select><select id="uU" style="flex:1;min-width:0;padding:6px;border:1px solid var(--line);border-radius:8px">${units.map(x=>`<option value="${escH(x.u)}" ${x.u===sel.u?'selected':''}>${escH(x.u)}</option>`).join('')}</select></div><div class="hint" id="uN" style="margin-top:6px">🧪 이 단원에는 시뮬레이션 ${unitCount(sel.g,sel.u)}개가 연결돼 있어요</div>`;
+}
+function bindUnitSelects(card,sel){
+  const ug=card.querySelector('#uG'),uu=card.querySelector('#uU');
+  const note=()=>{card.querySelector('#uN').textContent=`🧪 이 단원에는 시뮬레이션 ${unitCount(sel.g,sel.u)}개가 연결돼 있어요`};
+  ug.onchange=()=>{sel.g=+ug.value;const us=SIMDATA.filter(x=>x.g===sel.g);sel.u=us[0].u;uu.innerHTML=us.map(x=>`<option value="${escH(x.u)}">${escH(x.u)}</option>`).join('');note()};
+  uu.onchange=()=>{sel.u=uu.value;note()};
+}
+function setUnit(sel){S.sim={g:sel.g,u:sel.u};S.simAsked=true;lsSet('pdfnote.simg',String(sel.g));markDirty();updateDocUi()}
+function askUnit(o){
+  const card=$('#mcard');$('#modal').classList.remove('hide');
+  const sel={g:(S.sim&&S.sim.g)||gradeFromName(activeClass().name)||+lsGet('pdfnote.simg')||1,u:(S.sim&&S.sim.u)||null};
+  card.innerHTML=`<div class="hd"><span>${o.title}</span><button class="btn x" id="uX">닫기</button></div><div class="bd2">
+    <div class="hint" style="margin-bottom:10px">${o.hint||'학년과 단원을 고르면 단원에 맞는 PhET 시뮬레이션을 바로 보여 드려요.'}</div>${unitSelectsHtml(sel)}</div>
+    <div class="ft">${o.later?'<button class="btn" id="uLater">나중에 정하기</button>':''}<button class="btn" id="uOk">확인</button><button class="btn pri" id="uSim">확인하고 시뮬레이션 보기</button></div>`;
+  bindUnitSelects(card,sel);
+  $('#uX').onclick=()=>{if(o.later){S.simAsked=true;markDirty(true)}closeModal()};
+  if($('#uLater'))$('#uLater').onclick=()=>{S.simAsked=true;markDirty(true);closeModal()};
+  $('#uOk').onclick=()=>{setUnit(sel);closeModal();toast(`${sel.g}학년 ${sel.u}로 정했어요`)};
+  $('#uSim').onclick=()=>{setUnit(sel);closeModal();$('#bSim').click()};
+}
+function maybeAskUnit(){
+  if(!S.pdf||S.sim||S.simAsked||!S.sizes.length)return;
+  if(!$('#modal').classList.contains('hide'))return;
+  askUnit({title:'📖 이 교과서는 몇 학년 몇 단원인가요?',later:true});
+}
+function updateDocUi(){
+  const open=!!S.pdf;
+  const bu=$('#bUnit');bu.classList.toggle('hide',!open);
+  bu.textContent=S.sim&&S.sim.u?`🧪 ${S.sim.g}학년 · ${S.sim.u}`:'🧪 단원 고르기';
+  $('#bAttach').classList.toggle('hide',!(open&&S.board&&!S.sizes.length));
+  const act=document.querySelector('#act');if(act&&!act.classList.contains('hide'))refreshAct();
+}
+$('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'})};
+// ---- 교과서 붙이기
+let attachCtx=null;
+function openAttachDialog(){
+  const card=$('#mcard');$('#modal').classList.remove('hide');
+  const sel={g:(S.sim&&S.sim.g)||gradeFromName(activeClass().name)||+lsGet('pdfnote.simg')||1,u:(S.sim&&S.sim.u)||null};
+  card.innerHTML=`<div class="hd"><span>📖 교과서 붙이기</span><button class="btn x" id="aX2">닫기</button></div><div class="bd2">
+    <div class="hint" style="margin-bottom:10px">지금 칠판 노트에 교과서 PDF를 이어 붙여요. 지금까지 쓴 칠판 쪽과 필기는 그대로 남아요.</div>
+    <div class="fld"><label>붙이는 위치</label><label style="display:block;cursor:pointer;margin-bottom:4px"><input type="radio" name="apos" value="after" checked> 칠판 쪽 <b>뒤에</b> 교과서를 붙이기</label><label style="display:block;cursor:pointer"><input type="radio" name="apos" value="before"> 칠판 쪽 <b>앞에</b> 교과서를 붙이기</label></div>
+    <div class="fld"><label>교과서의 학년·단원</label>${unitSelectsHtml(sel)}</div>
+    <div class="row"><button class="btn pri" id="aFile">이 기기에서 PDF 선택</button><button class="btn" id="aDrive">☁ Drive에서 선택</button></div></div>`;
+  bindUnitSelects(card,sel);
+  const ctx=()=>({sel:{...sel},pos:card.querySelector('input[name=apos]:checked').value});
+  $('#aX2').onclick=closeModal;
+  $('#aFile').onclick=()=>{attachCtx=ctx();$('#fAttach').click()};
+  $('#aDrive').onclick=()=>{attachCtx=ctx();closeModal();openBrowser('pdf',async f=>{
+    closeModal();
+    try{const blob=await downloadPdf(f);await attachPdf(blob,f.name,{driveId:f.id,md5:f.md5Checksum},attachCtx)}catch(e){busy('');toast('Drive에서 붙이지 못했어요: '+e.message,4500)}
+  })};
+}
+$('#bAttach').onclick=()=>{if(S.pdf&&S.board&&!S.sizes.length)openAttachDialog();else toast('이미 교과서가 붙어 있어요')};
+$('#fAttach').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(f&&attachCtx){closeModal();attachPdf(f,f.name,{},attachCtx)}});
+async function attachPdf(blob,fname,opts,ctx){
+  busy('교과서를 붙이는 중…');
+  try{
+    const buf=await blob.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;
+    const sizes=await readSizes(pdf);const n=sizes.length;
+    const ann=collect();
+    if(ctx.pos==='before'){const fix=ins=>ins.forEach(x=>{x.after=n;x.m=Date.now()});fix(S.ins);Object.values(S.layers).forEach(L=>fix(L.ins||[]))}
+    try{S.pdf&&S.pdf.destroy()}catch(_){}
+    S.pdf=pdf;S.bytes=buf;S.sizes=sizes;S.attach={name:fname.replace(/\.pdf$/i,''),driveId:opts.driveId||null,md5:opts.md5||null};
+    try{await DB.put('files',new Blob([buf],{type:'application/pdf'}),S.id);const rec=await DB.get('docs',S.id);if(rec){rec.hasFile=true;await DB.put('docs',rec)}}catch(e){toast('저장 공간이 부족해 교과서 파일은 이 기기에 보관하지 못했어요',4000)}
+    if(ctx.sel){S.sim={g:ctx.sel.g,u:ctx.sel.u};S.simAsked=true;lsSet('pdfnote.simg',String(ctx.sel.g))}
+    rebuildPages(ann,'p1');markDirty();updateDocUi();
+    toast(`교과서 ${n}쪽을 붙였어요${S.sim?` · 🧪 ${S.sim.g}학년 ${S.sim.u}`:''}`,4500);
+  }catch(e){console.error(e);toast('교과서를 붙이지 못했어요: '+(e.message||e),4500)}
+  finally{busy('')}
+}
+// 다른 기기에서 붙인 교과서(Drive)를 이 기기에서도 자동으로 불러오기
+async function tryAutoAttach(){
+  try{
+    if(!(S.board&&S.pdf&&!S.sizes.length&&S.attach&&S.attach.driveId)||G.state==='off'||!navigator.onLine)return;
+    const id=S.id;
+    const blob=await downloadPdf({id:S.attach.driveId,size:0});
+    if(S.id!==id)return;
+    const buf=await blob.arrayBuffer();
+    const pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;
+    const sizes=await readSizes(pdf);const ann=collect();
+    try{S.pdf.destroy()}catch(_){}
+    S.pdf=pdf;S.bytes=buf;S.sizes=sizes;
+    await DB.put('files',new Blob([buf],{type:'application/pdf'}),S.id);
+    const rec=await DB.get('docs',S.id);if(rec){rec.hasFile=true;await DB.put('docs',rec)}
+    rebuildPages(ann,(S.pages[S.curPage-1]||{}).key);updateDocUi();
+  }catch(e){console.warn('auto attach',e)}finally{busy('')}
+}
 // 설정(반·명단) Drive 동기화
 const CFG_SYNC_KEY='__config__';
 let cfgSyncing=false,cfgTimer=null;
@@ -2156,7 +2599,7 @@ setInterval(()=>{if(!document.hidden)scheduleCfgSync(50)},60000);
 
 /* 시작 */
 setTool('pen');updateUndo();renderClassUi();
-window.__pdfnote={S,openBlob,G,syncDoc};
+window.__pdfnote={S,openBlob,G,syncDoc,insertImages,openBoard};
 showHome();
 })();
 </script>
