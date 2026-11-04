@@ -323,7 +323,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v23 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v23</small></span></span>
+      <span class="madeby mini" title="수업판 v24 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v24</small></span></span>
     </div>
   </div>
   <main>
@@ -1266,19 +1266,48 @@ async function findNotes(key){
   return r.files&&r.files[0]||null;
 }
 function payload(){return {app:'pdfnote',version:3,syncKey:S.syncKey,name:S.name,pages:S.sizes.length,lastPage:S.lastPage,zoom:S.zoom,updated:Date.now(),layers:allLayers(),sim:S.sim,board:S.board,attach:S.attach}}
-async function pushNotes(retry=true){
-  const body=JSON.stringify(payload());
-  try{
-    if(S.notesId){
-      return await (await gapi(`${UP}/files/${S.notesId}?uploadType=media&fields=id,modifiedTime&supportsAllDrives=true`,{method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body})).json();
+const docFp=()=>(!S.board&&S.pdf&&S.pdf.fingerprints&&S.pdf.fingerprints[0])||null;
+const notesSig=fs=>fs.map(f=>f.id+'@'+f.modifiedTime).sort().join('|');
+async function listNotes(q){
+  const r=await (await gapi(`${API}/files?q=${enc(q)}&orderBy=${enc('modifiedTime desc')}&pageSize=10&fields=${enc('files(id,name,modifiedTime,appProperties)')}&supportsAllDrives=true&includeItemsFromAllDrives=true`)).json();
+  return r.files||[];
+}
+/* 이 책의 필기 파일 찾기: ① 같은 키 ② 같은 PDF 내용(지문) ③ 예전 파일은 이름+쪽 수가 같으면 같은 책으로 봄 */
+async function findDocNotes(pre){
+  const fp=docFp(),conds=[`appProperties has { key='pdfnoteId' and value='${qs(S.syncKey)}' }`];
+  if(fp){if(fp!==S.syncKey)conds.push(`appProperties has { key='pdfnoteId' and value='${qs(fp)}' }`);conds.push(`appProperties has { key='pdfnoteFp' and value='${qs(fp)}' }`)}
+  let fs=await listNotes(`(${conds.join(' or ')}) and trashed=false`);
+  if(!fs.length&&!S.board&&S.sizes.length&&S.name){
+    const cand=await listNotes(`appProperties has { key='pdfnoteKind' and value='notes' } and name='${qs(S.name+'.필기.json')}' and trashed=false`);
+    for(const c of cand){
+      if(c.appProperties&&c.appProperties.pdfnoteSrc==='board')continue;
+      try{const d=await (await gapi(`${API}/files/${c.id}?alt=media&supportsAllDrives=true`)).json();
+        if(d&&!d.board&&d.pages===S.sizes.length){pre.set(c.id,d);fs=[c];break}}catch(e){}
     }
+  }
+  if(fp)for(const f of fs){
+    if(!(f.appProperties&&f.appProperties.pdfnoteFp===fp)){
+      try{const r=await (await gapi(`${API}/files/${f.id}?fields=id,modifiedTime&supportsAllDrives=true`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({appProperties:{pdfnoteFp:fp}})})).json();if(r.modifiedTime)f.modifiedTime=r.modifiedTime}catch(e){console.warn('tag fp',e)}
+    }
+  }
+  return fs;
+}
+async function pushNotes(fs,retry=true){
+  const body=JSON.stringify(payload()),out=[];
+  try{
+    for(const f of fs||[]){
+      try{out.push(await (await gapi(`${UP}/files/${f.id}?uploadType=media&fields=id,modifiedTime&supportsAllDrives=true`,{method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body})).json())}
+      catch(e){if(e.status!==404)throw e}
+    }
+    if(out.length)return out;
     const folder=await notesFolder();
-    const meta={name:S.name+'.필기.json',mimeType:'application/json',parents:[folder],appProperties:{pdfnoteKind:'notes',pdfnoteId:S.syncKey,pdfnoteSrc:S.board?'board':(S.driveId?'drive':'local')}};
+    const ap={pdfnoteKind:'notes',pdfnoteId:S.syncKey,pdfnoteSrc:S.board?'board':(S.driveId?'drive':'local')};const fp=docFp();if(fp)ap.pdfnoteFp=fp;
+    const meta={name:S.name+'.필기.json',mimeType:'application/json',parents:[folder],appProperties:ap};
     const b='pn'+uid();
     const mp=`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${body}\r\n--${b}--`;
-    return await (await gapi(`${UP}/files?uploadType=multipart&fields=id,modifiedTime&supportsAllDrives=true`,{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:mp})).json();
+    return [await (await gapi(`${UP}/files?uploadType=multipart&fields=id,modifiedTime&supportsAllDrives=true`,{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:mp})).json()];
   }catch(e){
-    if(retry&&e.status===404){if(S.notesId)S.notesId=null;else lsSet('pdfnote.folder',null);return pushNotes(false)}
+    if(retry&&e.status===404){lsSet('pdfnote.folder',null);return pushNotes([],false)}
     throw e;
   }
 }
@@ -1326,6 +1355,13 @@ function mergeRemote(remote){
   return any;
 }
 
+function noteOtherClasses(){
+  if(S.otherWarned===S.id)return;
+  const cnt=L=>L?Object.values(L.annots||{}).reduce((n,a)=>n+a.length,0)+((L.ins||[]).length):0;
+  const mine=cnt(collectLayer());if(mine>0)return;
+  const others=Object.keys(S.layers).filter(cid=>cnt(S.layers[cid])>0).map(cid=>(CFG.classes.find(c=>c.id===cid)||{}).name).filter(Boolean);
+  if(others.length){S.otherWarned=S.id;toast(`이 책의 필기가 다른 반 필기장(${others.join(', ')})에 있어요. 위쪽 반 선택에서 바꿔 보세요`,9000)}
+}
 /* --- 동기화 --- */
 let syncing=false,syncTimer=null,syncAgain=false;
 function scheduleSync(ms=3500){if(!S.syncKey||!G.cid||G.state==='off')return;clearTimeout(syncTimer);syncTimer=setTimeout(syncDoc,ms)}
@@ -1337,21 +1373,25 @@ async function syncDoc(){
   syncing=true;setCloud('syncing');const doc=S.id;
   try{
     await saveNow(true);
-    let f=await findNotes(S.syncKey);
-    let merged=false;
-    if(f&&f.modifiedTime!==S.remoteMod){
-      const data=await (await gapi(`${API}/files/${f.id}?alt=media&supportsAllDrives=true`)).json();
-      if(S.id!==doc)return;
-      merged=mergeRemote(data);
-      if(S.fresh&&data.lastPage>1)gotoPage(data.lastPage,false);
-      S.notesId=f.id;S.remoteMod=f.modifiedTime;
+    const pre=new Map();
+    const fs=await findDocNotes(pre);
+    const sig=notesSig(fs);let merged=false,nm=0;
+    if(fs.length&&sig!==S.remoteMod){
+      for(const f of fs){
+        const data=pre.get(f.id)||await (await gapi(`${API}/files/${f.id}?alt=media&supportsAllDrives=true`)).json();
+        if(S.id!==doc)return;
+        if(mergeRemote(data))merged=true;nm++;
+        if(S.fresh&&data.lastPage>1&&f===fs[0])gotoPage(data.lastPage,false);
+      }
+      noteOtherClasses();
+      S.remoteMod=sig;
     }
     S.fresh=false;
-    if(f)S.notesId=f.id;
-    if(!f||S.remoteDirty){
-      const r=await pushNotes();
+    if(fs.length){S.notesId=fs[0].id;S.remoteMod=sig}
+    if(!fs.length||S.remoteDirty||(nm>1&&merged)){
+      const rs=await pushNotes(fs);
       if(S.id!==doc)return;
-      S.notesId=r.id;S.remoteMod=r.modifiedTime;S.remoteDirty=false;
+      S.notesId=rs[0].id;S.remoteMod=notesSig(rs);S.remoteDirty=false;
     }
     if(merged)S.remoteDirty=S.remoteDirty;
     await saveNow(true);
