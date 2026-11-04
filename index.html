@@ -297,7 +297,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v21 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v21</small></span></span>
+      <span class="madeby mini" title="수업판 v22 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v22</small></span></span>
     </div>
   </div>
   <main>
@@ -2130,10 +2130,12 @@ ${tx}`;
   let simMap=new Map(),simU=null,showNone=false;
   const gradeOfName=n=>{const m=String(n||'').match(/([123])\s*학년/)||String(n||'').match(/^\s*([123])\s*[-–]/);return m?+m[1]:null};
   function simSel(){
-    if(!S.sim||!S.sim.g){S.sim={g:gradeOfName(activeClass().name)||+lsGet('pdfnote.simg')||1,u:null}}
-    const units=SIMDATA.filter(x=>x.g===S.sim.g);
-    if(!units.some(x=>x.u===S.sim.u))S.sim.u=(units[0]||{}).u||null;
-    return S.sim;
+    // 화면에 보여 주기 위한 임시 선택값(저장된 단원 S.sim을 건드리지 않음)
+    const base=S.sim&&S.sim.g?S.sim:{g:gradeOfName(activeClass().name)||+lsGet('pdfnote.simg')||1,u:null};
+    const sel={g:base.g,u:base.u};
+    const units=SIMDATA.filter(x=>x.g===sel.g);
+    if(!units.some(x=>x.u===sel.u))sel.u=(units[0]||{}).u||null;
+    return sel;
   }
   function rSim(){
     const sel=simSel(),units=SIMDATA.filter(x=>x.g===sel.g),U=units.find(x=>x.u===sel.u);simU=U;
@@ -2211,8 +2213,8 @@ ${tx}`;
   });
   body.addEventListener('change',e=>{
     const tg=e.target;
-    if(tg.id==='simG'){S.sim={g:+tg.value,u:null};lsSet('pdfnote.simg',tg.value);markDirty();render();return}
-    if(tg.id==='simU'){S.sim={...S.sim,u:tg.value};markDirty();render();return}
+    if(tg.id==='simG'){S.sim={g:+tg.value,u:null};S.simAsked=true;lsSet('pdfnote.simg',tg.value);markDirty();render();return}
+    if(tg.id==='simU'){S.sim={g:simSel().g,u:tg.value};S.simAsked=true;markDirty();render();return}
     const el=tg.closest('[data-a=opw]');if(el&&S.pdf){if(onOps(el))render()}});
   drawer.querySelector('.atabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(qmode==='edit')readDraft();if(tab==='ai')readAi();tab=b.dataset.t;lsSet('pdfnote.acttab',tab);render()});
   $('#aX').onclick=()=>{drawer.classList.add('hide');drawer.classList.remove('big')};
@@ -2483,7 +2485,7 @@ function askUnit(o){
 const unitSkip=new Set();
 function maybeAskUnit(n){
   n=typeof n==='number'?n:200;
-  if(!S.pdf||S.sim||unitSkip.has(S.id))return;
+  if(!S.pdf||(S.sim&&S.sim.u)||unitSkip.has(S.id))return;
   const id=S.id;
   const blocked=!$('#modal').classList.contains('hide')||$('#busy').style.display==='flex';
   if(blocked){if(n>0)setTimeout(()=>{if(S.id===id)maybeAskUnit(n-1)},300);return}
