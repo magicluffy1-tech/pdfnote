@@ -323,7 +323,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v25 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v25</small></span></span>
+      <span class="madeby mini" title="수업판 v26 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v26</small></span></span>
     </div>
   </div>
   <main>
@@ -561,7 +561,7 @@ function paintBg(ctx,kind,W,H,s){
   ctx.restore();
 }
 async function drawInsBg(pg){
-  const s=S.zoom*dpr(),c=pg.pdfC,w=Math.floor(pg.w*s),h=Math.floor(pg.h*s);
+  const s=pdfScale(pg),c=pg.pdfC,w=Math.floor(pg.w*s),h=Math.floor(pg.h*s);
   if(pg.ins.kind!=='image'){c.width=w;c.height=h;paintBg(c.getContext('2d'),pg.ins.kind,pg.w,pg.h,s);pg.rendered=true;pg.renderedZoom=S.zoom;return}
   const token=++pg.token;
   const im=await getImage(pg.ins.img);
@@ -752,13 +752,19 @@ function buildPages(){
 function sizePage(pg){pg.el.style.width=pg.w*S.zoom+'px';pg.el.style.height=pg.h*S.zoom+'px'}
 const adjInk=(c,pg)=>(pg&&pg.ins&&pg.ins.kind==='board'&&String(c).toLowerCase()==='#111111')?'#f3f5ef':c;
 const dpr=()=>Math.min(window.devicePixelRatio||1,2);
+/* 화질: 화면 크기·해상도에 맞춰 그리되, 작게 볼 때는 더 촘촘하게(1.6배 이상) 그려 글자가 깨지지 않게 하고,
+   캔버스 한 장이 너무 커서 태블릿에서 빈 화면이 되지 않도록 한 장당 픽셀 수를 제한 */
+const MAXPX=(/iPhone|iPad|iPod|Android/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1))?9e6:16e6;
+const capScale=(pg,s)=>{const a=pg.w*pg.h*s*s;return a>MAXPX?Math.sqrt(MAXPX/(pg.w*pg.h)):s};
+const pxScale=pg=>capScale(pg,S.zoom*dpr());
+const pdfScale=pg=>capScale(pg,Math.max(S.zoom*dpr(),1.6)*(pg.rs||1));
 function ensure(pg){sizeAnn(pg);renderPdf(pg);if(S.tool==='select')buildText(pg)}
 function release(pg){
   pg.token++;if(pg.task){try{pg.task.cancel()}catch(e){}pg.task=null}
   pg.txtL.innerHTML='';pg.txtDone=false;pg.rendered=false;pg.pdfC.width=1;pg.pdfC.height=1;pg.annC.width=1;pg.annC.height=1;pg.liveC.width=1;pg.liveC.height=1;
 }
 function sizeAnn(pg){
-  const w=Math.floor(pg.w*S.zoom*dpr()),h=Math.floor(pg.h*S.zoom*dpr());
+  const sc=pxScale(pg),w=Math.floor(pg.w*sc),h=Math.floor(pg.h*sc);
   for(const c of [pg.annC,pg.liveC]){if(c.width!==w||c.height!==h){c.width=w;c.height=h}}
   redrawAnn(pg);
 }
@@ -769,14 +775,20 @@ async function renderPdf(pg){
   try{
     const page=await S.pdf.getPage(pg.pdfNum);
     if(token!==pg.token)return;
-    const vp=page.getViewport({scale:S.zoom*dpr()});
+    const vp=page.getViewport({scale:pdfScale(pg)});
     const tmp=document.createElement('canvas');tmp.width=Math.floor(vp.width);tmp.height=Math.floor(vp.height);
     pg.task=page.render({canvasContext:tmp.getContext('2d'),viewport:vp});
     await pg.task.promise;
     if(token!==pg.token)return;
     pg.pdfC.width=tmp.width;pg.pdfC.height=tmp.height;pg.pdfC.getContext('2d').drawImage(tmp,0,0);
-    pg.rendered=true;pg.renderedZoom=S.zoom;
-  }catch(e){/* 취소됨 */}
+    tmp.width=tmp.height=0;pg.rendered=true;pg.renderedZoom=S.zoom;pg.rsTry=0;
+  }catch(e){
+    // 취소가 아니라 실제 오류(메모리 부족 등)면 해상도를 낮춰 다시 시도해서 빈 쪽이 남지 않게 함
+    if(!(e&&e.name==='RenderingCancelledException')&&token===pg.token){
+      pg.rsTry=(pg.rsTry||0)+1;pg.rs=(pg.rs||1)*.7;
+      if(pg.rsTry<=4)setTimeout(()=>{if(pg.visible&&!pg.rendered)renderPdf(pg)},250);
+    }
+  }
   finally{pg.rendering=false;pg.task=null;
     if(pg.visible&&!pg.rendered&&token!==pg.token)renderPdf(pg)}
 }
@@ -785,7 +797,7 @@ function setZoom(z,keepCenter=true){
   const ratioY=(viewer.scrollTop+viewer.clientHeight/2)/viewer.scrollHeight;
   const ratioX=(viewer.scrollLeft+viewer.clientWidth/2)/viewer.scrollWidth;
   S.zoom=z;
-  for(const pg of S.pages){sizePage(pg);pg.token++;pg.rendered=false;if(pg.task){try{pg.task.cancel()}catch(e){}}pg.rendering=false;pg.txtL.innerHTML='';pg.txtDone=false;
+  for(const pg of S.pages){sizePage(pg);pg.token++;pg.rendered=false;pg.rs=1;pg.rsTry=0;if(pg.task){try{pg.task.cancel()}catch(e){}}pg.rendering=false;pg.txtL.innerHTML='';pg.txtDone=false;
     renderTexts(pg);if(pg.visible)sizeAnn(pg)}
   viewer.scrollTop=ratioY*viewer.scrollHeight-viewer.clientHeight/2;
   viewer.scrollLeft=ratioX*viewer.scrollWidth-viewer.clientWidth/2;
@@ -842,14 +854,14 @@ function drawHl(ctx,a,s){
 }
 function redrawAnn(pg){
   const c=pg.annC,ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
-  const s=S.zoom*dpr();
+  const s=pxScale(pg);
   for(const a of pg.annots)drawAnn(ctx,a,s);
 }
 let liveRaf=0;
 function scheduleLive(){
   if(liveRaf||!cur||cur.kind!=='stroke')return;
   liveRaf=requestAnimationFrame(()=>{liveRaf=0;if(!cur||cur.kind!=='stroke')return;
-    const c=cur.pg.liveC,ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);drawAnn(ctx,cur.ann,S.zoom*dpr())})
+    const c=cur.pg.liveC,ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);drawAnn(ctx,cur.ann,pxScale(cur.pg))})
 }
 
 /* ---------- 포인터 입력 (마우스/펜/터치) ---------- */
@@ -914,7 +926,7 @@ function onUp(e,pg){
     const lc=pg.liveC;lc.getContext('2d').clearRect(0,0,lc.width,lc.height);
     if(e.type==='pointercancel')return;
     pg.annots.push(c.ann);
-    drawAnn(pg.annC.getContext('2d'),c.ann,S.zoom*dpr());
+    drawAnn(pg.annC.getContext('2d'),c.ann,pxScale(pg));
     pushUndo({type:'add',page:pg.num,ann:c.ann});markDirty();
   }
 }
@@ -2868,7 +2880,7 @@ setInterval(()=>{if(!document.hidden)scheduleCfgSync(50)},60000);
 
 /* 시작 */
 setTool('pen');updateUndo();renderClassUi();
-window.__pdfnote={S,openBlob,G,syncDoc,insertImages,openBoard};
+window.__pdfnote={S,openBlob,G,syncDoc,insertImages,openBoard,setZoom};
 showHome();
 })();
 </script>
