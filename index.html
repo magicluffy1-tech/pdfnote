@@ -323,7 +323,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v24 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v24</small></span></span>
+      <span class="madeby mini" title="수업판 v25 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v25</small></span></span>
     </div>
   </div>
   <main>
@@ -607,6 +607,19 @@ async function switchClass(cid){
   renderClassUi();refreshAct();scheduleNotes();grpSync();scheduleSave();
   toast(`‘${activeClass().name}’ 필기장이에요`);
 }
+
+/* 단원의 학년과 같은 학년 필기장(반)이 하나뿐이면 자동으로 그 필기장으로 바꿈 */
+async function autoClassForGrade(g){
+  if(!S.pdf||!g||!S.cls)return false;
+  const cur=CFG.classes.find(c=>c.id===S.cls);
+  if(cur&&gradeFromName(cur.name)===g)return false;
+  const cand=CFG.classes.filter(c=>gradeFromName(c.name)===g);
+  if(cand.length!==1)return false;
+  const t=cand[0];
+  await switchClass(t.id);
+  toast(`${g}학년 단원이라 ‘${t.name}’ 필기장으로 바꿨어요. 다른 반은 위쪽 반 선택에서 바꿀 수 있어요`,5000);
+  return true;
+}
 function renderClassUi(){
   const sel=$('#clsSel');if(!sel)return;
   const cur=(S.pdf&&S.cls)||CFG.active;
@@ -705,7 +718,7 @@ async function openBlob(blob,name,opts={}){
     setStatus(rec?'필기 불러옴 ✓':'저장됨 ✓');
     if(legacy&&(Object.keys(L.annots).length||L.acts.length))toast(`기존 필기를 ‘${activeClass().name}’ 필기장으로 옮겼어요. 위쪽 반 선택에서 반을 바꾸면 다른 필기장이 열려요`,7000);
     else if(rec&&(Object.keys(L.annots).length||L.ins.length))toast('이전에 하던 필기를 불러왔어요');
-    scheduleSync(300);updateDocUi();setTimeout(maybeAskUnit,400);
+    scheduleSync(300);updateDocUi();(async()=>{if(S.sim&&S.sim.g)await autoClassForGrade(S.sim.g);setTimeout(maybeAskUnit,400)})();
   }catch(err){console.error(err);toast('PDF를 열 수 없어요: '+(err.message||err),4000);closeDoc();$('#home').classList.remove('hide')}
   finally{busy('')}
 }
@@ -1355,12 +1368,17 @@ function mergeRemote(remote){
   return any;
 }
 
-function noteOtherClasses(){
+async function noteOtherClasses(){
   if(S.otherWarned===S.id)return;
   const cnt=L=>L?Object.values(L.annots||{}).reduce((n,a)=>n+a.length,0)+((L.ins||[]).length):0;
-  const mine=cnt(collectLayer());if(mine>0)return;
-  const others=Object.keys(S.layers).filter(cid=>cnt(S.layers[cid])>0).map(cid=>(CFG.classes.find(c=>c.id===cid)||{}).name).filter(Boolean);
-  if(others.length){S.otherWarned=S.id;toast(`이 책의 필기가 다른 반 필기장(${others.join(', ')})에 있어요. 위쪽 반 선택에서 바꿔 보세요`,9000)}
+  if(cnt(collectLayer())>0)return;
+  const ids=Object.keys(S.layers).filter(cid=>cnt(S.layers[cid])>0);
+  if(ids.length===1&&CFG.classes.some(c=>c.id===ids[0])){
+    S.otherWarned=S.id;const t=CFG.classes.find(c=>c.id===ids[0]);
+    await switchClass(t.id);toast(`이 책의 필기가 ‘${t.name}’ 필기장에 있어서 그쪽으로 바꿨어요`,6000);return;
+  }
+  const names=ids.map(cid=>(CFG.classes.find(c=>c.id===cid)||{}).name).filter(Boolean);
+  if(names.length){S.otherWarned=S.id;toast(`이 책의 필기가 다른 반 필기장(${names.join(', ')})에 있어요. 위쪽 반 선택에서 바꿔 보세요`,9000)}
 }
 /* --- 동기화 --- */
 let syncing=false,syncTimer=null,syncAgain=false;
@@ -1383,7 +1401,7 @@ async function syncDoc(){
         if(mergeRemote(data))merged=true;nm++;
         if(S.fresh&&data.lastPage>1&&f===fs[0])gotoPage(data.lastPage,false);
       }
-      noteOtherClasses();
+      if(S.id===doc){if(S.sim&&S.sim.g)await autoClassForGrade(S.sim.g);await noteOtherClasses()}
       S.remoteMod=sig;
     }
     S.fresh=false;
@@ -2308,7 +2326,7 @@ ${tx}`;
   });
   body.addEventListener('change',e=>{
     const tg=e.target;
-    if(tg.id==='simG'){S.sim={g:+tg.value,u:null};S.simAsked=true;lsSet('pdfnote.simg',tg.value);markDirty();render();return}
+    if(tg.id==='simG'){S.sim={g:+tg.value,u:null};S.simAsked=true;lsSet('pdfnote.simg',tg.value);markDirty();render();autoClassForGrade(+tg.value);return}
     if(tg.id==='simU'){S.sim={g:simSel().g,u:tg.value};S.simAsked=true;markDirty();render();return}
     const el=tg.closest('[data-a=opw]');if(el&&S.pdf){if(onOps(el))render()}});
   drawer.querySelector('.atabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(qmode==='edit')readDraft();if(tab==='ai')readAi();tab=b.dataset.t;lsSet('pdfnote.acttab',tab);render()});
@@ -2530,7 +2548,7 @@ async function openBoard(o){
     delete meta.annots;delete meta.tomb;delete meta.acts;
     await DB.put('docs',meta);
     setStatus(rec?'불러옴 ✓':'저장됨 ✓');
-    scheduleSync(300);updateDocUi();setTimeout(maybeAskUnit,400);
+    scheduleSync(300);updateDocUi();(async()=>{if(S.sim&&S.sim.g)await autoClassForGrade(S.sim.g);setTimeout(maybeAskUnit,400)})();
     if(S.attach&&S.attach.driveId&&!blob)tryAutoAttach();
   }catch(err){console.error(err);toast('칠판 노트를 열 수 없어요: '+(err.message||err),4000);closeDoc();$('#home').classList.remove('hide')}
   finally{busy('');setTimeout(maybeAskUnit,150)}
@@ -2564,7 +2582,7 @@ function bindUnitSelects(card,sel){
   ug.onchange=()=>{sel.g=+ug.value;const us=SIMDATA.filter(x=>x.g===sel.g);sel.u=us[0].u;uu.innerHTML=us.map(x=>`<option value="${escH(x.u)}">${escH(x.u)}</option>`).join('');note()};
   uu.onchange=()=>{sel.u=uu.value;note()};
 }
-function setUnit(sel){S.sim={g:sel.g,u:sel.u};S.simAsked=true;lsSet('pdfnote.simg',String(sel.g));markDirty();updateDocUi()}
+function setUnit(sel){S.sim={g:sel.g,u:sel.u};S.simAsked=true;lsSet('pdfnote.simg',String(sel.g));markDirty();updateDocUi();autoClassForGrade(sel.g)}
 function askUnit(o){
   const card=$('#mcard');$('#modal').classList.remove('hide');
   const sel={g:(S.sim&&S.sim.g)||gradeFromName(activeClass().name)||+lsGet('pdfnote.simg')||1,u:(S.sim&&S.sim.u)||null};
@@ -2777,7 +2795,7 @@ async function attachPdf(blob,fname,opts,ctx){
     S.pdf=pdf;S.bytes=buf;S.sizes=sizes;S.attach={name:fname.replace(/\.pdf$/i,''),driveId:opts.driveId||null,md5:opts.md5||null};
     try{await DB.put('files',new Blob([buf],{type:'application/pdf'}),S.id);const rec=await DB.get('docs',S.id);if(rec){rec.hasFile=true;await DB.put('docs',rec)}}catch(e){toast('저장 공간이 부족해 교과서 파일은 이 기기에 보관하지 못했어요',4000)}
     if(ctx.sel){S.sim={g:ctx.sel.g,u:ctx.sel.u};S.simAsked=true;lsSet('pdfnote.simg',String(ctx.sel.g))}
-    rebuildPages(ann,'p1');markDirty();updateDocUi();
+    rebuildPages(ann,'p1');markDirty();updateDocUi();if(S.sim&&S.sim.g)autoClassForGrade(S.sim.g);
     toast(`교과서 ${n}쪽을 붙였어요${S.sim?` · 🧪 ${S.sim.g}학년 ${S.sim.u}`:''}`,4500);
   }catch(e){console.error(e);toast('교과서를 붙이지 못했어요: '+(e.message||e),4500)}
   finally{busy('')}
