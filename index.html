@@ -212,6 +212,31 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #act .opened{color:#2f9e44;font-size:12px}
 #act .fchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 11px;cursor:pointer;font-size:12.5px}
 #act .fchip.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:700}
+
+#blank{position:fixed;inset:0;z-index:80;background:#111;color:#fff;display:flex;flex-direction:column}
+#blank.hide{display:none}
+#blank .bar{display:flex;gap:8px;align-items:center;padding:8px 10px;background:#222;flex-wrap:wrap}
+#blank .bar .t{font-weight:800;font-size:15px;margin-right:4px;color:#ffd43b}
+#blank input,#blank select{background:#fff;color:#111}
+#blank .bar input,#blank .bar select,#blank .bar button{font-size:15px;padding:8px 12px;border-radius:9px;border:0;font-family:inherit}
+#blank .bar button{background:#2f6fed;color:#fff;font-weight:700;cursor:pointer}
+#blank .bar button.g{background:#444}#blank .bar button.on{background:#e8590c}
+#blank #blInfo{margin-left:auto;color:#9fb0c3;font-size:14px}
+#blank #blStage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;overflow:auto}
+#blank #blStage img{max-width:100%;max-height:100%;transition:transform .2s;cursor:zoom-in}
+#blank #blWho{position:absolute;left:16px;top:12px;font-size:34px;font-weight:800;text-shadow:0 2px 6px #000;pointer-events:none}
+#blank #blHint{color:#778;font-size:18px}
+#blank .pn{display:none;position:absolute;inset:0;background:#000d;z-index:2;overflow:auto}
+#blank .pn.on{display:block}
+#blank .box{max-width:760px;margin:30px auto;background:#1c2430;border-radius:16px;padding:20px}
+#blank .box input,#blank .box select{font-size:16px;padding:8px 10px;border-radius:9px;border:0;max-width:100%}
+#blank .box label{display:block;margin:10px 0 4px;color:#9fb0c3;font-size:13px}
+#blank #blGrid{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+#blank .chip{width:56px;padding:12px 0;text-align:center;border-radius:10px;font-weight:800;font-size:20px}
+#blank .chip.ok{background:#1f9d55}#blank .chip.no{background:#c0392b}
+#blank #blMiss{font-size:18px;line-height:1.6;color:#ffd7d2}
+.blcard{display:block;width:100%;text-align:left;border:2px solid var(--acc,#2f6fed);background:#f3f7ff;border-radius:14px;padding:16px 18px;cursor:pointer;font-family:inherit}
+.blcard b{display:block;font-size:20px;color:#1b2a4a}.blcard small{display:block;margin-top:4px;color:#566}
 #bigv small{position:fixed;bottom:18px;font-size:14px;font-weight:400;opacity:.6}
 
 #clsSel,#grpSel{border:1px solid var(--line);border-radius:8px;padding:5px 6px;background:#fff;font:inherit;max-width:140px}
@@ -278,6 +303,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <label class="grp" style="font-size:12px;color:var(--sub);cursor:pointer" title="켜면 손가락은 스크롤만 하고 펜/마우스로만 필기합니다"><input type="checkbox" id="fingerScroll" checked>손가락=스크롤</label>
       <button class="btn" id="bGrp" title="모둠 배치기 (반별 명단·기록)">👥 모둠</button>
       <button class="btn" id="bSim" title="단원별 PhET 시뮬레이션">🧪 시뮬</button>
+      <button class="btn" id="bBlank" title="학생들이 올린 백지 복습 사진 불러오기">📝 오늘의 백지</button>
       <button class="btn" id="bAct" title="퀴즈 · 이해도 체크 · 학생 질문함 · 의견 모으기">🎓 수업 활동</button>
       <button class="btn" id="bYt" title="검색어를 직접 입력해 유튜브 검색 (Y)">▶ 유튜브</button>
       <button class="btn" id="bTimer" title="수업 타이머">⏱ 타이머</button>
@@ -297,7 +323,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v22 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v22</small></span></span>
+      <span class="madeby mini" title="수업판 v23 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v23</small></span></span>
     </div>
   </div>
   <main>
@@ -355,6 +381,35 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 <div id="tEnd" class="hide" role="alertdialog" aria-live="assertive" aria-label="타이머 종료"><div class="box"><div class="ico" aria-hidden="true">⏰</div><div class="msg">시간이 끝났어요!</div><div class="sub" id="tEndSub"></div><div class="btns"><button id="tEndOk">확인</button><button id="tEnd1">1분 더</button></div><div class="hintx">화면 아무 곳이나 눌러도 닫혀요</div></div></div>
 <div id="grp" class="hide"><div class="gbar"><b>👥 모둠 배치기</b><select id="grpSel" title="반 선택"></select><button class="btn" id="grpCls" title="반 추가·이름 바꾸기·삭제">✎ 반 관리</button><span class="hint">위의 학년(반) 탭을 누르면 그 반의 명단이 열려요 · 학생 명단은 이 브라우저와 내 Drive에만 저장돼요</span><button class="btn" id="grpX" style="margin-left:auto">닫기</button></div><iframe id="grpFrame" title="모둠 배치기"></iframe></div>
 <div id="bigv" class="hide"></div>
+<div id="blank" class="hide">
+  <div class="bar">
+    <span class="t" id="blTitle">📝 오늘의 백지</span>
+    <button class="g" id="blPrev" title="전날">◀</button><input type="date" id="blDate"><button class="g" id="blNext" title="다음날">▶</button>
+    <select id="blCls"><option value="">전체 반</option></select>
+    <button id="blLoad">불러오기</button>
+    <button id="blPick">🎲 뽑기</button>
+    <button class="g" id="blStat">📋 제출 현황</button>
+    <button class="g" id="blHide" title="큰 화면에 학년·반·번호를 가려요">🙈 번호 가리기</button>
+    <button class="g" id="blIns" title="지금 보는 사진을 노트의 새 쪽으로 넣어 그 위에 판서해요">🖼 판서에 끼우기</button>
+    <button class="g" id="blReset">뽑은 기록 초기화</button>
+    <button class="g" id="blCfg" title="연결 설정">⚙</button>
+    <button class="g" id="blX">닫기 ✕</button>
+    <span id="blInfo"></span>
+  </div>
+  <div id="blStage"><div id="blWho"></div><img id="blImg" style="display:none" alt=""><div id="blHint">[불러오기]를 눌러 주세요</div>
+    <div class="pn" id="blSt"><div class="box">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="blSg"></select><label style="display:inline;margin:0">반 <input type="number" id="blSc" min="1" max="30" style="width:70px"></label><label style="display:inline;margin:0">인원 <input type="number" id="blSn" min="1" max="60" style="width:80px"></label><button class="g" id="blSx" style="margin-left:auto;padding:8px 14px;border:0;border-radius:9px;background:#444;color:#fff;font-weight:700;cursor:pointer">닫기</button></div>
+      <div id="blSum" style="margin-top:12px;font-size:20px;font-weight:700"></div><div id="blGrid"></div><div id="blMiss"></div>
+    </div></div>
+    <div class="pn" id="blCf"><div class="box">
+      <b style="font-size:18px">⚙ 연결 설정</b>
+      <label>웹앱 주소 (…/exec)</label><input id="blUrl" style="width:100%">
+      <label>비밀번호</label><input type="password" id="blPin" style="width:200px" autocomplete="off">
+      <label style="display:flex;gap:8px;align-items:center;color:#cfd8e3"><input type="checkbox" id="blSave"> 이 기기에 비밀번호 저장 (내 기기에서만 체크하세요)</label>
+      <div style="margin-top:14px;display:flex;gap:8px"><button class="g" id="blCfOk" style="padding:9px 16px;border:0;border-radius:9px;background:#2f6fed;color:#fff;font-weight:700;cursor:pointer">저장</button><button class="g" id="blCfX" style="padding:9px 16px;border:0;border-radius:9px;background:#444;color:#fff;font-weight:700;cursor:pointer">닫기</button></div>
+    </div></div>
+  </div>
+</div>
 <div id="toast"></div>
 
 <script type="text/plain" id="pdfworker">/**
@@ -2499,6 +2554,156 @@ function updateDocUi(){
   const act=document.querySelector('#act');if(act&&!act.classList.contains('hide'))refreshAct();
 }
 $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'})};
+// ---- 오늘의 백지 (학생 백지 복습 사진 불러오기)
+(function(){
+  const DEFAULT_BLANK_URL='https://script.google.com/macros/s/AKfycbyOKP9JEX8sND4MpEVxjnnCDSiz7ZzdaGUrSrVnHz4or9Za2wwoaB5tuFi87E2S-GJ93Q/exec';
+  const ov=$('#blank'),img=$('#blImg'),$$=id=>document.getElementById(id);
+  let all=[],picked={},zoom=1,curId=null,curData=null,hideNo=lsGet('pdfnote.blhide')==='1';
+  const url=()=>(lsGet('pdfnote.blurl')||DEFAULT_BLANK_URL).trim();
+  const pin=()=>$$('blPin').value||'';
+  const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const ds=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  function unitText(){return S.sim&&S.sim.u?`${S.sim.g}학년 · ${S.sim.u}`:''}
+  async function call(a,p){
+    if(!url())throw new Error('웹앱 주소가 없어요. ⚙ 연결 설정에서 입력해 주세요');
+    let q='action='+a;for(const k in p)q+='&'+k+'='+encodeURIComponent(p[k]||'');
+    const r=await fetch(url()+(url().includes('?')?'&':'?')+q);
+    let j;try{j=await r.json()}catch(_){throw new Error('응답을 읽을 수 없어요. 웹앱 주소와 배포 설정(모든 사용자)을 확인해 주세요')}
+    if(!j.ok)throw new Error(j.error||'불러오기 실패');
+    return j.data;
+  }
+  function info(t){$$('blInfo').textContent=t||''}
+  function pool(){const k=$$('blCls').value;return all.filter(x=>!k||(x.grade+'-'+x.cls)===k)}
+  function upd(){const p=pool(),left=p.filter(x=>!picked[x.id]).length;info(`제출 ${p.length}명 · 남은 ${left}명`)}
+  function setWho(t){$$('blWho').textContent=hideNo&&t?'🙈':t||''}
+  function renderHide(){$$('blHide').classList.toggle('on',hideNo);setWho(curId?curData&&curData.who:'')}
+  function pickClass(){
+    const s=$$('blCls'),keys=[...new Set(all.map(x=>x.grade+'-'+x.cls))].sort((a,b)=>{const A=a.split('-').map(Number),B=b.split('-').map(Number);return A[0]-B[0]||A[1]-B[1]});
+    s.innerHTML='<option value="">전체 반</option>'+keys.map(k=>{const a=k.split('-');return `<option value="${k}">${a[0]}학년 ${a[1]}반</option>`}).join('');
+    // 열어 둔 필기장 이름이 "3학년 2반" 같으면 그 반, 아니면 단원 학년의 반이 하나일 때 그 반
+    const m=/(\d)\s*학년\s*(\d+)\s*반/.exec(activeClass().name||'');let pre='';
+    if(m&&keys.includes(m[1]+'-'+m[2]))pre=m[1]+'-'+m[2];
+    else if(S.sim&&S.sim.g){const g=keys.filter(k=>k.startsWith(S.sim.g+'-'));if(g.length===1)pre=g[0]}
+    s.value=pre;
+  }
+  async function load(){
+    if(!pin()){info('비밀번호를 입력해 주세요 (⚙)');openCfg();return}
+    info('불러오는 중…');$$('blLoad').disabled=true;
+    try{
+      const list=await call('list',{pin:pin(),date:$$('blDate').value});
+      all=list||[];picked={};pickClass();upd();renderStatus();
+      img.style.display='none';setWho('');curId=null;curData=null;
+      $$('blHint').textContent=all.length?'[🎲 뽑기]를 눌러 보세요':'이 날짜에 제출된 사진이 없어요';
+    }catch(e){info(e.message||String(e));$$('blHint').textContent=''}
+    finally{$$('blLoad').disabled=false}
+  }
+  async function pick(){
+    const left=pool().filter(x=>!picked[x.id]);
+    if(!left.length){info('모두 뽑았어요! 초기화하면 다시 시작해요.');return}
+    const x=left[Math.floor(Math.random()*left.length)];picked[x.id]=1;upd();
+    curId=x.id;curData={who:`${x.grade}학년 ${x.cls}반 ${x.num}번`,data:null};setWho(curData.who);
+    img.style.display='none';$$('blHint').textContent='불러오는 중…';
+    try{
+      const d=await call('photo',{pin:pin(),id:x.id});
+      if(curId!==x.id)return;
+      curData.data=d;img.src=d;img.style.display='block';$$('blHint').textContent='';zoom=1;img.style.transform='';
+    }catch(e){if(curId===x.id)$$('blHint').textContent=e.message||String(e)}
+  }
+  // 제출 현황
+  const nKey=()=>'pdfnote.bln.'+$$('blSg').value+'-'+$$('blSc').value;
+  function loadN(){$$('blSn').value=lsGet(nKey())||20}
+  function renderStatus(){
+    const g=+$$('blSg').value,c=+$$('blSc').value,n=+$$('blSn').value||0,have={};
+    all.forEach(x=>{if(+x.grade===g&&+x.cls===c)have[x.num]=1});
+    const miss=[];let h='';
+    for(let i=1;i<=n;i++){const ok=have[i];if(!ok)miss.push(i);h+=`<div class="chip ${ok?'ok':'no'}">${i}</div>`}
+    $$('blGrid').innerHTML=h;
+    $$('blSum').textContent=`${g}학년 ${c}반 · 제출 ${n-miss.length} / ${n}명`;
+    $$('blMiss').textContent=miss.length?`미제출: ${miss.join(', ')}번`:(n?'전원 제출 완료! 🎉':'');
+  }
+  function openStatus(){
+    const k=$$('blCls').value;
+    if(k){const a=k.split('-');$$('blSg').value=a[0];$$('blSc').value=a[1]}
+    else if(!$$('blSc').value){const a=all[0];$$('blSg').value=a?a.grade:(S.sim&&S.sim.g)||1;$$('blSc').value=a?a.cls:1}
+    loadN();renderStatus();$$('blSt').classList.add('on');
+  }
+  // 판서에 끼우기
+  async function insert(){
+    if(!curData||!curData.data){toast('먼저 뽑기로 사진을 불러와 주세요');return}
+    if(!S.pdf){toast('노트를 먼저 열어 주세요');return}
+    try{
+      const b=await (await fetch(curData.data)).blob();
+      const f=new File([b],'백지.jpg',{type:b.type||'image/jpeg'});
+      ov.classList.add('hide');
+      await insertImages([f],'after');
+    }catch(e){toast('끼우지 못했어요: '+(e.message||e),4000)}
+  }
+  function openCfg(){$$('blUrl').value=url();$$('blSave').checked=lsGet('pdfnote.blpinsave')==='1';$$('blCf').classList.add('on')}
+  function openViewer(){
+    ov.classList.remove('hide');
+    $$('blTitle').textContent='📝 오늘의 백지'+(unitText()?' · '+unitText():'');
+    if(!$$('blDate').value)$$('blDate').value=ds(new Date());
+    renderHide();
+  }
+  // 시작 창: 학년·단원 표시 → 누르면 실행
+  function startDialog(){
+    const card=$('#mcard');$('#modal').classList.remove('hide');
+    const today=new Date(),wk='일월화수목금토'[today.getDay()];
+    const has=!!lsGet('pdfnote.blpin');
+    card.innerHTML=`<div class="hd"><span>📝 오늘의 백지</span><button class="btn x" id="blSX">닫기</button></div><div class="bd2">
+      <button class="blcard" id="blGo"><b>${unitText()?esc(unitText()):'단원이 아직 정해지지 않았어요'}</b><small>${today.getMonth()+1}월 ${today.getDate()}일(${wk}) · 이걸 누르면 학생들이 올린 백지 사진을 불러와요</small></button>
+      ${unitText()?'':'<div class="hint" style="margin-top:8px">위쪽 “🧪 학년·단원”에서 정해 두면 여기에 표시돼요. 단원 없이도 불러올 수 있어요.</div>'}
+      ${has?'':`<div class="fld" style="margin-top:12px"><label>비밀번호</label><input class="inp" type="password" id="blPin0" autocomplete="off" placeholder="백지 확인 비밀번호"><div class="hint"><label style="cursor:pointer"><input type="checkbox" id="blSave0"> 이 기기에 저장 (내 기기에서만)</label></div></div>`}
+      </div>`;
+    $('#blSX').onclick=closeModal;
+    const go=()=>{
+      const p0=$('#blPin0');
+      if(p0){if(!p0.value){toast('비밀번호를 입력해 주세요');p0.focus();return}
+        $$('blPin').value=p0.value;if($('#blSave0').checked){lsSet('pdfnote.blpin',p0.value);lsSet('pdfnote.blpinsave','1')}}
+      closeModal();openViewer();load();
+    };
+    $('#blGo').onclick=go;
+    const p0=$('#blPin0');if(p0)p0.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')go()});
+  }
+  $('#bBlank').onclick=()=>{
+    if(lsGet('pdfnote.blpin')&&!$$('blPin').value)$$('blPin').value=lsGet('pdfnote.blpin');
+    startDialog();
+  };
+  $$('blLoad').onclick=load;$$('blPick').onclick=pick;
+  $$('blX').onclick=()=>ov.classList.add('hide');
+  $$('blPrev').onclick=()=>{const d=new Date($$('blDate').value||Date.now());d.setDate(d.getDate()-1);$$('blDate').value=ds(d);load()};
+  $$('blNext').onclick=()=>{const d=new Date($$('blDate').value||Date.now());d.setDate(d.getDate()+1);$$('blDate').value=ds(d);load()};
+  $$('blDate').onchange=load;$$('blCls').onchange=upd;
+  $$('blReset').onclick=()=>{picked={};upd()};
+  $$('blHide').onclick=()=>{hideNo=!hideNo;lsSet('pdfnote.blhide',hideNo?'1':'0');renderHide()};
+  $$('blIns').onclick=insert;
+  $$('blStat').onclick=openStatus;$$('blSx').onclick=()=>$$('blSt').classList.remove('on');
+  $$('blSg').innerHTML=[1,2,3].map(g=>`<option value="${g}">${g}학년</option>`).join('');
+  $$('blSg').onchange=$$('blSc').oninput=()=>{loadN();renderStatus()};
+  $$('blSn').oninput=()=>{lsSet(nKey(),$$('blSn').value);renderStatus()};
+  img.onclick=()=>{zoom=zoom===1?1.8:1;img.style.transform=zoom===1?'':`scale(${zoom})`;img.style.cursor=zoom===1?'zoom-in':'zoom-out'};
+  $$('blCfg').onclick=openCfg;$$('blCfX').onclick=()=>$$('blCf').classList.remove('on');
+  $$('blCfOk').onclick=()=>{
+    const u=$$('blUrl').value.trim();lsSet('pdfnote.blurl',u&&u!==DEFAULT_BLANK_URL?u:null);
+    if($$('blSave').checked&&$$('blPin').value){lsSet('pdfnote.blpin',$$('blPin').value);lsSet('pdfnote.blpinsave','1')}
+    else{lsSet('pdfnote.blpin',null);lsSet('pdfnote.blpinsave',null)}
+    $$('blCf').classList.remove('on');toast('저장했어요');
+  };
+  for(const i of ov.querySelectorAll('input'))i.addEventListener('keydown',e=>e.stopPropagation());
+  // 열려 있는 동안은 노트의 단축키가 동작하지 않게
+  window.addEventListener('keydown',e=>{
+    if(ov.classList.contains('hide'))return;
+    const t=e.target,typing=t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA');
+    if(e.key==='Escape'){
+      if($$('blSt').classList.contains('on'))$$('blSt').classList.remove('on');
+      else if($$('blCf').classList.contains('on'))$$('blCf').classList.remove('on');
+      else ov.classList.add('hide');
+      e.stopPropagation();return;
+    }
+    if(!typing&&(e.key===' '||e.key==='Enter')&&!e.ctrlKey&&!e.metaKey){e.preventDefault();pick()}
+    if(!typing)e.stopPropagation();
+  },true);
+})();
 // ---- 교과서 붙이기
 let attachCtx=null;
 function openAttachDialog(){
