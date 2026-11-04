@@ -51,12 +51,6 @@ body[data-tool=text] .tbox,body[data-tool=hand] .tbox,body[data-tool=eraser] .tb
 .tbox .tb span{padding:0 5px;cursor:pointer}
 .tbox .tb .gr{cursor:move}
 .tbox textarea{display:block;border:none;outline:none;background:transparent;resize:none;padding:0;margin:0;font:inherit;color:inherit;line-height:inherit;white-space:pre;overflow:hidden;min-width:2ch}
-#notes{width:270px;background:#fff;border-left:1px solid var(--line);overflow:auto;padding:10px;font-size:13px}
-#notes h3{margin:4px 0 8px;font-size:14px}
-#notes .it{padding:7px 8px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px;cursor:pointer}
-#notes .it:hover{background:#f4f5f8}
-#notes .it b{color:var(--acc);font-size:12px}
-#notes .it div{white-space:pre-wrap;word-break:break-word;max-height:4.2em;overflow:hidden}
 #home{position:absolute;inset:0;overflow:auto;padding:28px 20px 48px;background:var(--bg);z-index:10}
 #home .wrap{max-width:940px;margin:0 auto}
 .hero{position:relative;padding:14px 14px 0;border-radius:10px 10px 6px 6px;background:linear-gradient(#c29660,#a97c47);box-shadow:0 18px 34px rgba(48,34,14,.28);margin-bottom:34px}
@@ -98,7 +92,6 @@ h1.brand .stroke path{fill:none;stroke:#f6e27a;stroke-width:5;stroke-linecap:rou
 #toast.show{opacity:.95}
 #busy{position:absolute;inset:0;background:rgba(255,255,255,.75);display:none;align-items:center;justify-content:center;font-weight:600;z-index:40}
 .hide{display:none!important}
-@media (max-width:760px){#notes{position:absolute;right:0;top:0;bottom:0;box-shadow:-6px 0 18px rgba(0,0,0,.15);z-index:15}}
 
 .modal{position:fixed;inset:0;background:rgba(20,24,35,.5);display:flex;align-items:center;justify-content:center;z-index:68;padding:14px}
 .modal .card{background:#fff;border-radius:14px;width:min(640px,100%);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.3)}
@@ -307,7 +300,6 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bAct" title="퀴즈 · 이해도 체크 · 학생 질문함 · 의견 모으기">🎓 수업 활동</button>
       <button class="btn" id="bYt" title="검색어를 직접 입력해 유튜브 검색 (Y)">▶ 유튜브</button>
       <button class="btn" id="bTimer" title="수업 타이머">⏱ 타이머</button>
-      <button class="btn" id="bNotes">📝 메모 모아보기</button>
       <details class="menu" id="saveMenu">
         <summary class="btn pri">💾 저장 / 내보내기</summary>
         <div class="pop">
@@ -321,12 +313,11 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v29 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v29</small></span></span>
+      <span class="madeby mini" title="수업판 v30 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v30</small></span></span>
     </div>
   </div>
   <main>
     <div id="viewer"><div id="pages"></div></div>
-    <aside id="notes" class="hide"></aside>
     <aside id="act" class="hide"><div class="ah"><div class="atabs"><button data-t="quiz">❓ 퀴즈</button><button data-t="check">🚦 이해도</button><button data-t="ask">🙋 질문함</button><button data-t="ops">💬 의견</button><button data-t="ai">📓 질문</button><button data-t="sim">🧪 시뮬</button></div><button class="sm" id="aBig" title="크게 (프로젝터)">⤢</button><button class="sm" id="aX">✕</button></div><div class="ab" id="aBody"></div></aside>
     <div id="home">
       <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="chalk" x="-5%" y="-10%" width="110%" height="125%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
@@ -1050,21 +1041,7 @@ window.addEventListener('beforeunload',()=>{if(S.dirty)saveNow(true)});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flushSave()});
 
 /* ---------- 메모 모아보기 ---------- */
-function scheduleNotes(){if($('#notes').classList.contains('hide'))return;clearTimeout(notesTimer);notesTimer=setTimeout(refreshNotes,300)}
-function refreshNotes(){
-  const box=$('#notes');box.innerHTML='<h3>📝 내 글상자 메모</h3>';
-  let n=0,strokes=0;
-  for(const pg of S.pages){
-    strokes+=pg.annots.filter(a=>a.t!=='text').length;
-    for(const a of pg.annots.filter(a=>a.t==='text').sort((x,y)=>x.y-y.y)){
-      n++;const it=document.createElement('div');it.className='it';
-      it.innerHTML=`<b>${pg.num}쪽</b><div></div>`;it.querySelector('div').textContent=a.txt;
-      it.addEventListener('click',()=>{viewer.scrollTo({top:pg.el.offsetTop+a.y*S.zoom-120,behavior:'smooth'})});
-      box.appendChild(it)}
-  }
-  if(!n){const d=document.createElement('div');d.style.color='var(--sub)';d.textContent='글상자 메모가 아직 없어요. T 글상자 도구로 페이지를 클릭해 입력해 보세요.';box.appendChild(d)}
-  const f=document.createElement('div');f.style.cssText='margin-top:12px;color:var(--sub);font-size:12px';f.textContent=`펜/형광펜 필기 ${strokes}개 · 글상자 ${n}개`;box.appendChild(f);
-}
+function scheduleNotes(){}
 
 /* ---------- 내보내기 / 가져오기 ---------- */
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
@@ -1192,7 +1169,6 @@ $('#bUndo').onclick=undo;$('#bRedo').onclick=redo;
 $('#bZin').onclick=()=>setZoom(S.zoom*1.2);$('#bZout').onclick=()=>setZoom(S.zoom/1.2);$('#bFit').onclick=fitWidth;
 $('#bPrev').onclick=()=>gotoPage(S.curPage-1,true);$('#bNext').onclick=()=>gotoPage(S.curPage+1,true);
 $('#pageno').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){gotoPage(parseInt(e.target.value)||1,false);e.target.blur()}});
-$('#bNotes').onclick=()=>{const n=$('#notes');n.classList.toggle('hide');if(!n.classList.contains('hide'))refreshNotes()};
 $('#bHome').onclick=showHome;
 const pick=()=>$('#fPdf').click();
 $('#bOpen').onclick=pick;$('#bOpen2').onclick=pick;
