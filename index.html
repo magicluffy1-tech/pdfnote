@@ -39,8 +39,8 @@ main{flex:1;display:flex;min-height:0;position:relative}
 .page{position:relative;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.25);touch-action:none;user-select:none;-webkit-user-select:none;flex:none}
 .page canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
 .page .tl{position:absolute;inset:0;pointer-events:none;overflow:visible}
-body[data-tool=pen] .page,body[data-tool=hl] .page{cursor:crosshair}
-body[data-tool=eraser] .page{cursor:cell}
+body[data-tool=pen] .page,body[data-tool=hl] .page{cursor:var(--cur,crosshair)}
+body[data-tool=eraser] .page{cursor:var(--cur,cell)}
 body[data-tool=text] .page{cursor:text}
 body[data-tool=hand] .page{cursor:grab}
 .tbox{position:absolute;padding:2px 5px;background:rgba(255,255,255,.78);border-radius:4px;white-space:pre;line-height:1.35;font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;pointer-events:none;outline:1px dashed transparent}
@@ -323,7 +323,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v26 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v26</small></span></span>
+      <span class="madeby mini" title="수업판 v27 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v27</small></span></span>
     </div>
   </div>
   <main>
@@ -1149,14 +1149,29 @@ async function clearAll(){
 }
 
 /* ---------- 툴바 ---------- */
+
+/* 도구별 마우스 커서: 펜·형광펜은 그 도구 모양(현재 색), 지우개는 지우는 범위(원)를 보여 줌 */
+const svgCur=(w,h,body,hx,hy,fb)=>`url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}' viewBox='0 0 ${w} ${h}'>${body}</svg>`)}") ${hx} ${hy}, ${fb}`;
+function cursorFor(t){
+  if(t==='pen'){const c=S.color.pen||'#111111';
+    return svgCur(32,32,`<path d='M2 30 L5 23 L22 6 L26 10 L9 27 Z' fill='#fff' stroke='#222' stroke-width='1.4' stroke-linejoin='round'/><path d='M22 6 L24.5 3.5 Q26 2.5 27.5 4 L29 5.5 Q30 7 29 8.5 L26 10 Z' fill='#555' stroke='#222' stroke-width='1.2' stroke-linejoin='round'/><path d='M2 30 L5 23 L9 27 Z' fill='${c}' stroke='#222' stroke-width='1.2' stroke-linejoin='round'/>`,2,30,'crosshair')}
+  if(t==='hl'){const c=S.color.hl||'#ffe066';
+    return svgCur(32,32,`<path d='M7 22 L22 7 L28 13 L13 28 Z' fill='#fff' stroke='#222' stroke-width='1.4' stroke-linejoin='round'/><path d='M22 7 L25 4 L31 10 L28 13 Z' fill='#777' stroke='#222' stroke-width='1.2' stroke-linejoin='round'/><path d='M7 22 L13 28 L3 31 Z' fill='${c}' fill-opacity='.9' stroke='#222' stroke-width='1.2' stroke-linejoin='round'/><path d='M9.5 19.5 L15.5 25.5' stroke='${c}' stroke-width='3' stroke-opacity='.9'/>`,3,30,'crosshair')}
+  if(t==='eraser'){
+    const d=Math.max(10,Math.min(60,Math.round(S.width.eraser||20))),c=d/2+3,W=Math.round(d+6+18),H=W;
+    const ex=c+d*.36,ey=c+d*.36;
+    return svgCur(W,H,`<circle cx='${c}' cy='${c}' r='${d/2}' fill='rgba(255,255,255,.28)' stroke='#222' stroke-width='1.6'/><circle cx='${c}' cy='${c}' r='${Math.max(1,d/2-1.4)}' fill='none' stroke='#fff' stroke-width='.9'/><circle cx='${c}' cy='${c}' r='1.4' fill='#222'/><g transform='translate(${ex+2} ${ey+2}) rotate(-35)'><rect x='0' y='0' width='17' height='10' rx='2' fill='#f783ac' stroke='#222' stroke-width='1.3'/><rect x='9' y='0' width='8' height='10' rx='2' fill='#fff' stroke='#222' stroke-width='1.3'/></g>`,Math.round(c),Math.round(c),'cell')}
+  return '';
+}
+function updateCursor(){const v=cursorFor(S.tool);if(v)document.body.style.setProperty('--cur',v);else document.body.style.removeProperty('--cur')}
 function buildColors(){
   const box=$('#colors');box.innerHTML='';
   const tool=(S.tool==='hl'||S.tool==='select')?'hl':S.tool==='text'?'text':'pen';
   for(const c of PALETTE){const b=document.createElement('button');b.className='sw'+(S.color[tool]===c?' on':'');b.style.background=c;b.title=c;
     b.addEventListener('click',()=>{S.color[tool]=c;buildColors()});box.appendChild(b)}
   const i=document.createElement('input');i.type='color';i.value=S.color[tool];i.title='직접 고르기';
-  i.addEventListener('input',()=>{S.color[tool]=i.value;box.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'))});
-  box.appendChild(i);
+  i.addEventListener('input',()=>{S.color[tool]=i.value;box.querySelectorAll('.sw').forEach(s=>s.classList.remove('on'));updateCursor()});
+  box.appendChild(i);updateCursor();
 }
 function setTool(t){
   S.tool=t;document.body.dataset.tool=t;
@@ -1166,12 +1181,12 @@ function setTool(t){
   w.style.visibility=wv.style.visibility=cfg?'visible':'hidden';
   if(cfg){w.min=cfg.min;w.max=cfg.max;w.step=cfg.step;w.value=S.width[t];wv.textContent=S.width[t]}
   w.title=t==='text'?'글자 크기':t==='eraser'?'지우개 크기':'굵기';
-  buildColors();
+  buildColors();updateCursor();
   hideSelbar();if(t==='select'&&S.pdf)S.pages.forEach(pg=>pg.visible&&buildText(pg));
   if(t==='select'&&S.pdf&&!tapHint&&(navigator.maxTouchPoints>0)){tapHint=true;toast('줄을 탭하면 그 줄이 선택돼요. 다른 줄을 또 탭하면 그 사이가 모두 선택돼요',5000)}
 }
 $('#tools').addEventListener('click',e=>{const b=e.target.closest('.btn');if(b)setTool(b.dataset.tool)});
-$('#width').addEventListener('input',e=>{const v=+e.target.value;S.width[S.tool]=v;$('#wval').textContent=v});
+$('#width').addEventListener('input',e=>{const v=+e.target.value;S.width[S.tool]=v;$('#wval').textContent=v;updateCursor()});
 $('#fingerScroll').addEventListener('change',e=>{S.fingerScroll=e.target.checked;try{localStorage.setItem('pdfnote.finger',S.fingerScroll?'1':'0')}catch(_){}});
 try{if(localStorage.getItem('pdfnote.finger')==='0'){S.fingerScroll=false;$('#fingerScroll').checked=false}}catch(_){}
 
@@ -2880,7 +2895,7 @@ setInterval(()=>{if(!document.hidden)scheduleCfgSync(50)},60000);
 
 /* 시작 */
 setTool('pen');updateUndo();renderClassUi();
-window.__pdfnote={S,openBlob,G,syncDoc,insertImages,openBoard,setZoom};
+window.__pdfnote={S,openBlob,G,syncDoc,insertImages,openBoard,setZoom,cursorFor};
 showHome();
 })();
 </script>
