@@ -2433,7 +2433,7 @@ async function openBoard(o){
     delete meta.annots;delete meta.tomb;delete meta.acts;
     await DB.put('docs',meta);
     setStatus(rec?'불러옴 ✓':'저장됨 ✓');
-    scheduleSync(300);updateDocUi();
+    scheduleSync(300);updateDocUi();setTimeout(maybeAskUnit,400);
     if(S.attach&&S.attach.driveId&&!blob)tryAutoAttach();
   }catch(err){console.error(err);toast('칠판 노트를 열 수 없어요: '+(err.message||err),4000);closeDoc();$('#home').classList.remove('hide')}
   finally{busy('')}
@@ -2475,14 +2475,18 @@ function askUnit(o){
     <div class="hint" style="margin-bottom:10px">${o.hint||'학년과 단원을 고르면 단원에 맞는 PhET 시뮬레이션을 바로 보여 드려요.'}</div>${unitSelectsHtml(sel)}</div>
     <div class="ft">${o.later?'<button class="btn" id="uLater">나중에 정하기</button>':''}<button class="btn" id="uOk">확인</button><button class="btn pri" id="uSim">확인하고 시뮬레이션 보기</button></div>`;
   bindUnitSelects(card,sel);
-  $('#uX').onclick=()=>{if(o.later){S.simAsked=true;markDirty(true)}closeModal()};
-  if($('#uLater'))$('#uLater').onclick=()=>{S.simAsked=true;markDirty(true);closeModal()};
+  $('#uX').onclick=()=>{if(o.later)unitSkip.add(S.id);closeModal()};
+  if($('#uLater'))$('#uLater').onclick=()=>{unitSkip.add(S.id);closeModal()};
   $('#uOk').onclick=()=>{setUnit(sel);closeModal();toast(`${sel.g}학년 ${sel.u}로 정했어요`)};
   $('#uSim').onclick=()=>{setUnit(sel);closeModal();$('#bSim').click()};
 }
-function maybeAskUnit(){
-  if(!S.pdf||S.sim||S.simAsked||!S.sizes.length)return;
-  if(!$('#modal').classList.contains('hide'))return;
+const unitSkip=new Set();
+function maybeAskUnit(n){
+  n=n==null?20:n;
+  if(!S.pdf||S.sim||unitSkip.has(S.id))return;
+  const id=S.id;
+  const blocked=!$('#modal').classList.contains('hide')||$('#busy').style.display==='flex';
+  if(blocked){if(n>0)setTimeout(()=>{if(S.id===id)maybeAskUnit(n-1)},300);return}
   askUnit({title:'📖 이 교과서는 몇 학년 몇 단원인가요?',later:true});
 }
 function updateDocUi(){
