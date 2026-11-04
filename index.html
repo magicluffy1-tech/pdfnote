@@ -276,7 +276,8 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bZout" title="축소 (Ctrl+−)">−</button>
       <span id="zval" style="width:44px;text-align:center;font-size:13px"></span>
       <button class="btn" id="bZin" title="확대 (Ctrl+=)">＋</button>
-      <button class="btn" id="bFit" title="폭에 맞춤">폭 맞춤</button>
+      <button class="btn" id="bFit" title="화면 폭에 맞춤">폭 맞춤</button>
+      <button class="btn" id="bFitPage" title="한 쪽 전체가 화면에 들어오게 맞춤">쪽 맞춤</button>
     </div>
     <div class="grp">
       <button class="btn" id="bPrev">◀</button>
@@ -313,7 +314,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v30 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v30</small></span></span>
+      <span class="madeby mini" title="수업판 v31 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v31</small></span></span>
     </div>
   </div>
   <main>
@@ -796,6 +797,13 @@ function setZoom(z,keepCenter=true){
 }
 function updateZoomLabel(){$('#zval').textContent=Math.round(S.zoom*100)+'%'}
 function fitWidth(){if(!S.pdf)return;const w=Math.max(...S.pages.map(p=>p.w));setZoom((viewer.clientWidth-40)/w)}
+// 쪽 맞춤: 지금 보는 쪽 전체(가로·세로)가 한 화면에 들어오게
+function fitPage(){
+  if(!S.pdf)return;const pg=S.pages[S.curPage-1]||S.pages[0];if(!pg)return;
+  const z=Math.min((viewer.clientWidth-40)/pg.w,(viewer.clientHeight-28)/pg.h);
+  const k=pg.key;setZoom(z);
+  setTimeout(()=>{const i=S.pages.findIndex(p=>p.key===k);gotoPage(i>=0?i+1:S.curPage,false)},60);
+}
 
 /* ---------- 현재 쪽 / 이동 ---------- */
 function gotoPage(n,smooth){
@@ -1166,7 +1174,7 @@ $('#fingerScroll').addEventListener('change',e=>{S.fingerScroll=e.target.checked
 try{if(localStorage.getItem('pdfnote.finger')==='0'){S.fingerScroll=false;$('#fingerScroll').checked=false}}catch(_){}
 
 $('#bUndo').onclick=undo;$('#bRedo').onclick=redo;
-$('#bZin').onclick=()=>setZoom(S.zoom*1.2);$('#bZout').onclick=()=>setZoom(S.zoom/1.2);$('#bFit').onclick=fitWidth;
+$('#bZin').onclick=()=>setZoom(S.zoom*1.2);$('#bZout').onclick=()=>setZoom(S.zoom/1.2);$('#bFit').onclick=fitWidth;$('#bFitPage').onclick=fitPage;
 $('#bPrev').onclick=()=>gotoPage(S.curPage-1,true);$('#bNext').onclick=()=>gotoPage(S.curPage+1,true);
 $('#pageno').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){gotoPage(parseInt(e.target.value)||1,false);e.target.blur()}});
 $('#bHome').onclick=showHome;
