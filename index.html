@@ -217,6 +217,9 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #blank #blInfo{margin-left:auto;color:#9fb0c3;font-size:14px}
 #blank #blStage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;overflow:auto}
 #blank #blStage img{max-width:100%;max-height:100%;transition:transform .2s;cursor:zoom-in}
+#blank #blStage img{position:absolute;left:50%;top:50%;max-width:none;max-height:none;transition:none;touch-action:none;user-select:none;-webkit-user-drag:none}
+#blank #blNav{position:absolute;right:16px;top:12px;z-index:3;align-items:center;gap:8px;background:#000a;padding:6px 10px;border-radius:12px;font-weight:700}
+#blank #blNav button{font-size:16px;padding:6px 12px;border:0;border-radius:9px;background:#2f6fed;color:#fff;font-weight:800;cursor:pointer}
 #blank #blWho{position:absolute;left:16px;top:12px;font-size:34px;font-weight:800;text-shadow:0 2px 6px #000;pointer-events:none}
 #blank #blHint{color:#778;font-size:18px}
 #blank .pn{display:none;position:absolute;inset:0;background:#000d;z-index:2;overflow:auto}
@@ -314,7 +317,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v31 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v31</small></span></span>
+      <span class="madeby mini" title="수업판 v33 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v33</small></span></span>
     </div>
   </div>
   <main>
@@ -380,13 +383,14 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
     <button id="blPick">🎲 뽑기</button>
     <button class="g" id="blStat">📋 제출 현황</button>
     <button class="g" id="blHide" title="큰 화면에 학년·반·번호를 가려요">🙈 번호 가리기</button>
-    <button class="g" id="blIns" title="지금 보는 사진을 노트의 새 쪽으로 넣어 그 위에 판서해요">🖼 판서에 끼우기</button>
+    <button class="g" id="blRotL" title="왼쪽으로 회전 (Shift+R)">↺</button><button class="g" id="blRotR" title="오른쪽으로 회전 (R)">↻ 회전</button>
+    <button class="g" id="blIns" title="지금 보는 사진을 노트의 새 쪽으로 넣어 그 위에 판서해요 (회전한 모습 그대로)">🖼 판서에 끼우기</button>
     <button class="g" id="blReset">뽑은 기록 초기화</button>
     <button class="g" id="blCfg" title="연결 설정">⚙</button>
     <button class="g" id="blX">닫기 ✕</button>
     <span id="blInfo"></span>
   </div>
-  <div id="blStage"><div id="blWho"></div><img id="blImg" style="display:none" alt=""><div id="blHint">[불러오기]를 눌러 주세요</div>
+  <div id="blStage"><div id="blWho"></div><div id="blNav" style="display:none"><button id="blPrevP" title="이전 사진 (←)">◀</button><span id="blNavT"></span><button id="blNextP" title="다음 사진 (→)">▶</button></div><img id="blImg" style="display:none" alt=""><div id="blHint">[불러오기]를 눌러 주세요</div>
     <div class="pn" id="blSt"><div class="box">
       <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="blSg"></select><label style="display:inline;margin:0">반 <input type="number" id="blSc" min="1" max="30" style="width:70px"></label><label style="display:inline;margin:0">인원 <input type="number" id="blSn" min="1" max="60" style="width:80px"></label><button class="g" id="blSx" style="margin-left:auto;padding:8px 14px;border:0;border-radius:9px;background:#444;color:#fff;font-weight:700;cursor:pointer">닫기</button></div>
       <div id="blSum" style="margin-top:12px;font-size:20px;font-weight:700"></div><div id="blGrid"></div><div id="blMiss"></div>
@@ -2560,7 +2564,13 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
 (function(){
   const DEFAULT_BLANK_URL='https://script.google.com/macros/s/AKfycbyOKP9JEX8sND4MpEVxjnnCDSiz7ZzdaGUrSrVnHz4or9Za2wwoaB5tuFi87E2S-GJ93Q/exec';
   const ov=$('#blank'),img=$('#blImg'),$$=id=>document.getElementById(id);
-  let all=[],picked={},zoom=1,curId=null,curData=null,hideNo=lsGet('pdfnote.blhide')==='1';
+  let all=[],students=[],picked={},zoom=1,curId=null,curData=null,curStu=null,photoIdx=0,pan={x:0,y:0},hideNo=lsGet('pdfnote.blhide')==='1';
+  const cache=new Map();
+  let rot={};try{rot=JSON.parse(lsGet('pdfnote.blrot')||'{}')||{}}catch(_){rot={}}
+  const saveRot=()=>{const k=Object.keys(rot);if(k.length>400)for(const x of k.slice(0,k.length-400))delete rot[x];lsSet('pdfnote.blrot',JSON.stringify(rot))};
+  const skey=x=>x.grade+'-'+x.cls+'-'+x.num;
+  // 한 학생이 사진을 여러 장 올려도 한 명으로 묶음
+  function group(){const m=new Map();for(const x of all){const k=skey(x);if(!m.has(k))m.set(k,{key:k,grade:x.grade,cls:x.cls,num:x.num,photos:[]});m.get(k).photos.push(x)}students=[...m.values()];students.forEach(t=>t.photos.sort((a,b)=>(a.k||1)-(b.k||1)))}
   const url=()=>(lsGet('pdfnote.blurl')||DEFAULT_BLANK_URL).trim();
   const pin=()=>$$('blPin').value||'';
   const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -2575,8 +2585,8 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
     return j.data;
   }
   function info(t){$$('blInfo').textContent=t||''}
-  function pool(){const k=$$('blCls').value;return all.filter(x=>!k||(x.grade+'-'+x.cls)===k)}
-  function upd(){const p=pool(),left=p.filter(x=>!picked[x.id]).length;info(`제출 ${p.length}명 · 남은 ${left}명`)}
+  function pool(){const k=$$('blCls').value;return students.filter(x=>!k||(x.grade+'-'+x.cls)===k)}
+  function upd(){const p=pool(),left=p.filter(x=>!picked[x.key]).length,ph=p.reduce((n,x)=>n+x.photos.length,0);info(`제출 ${p.length}명${ph!==p.length?` · 사진 ${ph}장`:''} · 남은 ${left}명`)}
   function setWho(t){$$('blWho').textContent=hideNo&&t?'🙈':t||''}
   function renderHide(){$$('blHide').classList.toggle('on',hideNo);setWho(curId?curData&&curData.who:'')}
   function pickClass(){
@@ -2593,23 +2603,57 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
     info('불러오는 중…');$$('blLoad').disabled=true;
     try{
       const list=await call('list',{pin:pin(),date:$$('blDate').value});
-      all=list||[];picked={};pickClass();upd();renderStatus();
-      img.style.display='none';setWho('');curId=null;curData=null;
+      all=list||[];group();picked={};pickClass();upd();renderStatus();
+      img.style.display='none';setWho('');curId=null;curData=null;curStu=null;navUi();
       $$('blHint').textContent=all.length?'[🎲 뽑기]를 눌러 보세요':'이 날짜에 제출된 사진이 없어요';
     }catch(e){info(e.message||String(e));$$('blHint').textContent=''}
     finally{$$('blLoad').disabled=false}
   }
   async function pick(){
-    const left=pool().filter(x=>!picked[x.id]);
+    const left=pool().filter(x=>!picked[x.key]);
     if(!left.length){info('모두 뽑았어요! 초기화하면 다시 시작해요.');return}
-    const x=left[Math.floor(Math.random()*left.length)];picked[x.id]=1;upd();
-    curId=x.id;curData={who:`${x.grade}학년 ${x.cls}반 ${x.num}번`,data:null};setWho(curData.who);
+    const x=left[Math.floor(Math.random()*left.length)];picked[x.key]=1;upd();
+    curStu=x;photoIdx=0;showPhoto();
+  }
+  function whoText(){
+    if(!curStu)return '';const n=curStu.photos.length;
+    return `${curStu.grade}학년 ${curStu.cls}반 ${curStu.num}번`+(n>1?` · ${photoIdx+1}/${n}`:'');
+  }
+  function navUi(){
+    const n=curStu?curStu.photos.length:0,nv=$$('blNav');
+    nv.style.display=n>1?'flex':'none';
+    if(n>1)$$('blNavT').textContent=`사진 ${photoIdx+1} / ${n}`;
+  }
+  async function showPhoto(){
+    if(!curStu)return;
+    const ph=curStu.photos[photoIdx];curId=ph.id;curData={who:whoText(),data:null};setWho(curData.who);navUi();
+    pan={x:0,y:0};zoom=1;
     img.style.display='none';$$('blHint').textContent='불러오는 중…';
     try{
-      const d=await call('photo',{pin:pin(),id:x.id});
-      if(curId!==x.id)return;
-      curData.data=d;img.src=d;img.style.display='block';$$('blHint').textContent='';zoom=1;img.style.transform='';
-    }catch(e){if(curId===x.id)$$('blHint').textContent=e.message||String(e)}
+      let d=cache.get(ph.id);
+      if(!d){d=await call('photo',{pin:pin(),id:ph.id});cache.set(ph.id,d);if(cache.size>14)cache.delete(cache.keys().next().value)}
+      if(curId!==ph.id)return;
+      curData.data=d;img.onload=()=>{img.style.display='block';$$('blHint').textContent='';applyView()};img.src=d;
+    }catch(e){if(curId===ph.id)$$('blHint').textContent=e.message||String(e)}
+  }
+  function stepPhoto(d){
+    if(!curStu||curStu.photos.length<2)return;
+    photoIdx=(photoIdx+d+curStu.photos.length)%curStu.photos.length;showPhoto();
+  }
+  // 회전·확대 표시: 회전한 방향에 맞춰 화면에 꽉 차게
+  function applyView(){
+    if(!img.naturalWidth||!curId)return;
+    const deg=(((rot[curId]||0)%360)+360)%360,st=$$('blStage');
+    const sw=st.clientWidth,sh=st.clientHeight,nw=img.naturalWidth,nh=img.naturalHeight;
+    const side=deg%180!==0,ew=side?nh:nw,eh=side?nw:nh;
+    const fit=Math.min(sw/ew,sh/eh,1);
+    img.style.width=Math.round(nw*fit)+'px';img.style.height=Math.round(nh*fit)+'px';
+    img.style.transform=`translate(-50%,-50%) translate(${pan.x}px,${pan.y}px) rotate(${deg}deg) scale(${zoom})`;
+    img.style.cursor=zoom>1?'grab':'zoom-in';
+  }
+  function rotate(d){
+    if(!curId)return;
+    rot[curId]=(((rot[curId]||0)+d)%360+360)%360;if(!rot[curId])delete rot[curId];saveRot();pan={x:0,y:0};applyView();
   }
   // 제출 현황
   const nKey=()=>'pdfnote.bln.'+$$('blSg').value+'-'+$$('blSc').value;
@@ -2634,7 +2678,15 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
     if(!curData||!curData.data){toast('먼저 뽑기로 사진을 불러와 주세요');return}
     if(!S.pdf){toast('노트를 먼저 열어 주세요');return}
     try{
-      const b=await (await fetch(curData.data)).blob();
+      let b=await (await fetch(curData.data)).blob();
+      const deg=(((rot[curId]||0)%360)+360)%360;
+      if(deg){ // 회전한 모습 그대로 쪽에 넣기
+        const bmp=await createImageBitmap(b),side=deg%180!==0;
+        const c=document.createElement('canvas');c.width=side?bmp.height:bmp.width;c.height=side?bmp.width:bmp.height;
+        const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
+        x.translate(c.width/2,c.height/2);x.rotate(deg*Math.PI/180);x.drawImage(bmp,-bmp.width/2,-bmp.height/2);
+        b=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));
+      }
       const f=new File([b],'백지.jpg',{type:b.type||'image/jpeg'});
       ov.classList.add('hide');
       await insertImages([f],'after');
@@ -2683,7 +2735,14 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
   $$('blSg').innerHTML=[1,2,3].map(g=>`<option value="${g}">${g}학년</option>`).join('');
   $$('blSg').onchange=$$('blSc').oninput=()=>{loadN();renderStatus()};
   $$('blSn').oninput=()=>{lsSet(nKey(),$$('blSn').value);renderStatus()};
-  img.onclick=()=>{zoom=zoom===1?1.8:1;img.style.transform=zoom===1?'':`scale(${zoom})`;img.style.cursor=zoom===1?'zoom-in':'zoom-out'};
+  let drag=null;
+  img.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,px:pan.x,py:pan.y,moved:false};img.setPointerCapture(e.pointerId)});
+  img.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>4)drag.moved=true;if(zoom>1&&drag.moved){pan={x:drag.px+dx,y:drag.py+dy};applyView()}});
+  img.addEventListener('pointerup',e=>{const d=drag;drag=null;if(d&&!d.moved){zoom=zoom===1?1.8:1;pan={x:0,y:0};applyView()}});
+  img.addEventListener('dragstart',e=>e.preventDefault());
+  window.addEventListener('resize',()=>{if(!ov.classList.contains('hide'))applyView()});
+  $$('blRotL').onclick=()=>rotate(-90);$$('blRotR').onclick=()=>rotate(90);
+  $$('blPrevP').onclick=()=>stepPhoto(-1);$$('blNextP').onclick=()=>stepPhoto(1);
   $$('blCfg').onclick=openCfg;$$('blCfX').onclick=()=>$$('blCf').classList.remove('on');
   $$('blCfOk').onclick=()=>{
     const u=$$('blUrl').value.trim();lsSet('pdfnote.blurl',u&&u!==DEFAULT_BLANK_URL?u:null);
@@ -2702,7 +2761,12 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
       else ov.classList.add('hide');
       e.stopPropagation();return;
     }
-    if(!typing&&(e.key===' '||e.key==='Enter')&&!e.ctrlKey&&!e.metaKey){e.preventDefault();pick()}
+    if(!typing&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+      if(e.key===' '||e.key==='Enter'){e.preventDefault();pick()}
+      else if(e.key==='r'||e.key==='R'){e.preventDefault();rotate(e.shiftKey?-90:90)}
+      else if(e.key==='ArrowRight'){e.preventDefault();stepPhoto(1)}
+      else if(e.key==='ArrowLeft'){e.preventDefault();stepPhoto(-1)}
+    }
     if(!typing)e.stopPropagation();
   },true);
 })();
