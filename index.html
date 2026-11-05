@@ -317,7 +317,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v33 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v33</small></span></span>
+      <span class="madeby mini" title="수업판 v34 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v34</small></span></span>
     </div>
   </div>
   <main>
@@ -2562,7 +2562,7 @@ function updateDocUi(){
 $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'})};
 // ---- 오늘의 백지 (학생 백지 복습 사진 불러오기)
 (function(){
-  const DEFAULT_BLANK_URL='https://script.google.com/macros/s/AKfycbyOKP9JEX8sND4MpEVxjnnCDSiz7ZzdaGUrSrVnHz4or9Za2wwoaB5tuFi87E2S-GJ93Q/exec';
+  const DEFAULT_BLANK_URL='https://script.google.com/macros/s/AKfycbynjXzAQlKr1vDbgV6cH7L7rZcn2VtxncQJFtCzMnktUt_j4W469kNIW0z_S_fmHh4vhw/exec';
   const ov=$('#blank'),img=$('#blImg'),$$=id=>document.getElementById(id);
   let all=[],students=[],picked={},zoom=1,curId=null,curData=null,curStu=null,photoIdx=0,pan={x:0,y:0},hideNo=lsGet('pdfnote.blhide')==='1';
   const cache=new Map();
