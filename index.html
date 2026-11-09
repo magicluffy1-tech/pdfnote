@@ -38,7 +38,7 @@ main{flex:1;display:flex;min-height:0;position:relative}
 #pages{padding:14px 0 60px;display:flex;flex-direction:column;align-items:center;gap:12px;min-width:max-content}
 .page{position:relative;background:#fff;box-shadow:0 1px 6px rgba(0,0,0,.25);touch-action:none;user-select:none;-webkit-user-select:none;flex:none}
 .page canvas{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
-.page .tl{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.page .tl{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;overflow:visible}
 body[data-tool=pen] .page,body[data-tool=hl] .page{cursor:var(--cur,crosshair)}
 body[data-tool=eraser] .page{cursor:var(--cur,cell)}
 body[data-tool=text] .page{cursor:text}
@@ -51,10 +51,10 @@ body[data-tool=text] .tbox,body[data-tool=hand] .tbox,body[data-tool=eraser] .tb
 .tbox .tb span{padding:0 5px;cursor:pointer}
 .tbox .tb .gr{cursor:move}
 .tbox textarea{display:block;border:none;outline:none;background:transparent;resize:none;padding:0;margin:0;font:inherit;color:inherit;line-height:inherit;white-space:pre;overflow:hidden;min-width:2ch}
-#home{position:absolute;inset:0;overflow:auto;padding:28px 20px 48px;background:var(--bg);z-index:10}
+#home{position:absolute;top:0;right:0;bottom:0;left:0;overflow:auto;padding:28px 20px 48px;background:var(--bg);z-index:10}
 #home .wrap{max-width:940px;margin:0 auto}
 .hero{position:relative;padding:14px 14px 0;border-radius:10px 10px 6px 6px;background:linear-gradient(#c29660,#a97c47);box-shadow:0 18px 34px rgba(48,34,14,.28);margin-bottom:34px}
-.hero .board{padding:36px clamp(22px,5vw,44px) 40px;border-radius:4px;color:#f3f5ef;background:radial-gradient(120% 95% at 28% 12%,#2d4d3f 0%,#223a30 55%,#1a2e26 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 10px 26px rgba(0,0,0,.3)}
+.hero .board{padding:36px 5vw 40px;padding:36px clamp(22px,5vw,44px) 40px;border-radius:4px;color:#f3f5ef;background:radial-gradient(120% 95% at 28% 12%,#2d4d3f 0%,#223a30 55%,#1a2e26 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 10px 26px rgba(0,0,0,.3)}
 .hero .ledge{position:relative;height:42px;margin:14px -14px 0;border-radius:0 0 6px 6px;background:linear-gradient(#d8b07a,#b88a55 45%,#8d6a3d);box-shadow:0 2px 0 rgba(0,0,0,.2)}
 .hero .chalks{position:absolute;left:26px;top:11px;display:flex;gap:8px;align-items:center}
 .hero .chalks i{display:block;width:34px;height:9px;border-radius:3px;box-shadow:0 1px 1px rgba(0,0,0,.3)}
@@ -63,12 +63,12 @@ body[data-tool=text] .tbox,body[data-tool=hand] .tbox,body[data-tool=eraser] .tb
 .hero .chalks i:nth-child(3){background:#f4a6b8;transform:rotate(-1deg);width:22px}
 .hero .madeby{position:absolute;right:20px;top:50%;transform:translateY(-50%)}
 h1.brand{margin:0;font-family:"Do Hyeon","Noto Sans KR","Malgun Gothic",sans-serif;font-weight:400;line-height:1}
-h1.brand .name{display:inline-block;font-size:clamp(68px,13vw,124px);letter-spacing:.015em;color:#f6f7f1;text-shadow:0 0 2px rgba(255,255,255,.35);filter:url(#chalk)}
+h1.brand .name{display:inline-block;font-size:100px;font-size:clamp(68px,13vw,124px);letter-spacing:.015em;color:#f6f7f1;text-shadow:0 0 2px rgba(255,255,255,.35);filter:url(#chalk)}
 h1.brand .stroke{display:block;width:min(100%,440px);height:30px;margin:-4px 0 0 2px;overflow:visible;filter:url(#chalk)}
 h1.brand .stroke path{fill:none;stroke:#f6e27a;stroke-width:5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
 @media (prefers-reduced-motion:no-preference){h1.brand .stroke path{stroke-dashoffset:1;animation:chalkdraw .95s cubic-bezier(.4,.1,.2,1) .25s forwards}}
 @keyframes chalkdraw{to{stroke-dashoffset:0}}
-.hero .tag{margin:14px 0 0;max-width:34em;font-size:clamp(16px,2.2vw,20px);line-height:1.6;color:#cfdad2;font-weight:500}
+.hero .tag{margin:14px 0 0;max-width:34em;font-size:18px;font-size:clamp(16px,2.2vw,20px);line-height:1.6;color:#cfdad2;font-weight:500}
 #drop{margin-top:28px;border:2px dashed rgba(243,245,239,.42);border-radius:14px;padding:20px 22px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 14px;color:#e4ebe5}
 #drop.over{border-color:#f6e27a;background:rgba(246,226,122,.09)}
 #drop .dz{flex:1 1 220px;font-size:15px}
@@ -90,10 +90,10 @@ h1.brand .stroke path{fill:none;stroke:#f6e27a;stroke-width:5;stroke-linecap:rou
 .rec .n small{color:var(--sub)}
 #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:100;max-width:90vw}
 #toast.show{opacity:.95}
-#busy{position:absolute;inset:0;background:rgba(255,255,255,.75);display:none;align-items:center;justify-content:center;font-weight:600;z-index:40}
+#busy{position:absolute;top:0;right:0;bottom:0;left:0;background:rgba(255,255,255,.75);display:none;align-items:center;justify-content:center;font-weight:600;z-index:40}
 .hide{display:none!important}
 
-.modal{position:fixed;inset:0;background:rgba(20,24,35,.5);display:flex;align-items:center;justify-content:center;z-index:68;padding:14px}
+.modal{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(20,24,35,.5);display:flex;align-items:center;justify-content:center;z-index:68;padding:14px}
 .modal .card{background:#fff;border-radius:14px;width:min(640px,100%);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(0,0,0,.3)}
 .card .hd{display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line);font-weight:700}
 .card .hd .x{margin-left:auto}
@@ -115,13 +115,13 @@ code{background:#eef0f4;padding:1px 5px;border-radius:4px;font-size:12px;user-se
 #cloud{font-size:12px;padding:4px 9px}
 #cloud.ok{color:#2f9e44;border-color:#b2dfbd}#cloud.err,#cloud.auth{color:#c92a2a;border-color:#f3b4b4}
 
-.textLayer{position:absolute;inset:0;overflow:hidden;line-height:1;pointer-events:none;user-select:text;-webkit-user-select:text;z-index:1;--scale-factor:1}
+.textLayer{position:absolute;top:0;right:0;bottom:0;left:0;overflow:hidden;line-height:1;pointer-events:none;user-select:text;-webkit-user-select:text;z-index:1;--scale-factor:1}
 .textLayer span,.textLayer br{color:transparent;position:absolute;white-space:pre;cursor:text;transform-origin:0 0}
 .textLayer ::selection{background:rgba(59,108,246,.35)}
 .page .tl{z-index:2}
 body[data-tool=select] .textLayer{pointer-events:auto}
 body[data-tool=select] .page{touch-action:auto;cursor:text}
-.textLayer .endOfContent{display:block;position:absolute;inset:100% 0 0;z-index:-1;cursor:default;user-select:none;-webkit-user-select:none}
+.textLayer .endOfContent{display:block;position:absolute;top:100%;right:0;bottom:0;left:0;z-index:-1;cursor:default;user-select:none;-webkit-user-select:none}
 .textLayer.selecting .endOfContent{top:0}
 #selbar{position:fixed;z-index:55;display:flex;gap:2px;background:#232733;border-radius:11px;padding:4px;box-shadow:0 6px 20px rgba(0,0,0,.35)}
 #selbar button{background:none;border:none;color:#fff;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:13px;white-space:nowrap}
@@ -146,7 +146,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #timer.mini .tp,#timer.mini .tc{display:none}#timer.mini #tDisp{font-size:34px;padding:2px 0 6px}
 
 #act{width:440px;flex:none;background:#fff;border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;font-size:14px}
-#act.big{position:absolute;inset:0;width:auto;z-index:35;border:none;font-size:17px}
+#act.big{position:absolute;top:0;right:0;bottom:0;left:0;width:auto;z-index:35;border:none;font-size:17px}
 #act .ah{display:flex;align-items:center;gap:6px;padding:8px 10px;border-bottom:1px solid var(--line)}
 #act .atabs{display:flex;gap:4px;flex:1;flex-wrap:wrap}
 #act .atabs button,#act .sm{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;cursor:pointer;font-size:inherit}
@@ -174,7 +174,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 .chip b{color:var(--acc);margin-left:4px}
 #cloud2{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:center;padding:10px 0;line-height:1.1}
 #cloud2 span{cursor:pointer;font-weight:700}
-#bigv{position:fixed;inset:0;z-index:70;background:rgba(20,24,35,.95);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:6vw;font-size:clamp(28px,5.5vw,76px);font-weight:700;line-height:1.35;white-space:pre-wrap;cursor:pointer;word-break:keep-all}
+#bigv{position:fixed;top:0;right:0;bottom:0;left:0;z-index:70;background:rgba(20,24,35,.95);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:6vw;font-size:48px;font-size:clamp(28px,5.5vw,76px);font-weight:700;line-height:1.35;white-space:pre-wrap;cursor:pointer;word-break:keep-all}
 #act select{border:1px solid var(--line);border-radius:8px;padding:6px;font:inherit;background:#fff}
 #act details{margin-top:14px;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
 #act summary{cursor:pointer;font-weight:600}
@@ -184,14 +184,14 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #timer .tset select{border:1px solid var(--line);border-radius:7px;padding:4px;font:inherit;font-size:12px;max-width:150px}
 #timer .tset button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;cursor:pointer;font-size:12px}
 #timer.mini .tset{display:none}
-#tEnd{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;background:#d9480f;cursor:pointer;padding:24px}
+#tEnd{position:fixed;top:0;right:0;bottom:0;left:0;z-index:95;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;background:#d9480f;cursor:pointer;padding:24px}
 @media (prefers-reduced-motion:no-preference){#tEnd{animation:tpulse 1s ease-in-out infinite alternate}}
 @keyframes tpulse{from{background:#c92a2a}to{background:#f76707}}
-#tEnd .ico{font-size:clamp(64px,14vw,170px);line-height:1}
-#tEnd .msg{font-family:"Do Hyeon","Noto Sans KR",sans-serif;font-size:clamp(46px,11vw,150px);line-height:1.15;margin:.1em 0}
-#tEnd .sub{font-size:clamp(16px,2.6vw,28px);opacity:.92;min-height:1.4em}
+#tEnd .ico{font-size:100px;font-size:clamp(64px,14vw,170px);line-height:1}
+#tEnd .msg{font-family:"Do Hyeon","Noto Sans KR",sans-serif;font-size:100px;font-size:clamp(46px,11vw,150px);line-height:1.15;margin:.1em 0}
+#tEnd .sub{font-size:22px;font-size:clamp(16px,2.6vw,28px);opacity:.92;min-height:1.4em}
 #tEnd .btns{display:flex;gap:14px;justify-content:center;margin-top:30px;flex-wrap:wrap}
-#tEnd .btns button{font:inherit;font-size:clamp(18px,2.6vw,30px);font-weight:700;padding:.5em 1.4em;border-radius:14px;border:3px solid #fff;background:#fff;color:#c92a2a;cursor:pointer}
+#tEnd .btns button{font:inherit;font-size:24px;font-size:clamp(18px,2.6vw,30px);font-weight:700;padding:.5em 1.4em;border-radius:14px;border:3px solid #fff;background:#fff;color:#c92a2a;cursor:pointer}
 #tEnd .btns button+button{background:transparent;color:#fff}
 #tEnd .hintx{margin-top:22px;font-size:14px;opacity:.75}
 #act .simcard{border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-bottom:10px;background:#fff}
@@ -206,7 +206,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #act .fchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 11px;cursor:pointer;font-size:12.5px}
 #act .fchip.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:700}
 
-#blank{position:fixed;inset:0;z-index:80;background:#111;color:#fff;display:flex;flex-direction:column}
+#blank{position:fixed;top:0;right:0;bottom:0;left:0;z-index:80;background:#111;color:#fff;display:flex;flex-direction:column}
 #blank.hide{display:none}
 #blank .bar{display:flex;gap:8px;align-items:center;padding:8px 10px;background:#222;flex-wrap:wrap}
 #blank .bar .t{font-weight:800;font-size:15px;margin-right:4px;color:#ffd43b}
@@ -222,7 +222,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #blank #blNav button{font-size:16px;padding:6px 12px;border:0;border-radius:9px;background:#2f6fed;color:#fff;font-weight:800;cursor:pointer}
 #blank #blWho{position:absolute;left:16px;top:12px;font-size:34px;font-weight:800;text-shadow:0 2px 6px #000;pointer-events:none}
 #blank #blHint{color:#778;font-size:18px}
-#blank .pn{display:none;position:absolute;inset:0;background:#000d;z-index:2;overflow:auto}
+#blank .pn{display:none;position:absolute;top:0;right:0;bottom:0;left:0;background:#000d;z-index:2;overflow:auto}
 #blank .pn.on{display:block}
 #blank .box{max-width:760px;margin:30px auto;background:#1c2430;border-radius:16px;padding:20px}
 #blank .box input,#blank .box select{font-size:16px;padding:8px 10px;border-radius:9px;border:0;max-width:100%}
@@ -238,7 +238,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #clsSel,#grpSel{border:1px solid var(--line);border-radius:8px;padding:5px 6px;background:#fff;font:inherit;max-width:140px}
 .page[data-ins]::before{content:attr(data-ins);position:absolute;left:10px;top:6px;font-size:11px;color:#9aa5b5;z-index:3;pointer-events:none}
 .page[data-board]::before{color:#a9c7b6}
-#grp{position:fixed;inset:0;z-index:65;background:#fff;display:flex;flex-direction:column}
+#grp{position:fixed;top:0;right:0;bottom:0;left:0;z-index:65;background:#fff;display:flex;flex-direction:column}
 #grp .gbar{display:flex;align-items:center;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line);background:#fff;flex-wrap:wrap}
 #grpSel{display:none}
 #grp iframe{flex:1;border:none;width:100%;min-height:0}
@@ -268,23 +268,23 @@ body[data-dock=left][data-rail] #rail,body[data-dock=right][data-rail] #rail{dis
 #side .sh::after{content:'▾'}
 #side .sec.fold .sh::after{content:'▸'}
 #side .sec.fold .sdb{display:none}
-#side .sdb{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#side .sdb{display:grid;grid-template-columns:1fr 1fr;grid-gap:6px;gap:6px}
 #side .sdb>*{min-width:0}
 #side .btn{min-height:44px;display:flex;align-items:center;justify-content:center;padding:6px 6px;white-space:nowrap}
 #side .sdb>.btn.hide{display:none}
 #side #bDrive,#side #title,#side #bUnit,#side #bAttach,#side #tools,#side #colors,#side .gw,#side .gu,#side .gz,#side .gn,#side label.grp{grid-column:1/-1}
 #side #clsSel{min-height:44px;width:100%;max-width:none}
 #side #title{max-width:none;font-size:13px;padding:2px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#side #tools,#side .gu{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+#side #tools,#side .gu{display:grid;grid-template-columns:1fr 1fr;grid-gap:6px;gap:6px}
 #side #colors{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;justify-items:center;padding:2px 0}
 #side .gw{display:flex;align-items:center;gap:8px}
 #side .gw #width{flex:1;width:auto;min-width:0}
 #side label.grp{font-size:12px;padding:2px}
-#side .gz{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+#side .gz{display:grid;grid-template-columns:repeat(6,1fr);grid-gap:6px;gap:6px}
 #side .gz #bZout,#side .gz #zval,#side .gz #bZin{grid-column:span 2}
 #side .gz #bFit,#side .gz #bFitPage{grid-column:span 3}
 #side .gz #zval{width:auto!important;display:flex;align-items:center;justify-content:center}
-#side .gn{display:grid;grid-template-columns:44px 1fr auto 44px;gap:6px;align-items:center}
+#side .gn{display:grid;grid-template-columns:44px 1fr auto 44px;grid-gap:6px;gap:6px;align-items:center}
 #side .gn #pageno{width:100%;min-height:44px}
 #side .gn #bImg{grid-column:1/3}
 #side .gn #pageMenu{grid-column:3/5}
@@ -298,9 +298,59 @@ body[data-dock=left][data-rail] #rail,body[data-dock=right][data-rail] #rail{dis
 body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{position:fixed!important;left:var(--px,0)!important;top:var(--py,0)!important;right:auto!important;bottom:auto!important}
 #dockMenu .pop{min-width:150px}
 #dockMenu .btn.on{background:var(--accbg);color:var(--acc);font-weight:600}
+.nogap .btn,.nogap select,.nogap #pageno{margin:2px 3px}
+.nogap .sw{margin:2px}
 </style>
 </head>
 <body data-tool="pen">
+<script>
+(function(){
+  try{
+    if(!Blob.prototype.arrayBuffer)Blob.prototype.arrayBuffer=function(){var b=this;return new Promise(function(res,rej){var r=new FileReader();r.onload=function(){res(r.result)};r.onerror=function(){rej(r.error)};r.readAsArrayBuffer(b)})};
+    if(!Array.prototype.flat)Object.defineProperty(Array.prototype,'flat',{configurable:true,writable:true,value:function(d){d=d===undefined?1:d;var o=[];(function f(a,k){for(var i=0;i<a.length;i++){if(Array.isArray(a[i])&&k>0)f(a[i],k-1);else o.push(a[i])}})(this,d);return o}});
+    if(!Array.prototype.flatMap)Object.defineProperty(Array.prototype,'flatMap',{configurable:true,writable:true,value:function(fn,t){return Array.prototype.map.call(this,fn,t).flat(1)}});
+    if(!Array.prototype.at)Object.defineProperty(Array.prototype,'at',{configurable:true,writable:true,value:function(i){i=Math.trunc(i)||0;if(i<0)i+=this.length;return this[i]}});
+    if(!Object.fromEntries)Object.fromEntries=function(it){var o={};for(var e of it)o[e[0]]=e[1];return o};
+    if(!String.prototype.replaceAll)String.prototype.replaceAll=function(a,b){return a instanceof RegExp?this.replace(a,b):this.split(a).join(b)};
+    if(!Promise.allSettled)Promise.allSettled=function(ps){return Promise.all(Array.prototype.map.call(ps,function(p){return Promise.resolve(p).then(function(v){return{status:'fulfilled',value:v}},function(r){return{status:'rejected',reason:r}})}))};
+  }catch(_){}
+})();
+</script>
+<script>
+(function(){
+  var m=/Chrome\/(\d+)/.exec(navigator.userAgent),ver=m?+m[1]:0,shown=0;
+  function ua(){var u=navigator.userAgent;var mm=/(Chrome|Chromium|CriOS|Firefox|Edg|SamsungBrowser|Version)\/[\d.]+/.exec(u);return (mm?mm[0]:'브라우저 불명')+(/Android\s[\d.]+/.exec(u)?' · '+/Android\s[\d.]+/.exec(u)[0]:'')+(/Mobile Safari|Safari/.test(u)?'':' · Safari 아님')}
+  function banner(msg,force){
+    if(!force&&shown>=2)return;shown++;
+    var go=function(){var d=document.createElement('div');
+      d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99999;background:#b42318;color:#fff;padding:10px 14px;font:15px/1.5 sans-serif;cursor:pointer';
+      d.textContent='['+ua()+'] '+msg+(ver&&ver<90?' · 브라우저가 오래되어 일부 기능이 안 될 수 있어요(Chrome 90 이상 권장). 눌러서 닫기':' · 눌러서 닫기');
+      d.onclick=function(){if(d.parentNode)d.parentNode.removeChild(d)};document.body.appendChild(d)};
+    if(document.body)go();else document.addEventListener('DOMContentLoaded',go)}
+  window.addEventListener('error',function(e){if(e.target&&e.target!==window&&e.target.tagName)return;banner('오류: '+(e.message||'알 수 없음')+' ('+(e.lineno||'?')+'줄)')});
+  document.addEventListener('click',function(e){var t=e.target;if(t&&t.closest&&t.closest('.madeby'))banner('브라우저 정보: '+navigator.userAgent.slice(0,140),true)},true);
+  window.addEventListener('load',function(){
+    if(typeof pdfjsLib==='undefined')banner('이 브라우저에서는 PDF 엔진이 동작하지 않아요. 칠판 노트·오늘의 백지는 쓸 수 있어요.');
+    // flex gap 미지원 보정
+    try{var d=document.createElement('div');d.style.cssText='display:flex;flex-direction:column;row-gap:1px;position:absolute;visibility:hidden';
+      d.appendChild(document.createElement('div'));d.appendChild(document.createElement('div'));document.body.appendChild(d);
+      if(d.scrollHeight!==1)document.documentElement.classList.add('nogap');document.body.removeChild(d)}catch(_){}
+    // 새 이모지 글자가 없는 기기(오래된 전자칠판)는 대체 글자로
+    try{
+      var MAP={'\u{1F9FD}':'\u232B','\u{1F9EA}':'\u2697','\u{1F7E9}':'\u25A3'};
+      var cv=document.createElement('canvas');cv.width=cv.height=32;var cx=cv.getContext('2d');
+      var draw=function(ch){cx.clearRect(0,0,32,32);cx.font='24px sans-serif';cx.textBaseline='top';cx.fillText(ch,2,2);return cv.toDataURL()};
+      var tofu=draw('\u{10FFFF}'),bad=[];
+      for(var k in MAP){if(draw(k)===tofu)bad.push(k)}
+      if(bad.length){
+        var fix=function(){var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null,false),n;
+          while((n=w.nextNode())){var t=n.nodeValue,o=t;for(var i=0;i<bad.length;i++)t=t.split(bad[i]).join(MAP[bad[i]]);if(t!==o)n.nodeValue=t}
+          document.querySelectorAll('[title],[placeholder]').forEach(function(el){['title','placeholder'].forEach(function(a){var v=el.getAttribute(a);if(!v)return;var o=v;for(var i=0;i<bad.length;i++)v=v.split(bad[i]).join(MAP[bad[i]]);if(v!==o)el.setAttribute(a,v)})})};
+        fix();document.addEventListener('click',function(){setTimeout(fix,60)},true);setInterval(fix,2000)}
+    }catch(_){}
+  });
+})();
+</script>
 <div id="app">
   <div id="bar">
     <div class="grp">
@@ -374,7 +424,7 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v37 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v37</small></span></span>
+      <span class="madeby mini" title="수업판 v40 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v40</small></span></span>
     </div>
   </div>
   <main>
@@ -533,7 +583,7 @@ const PALETTE=['#ffffff','#111111','#e03131','#1c7ed6','#2f9e44','#f08c00','#ae3
 const TOOLCFG={pen:{min:1,max:12,step:.5},hl:{min:6,max:36,step:1},eraser:{min:8,max:60,step:1},text:{min:10,max:48,step:1},hand:null,select:null};
 const FONT='"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([$('#pdfworker').textContent],{type:'text/javascript'}));
+if(typeof pdfjsLib!=='undefined'){pdfjsLib.GlobalWorkerOptions.workerSrc=URL.createObjectURL(new Blob([$('#pdfworker').textContent],{type:'text/javascript'}));}
 
 /* ---------- 상태 ---------- */
 const S={
@@ -1652,7 +1702,7 @@ async function buildText(pg){
     const tc=await page.getTextContent();
     if(z!==S.zoom||!pg.visible)return;
     pg.txtL.innerHTML='';pg.txtL.style.setProperty('--scale-factor',z);
-    const task=pdfjsLib.renderTextLayer({textContentSource:tc,container:pg.txtL,viewport:page.getViewport({scale:z}),textDivs:[]});
+    const task=pdfjsLib.renderTextLayer({textContentSource:tc,textContent:tc,container:pg.txtL,viewport:page.getViewport({scale:z}),textDivs:[]});
     await task.promise;pg.txtDone=true;
     if(!pg.txtL.querySelector('.endOfContent')){const eo=document.createElement('div');eo.className='endOfContent';pg.txtL.appendChild(eo)}
     if(!tc.items.some(i=>i.str&&i.str.trim())&&pg.num===S.curPage&&Date.now()-noTextToast>20000){noTextToast=Date.now();toast('이 쪽은 글자가 이미지라 드래그로 선택할 수 없어요. 위쪽 [▶ 유튜브] 버튼에서 검색어를 직접 입력하세요',5500)}
@@ -3017,7 +3067,7 @@ showHome();
   }
   document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.matches&&d.matches('details.menu')&&d.open)place(d)},true);
   document.addEventListener('click',e=>{const b=e.target.closest('#dockMenu [data-dock]');if(b)apply(b.dataset.dock,true)});
-  document.addEventListener('pointerdown',e=>{if(!e.target.closest('#dockMenu'))document.getElementById('dockMenu')?.removeAttribute('open')});
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest('#dockMenu'))(function(m){if(m)m.removeAttribute('open')})(document.getElementById('dockMenu'))});
   apply(cur,false);
   window.__dock=apply;
 })();
