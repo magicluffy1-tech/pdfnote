@@ -402,7 +402,7 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
       <button class="btn" id="bPrev">◀</button>
       <input id="pageno" inputmode="numeric"><span id="pagecnt" style="font-size:13px;color:var(--sub)"></span>
       <button class="btn" id="bNext">▶</button>
-      <button class="btn" id="bImg" title="스크린샷·사진을 새 쪽으로 불러오기 (Ctrl+V 붙여넣기, 끌어다 놓기도 돼요)">🖼 이미지 쪽</button>
+      <button class="btn" id="bImg" title="방금 캡처한 스크린샷(Win+Shift+S)이 있으면 바로 새 쪽으로, 없으면 파일 선택 (Ctrl+V, 끌어다 놓기도 돼요)">🖼 이미지 쪽</button>
       <input type="file" id="fImg" accept="image/*" multiple class="hide">
       <details class="menu" id="pageMenu"><summary class="btn" title="빈 칠판·모눈 쪽 끼우기">＋ 쪽</summary><div class="pop" style="left:0;right:auto;min-width:230px">
         <div class="hint" style="padding:4px 8px">현재 쪽을 기준으로 끼워 넣어요</div>
@@ -4826,8 +4826,24 @@ async function insertImages(files,where){
   finally{imgBusy=false;busy('')}
 }
 // 이미지 선택 / 붙여넣기
-$('#bImg').onclick=()=>{if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}insertImages.where='after';$('#fImg').click()};
-$('#pImg').onclick=()=>{$('#pageMenu').removeAttribute('open');if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}insertImages.where=$('#pageMenu input[name=pw]:checked').value;$('#fImg').click()};
+// 방금 캡처한 스크린샷(Win+Shift+S 등)이 클립보드에 있으면 바로 쪽으로, 없으면 파일 선택
+async function clipImages(){
+  try{
+    if(!navigator.clipboard||!navigator.clipboard.read)return [];
+    const its=await navigator.clipboard.read(),out=[];
+    for(const it of its){const t=it.types.find(x=>/^image\//.test(x));if(t){const b=await it.getType(t);out.push(new File([b],'capture-'+Date.now()+'.'+(t.split('/')[1]||'png'),{type:t}))}}
+    return out;
+  }catch(e){return []}
+}
+async function pickImages(where){
+  insertImages.where=where;
+  const fs=await clipImages();
+  if(fs.length){insertImages(fs,where);return}
+  toast('클립보드에 캡처한 이미지가 없어서 파일을 고릅니다',2500);$('#fImg').click();
+}
+$('#bImg').onclick=()=>{if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}pickImages('after')};
+$('#pImg').onclick=()=>{$('#pageMenu').removeAttribute('open');if(!S.pdf){toast('먼저 책(PDF)을 열어 주세요');return}pickImages($('#pageMenu input[name=pw]:checked').value)};
+
 $('#fImg').addEventListener('change',e=>{const fs=[...e.target.files];e.target.value='';insertImages(fs,insertImages.where||'after')});
 document.addEventListener('paste',e=>{
   if(!S.pdf)return;const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
