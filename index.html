@@ -70,7 +70,7 @@ h1.brand b{color:#D9A441;font-weight:700}
 #home .madeby{background:#FFFBF1;border-color:#E2D8BE}
 .q{font-family:"GmarketSans","Pretendard",sans-serif;font-weight:700;font-size:19px;color:#1F4D3A;margin:0 0 12px}
 #drop{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;padding:0;border-radius:18px;margin-bottom:26px}
-#drop.over .sc.main{outline:3px dashed #D9A441;outline-offset:3px}
+#drop.over #bOpen2{outline:3px dashed #D9A441;outline-offset:3px}
 .sc{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;cursor:pointer;border:1px solid #E2D8BE;background:#FFFBF1;color:#1F4D3A;border-radius:18px;padding:20px 20px 22px;min-height:150px;transition:transform .12s,box-shadow .12s,border-color .12s}
 .sc:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(80,60,20,.12);border-color:#C9BA93}
 .sc svg{width:34px;height:34px;margin-bottom:auto;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -462,9 +462,9 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
         </header>
         <p class="q">오늘은 무엇을 펼칠까요?</p>
         <div id="drop">
-          <button class="sc main" id="bOpen2"><svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg><b>교과서 펼치기</b><span>PDF를 여기에 끌어다 놓거나 눌러서 선택</span></button>
+          <button class="sc main" id="bOpenDrive"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.95A5.5 5.5 0 0 1 17 8.6 3.8 3.8 0 0 1 17 18z"/></svg><b>이어서 펼치기</b><span>Drive에 저장한 내 필기·노트</span></button>
+          <button class="sc" id="bOpen2"><svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg><b>교과서 펼치기</b><span>PDF를 여기에 끌어다 놓거나 눌러서 선택</span></button>
           <button class="sc" id="bNewBoard"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14 7l3 3"/></svg><b>빈 종이 펼치기</b><span>아이디어 메모, 판서 연습</span></button>
-          <button class="sc" id="bOpenDrive"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.95A5.5 5.5 0 0 1 17 8.6 3.8 3.8 0 0 1 17 18z"/></svg><b>이어서 펼치기</b><span>Google Drive에 저장한 필기</span></button>
         </div>
         <p class="sec">수업 준비 도구</p>
         <div id="htools"></div>
@@ -4005,7 +4005,38 @@ async function openSettings(){
 }
 
 $('#bDrive').onclick=()=>openBrowser('pdf',openDrivePdf);
-$('#bOpenDrive').onclick=()=>openBrowser('pdf',openDrivePdf);
+$('#bOpenDrive').onclick=()=>openRemoteNotes();
+// 이어서 펼치기: Drive에 저장된 내 필기(책·빈 종이)를 한 목록으로
+async function openRemoteNotes(){
+  if(!(await ensureConnected()))return;
+  const card=$('#mcard');$('#modal').classList.remove('hide');
+  card.innerHTML=`<div class="hd"><span>☁ 이어서 펼치기 — Drive에 저장한 필기</span><button class="btn x" id="rX">닫기</button></div><div class="bd2"><div id="rL" class="hint">불러오는 중…</div><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="rRe">↻ 새로고침</button><button class="btn" id="rPdf">PDF 파일 직접 고르기</button></div></div>`;
+  $('#rX').onclick=closeModal;$('#rPdf').onclick=()=>{closeModal();openBrowser('pdf',openDrivePdf)};
+  const L=$('#rL');
+  const run=async()=>{
+    L.className='hint';L.textContent='불러오는 중…';
+    try{
+      const local=new Set((await DB.all('docs')).map(d=>d.id));
+      const fields=enc('files(id,name,modifiedTime,appProperties)');
+      const q="appProperties has { key='pdfnoteKind' and value='notes' } and trashed=false";
+      const r=await (await gapi(`${API}/files?q=${enc(q)}&orderBy=${enc('modifiedTime desc')}&pageSize=100&fields=${fields}&supportsAllDrives=true&includeItemsFromAllDrives=true`)).json();
+      const fs=(r.files||[]).filter(f=>f.appProperties&&(f.appProperties.pdfnoteSrc==='drive'||f.appProperties.pdfnoteSrc==='board'));
+      if(!fs.length){
+        let n=0;try{const r2=await (await gapi(`${API}/files?q=${enc("name contains '.필기.json' and trashed=false")}&pageSize=50&fields=${enc('files(id)')}&supportsAllDrives=true&includeItemsFromAllDrives=true`)).json();n=(r2.files||[]).length}catch(e){}
+        L.innerHTML=n?`Drive에 필기 파일이 ${n}개 보이지만 이 앱으로 만든 것으로 인식되지 않아요.<br>필기를 처음 저장할 때 쓴 <b>OAuth 클라이언트 ID</b>와 지금 설정이 같은지 ⚙ 설정에서 확인해 주세요. (다른 클라이언트 ID로 만든 필기는 목록에 나오지 않아요)`:'Drive에 저장된 필기가 아직 없어요.<br>필기를 연 상태에서 <b>저장 / 내보내기</b>로 Drive에 저장하면 여기에 나타나요. 빈 종이 노트도 같은 방식으로 저장돼요.';
+        return}
+      L.className='';L.innerHTML='';
+      for(const f of fs){
+        const ap=f.appProperties,isB=ap.pdfnoteSrc==='board',lid=(isB?'':'drive:')+ap.pdfnoteId,here=local.has(lid);
+        const el=document.createElement('div');el.className='rec';el.style.marginBottom='8px';
+        el.innerHTML=`<div class="ic">${isB?'📝':'📘'}</div><div class="n"><b></b><small>${isB?'빈 종이 · ':'교과서 · '}${fmtTime(f.modifiedTime)} 마지막 저장${here?' · 이 기기에도 있음':''}</small></div>`;
+        el.querySelector('b').textContent=f.name.replace(/\.필기\.json$/,'');
+        el.onclick=()=>{closeModal();isB?openBoard({id:ap.pdfnoteId,name:f.name.replace(/\.필기\.json$/,'')}):openDrivePdf({id:ap.pdfnoteId})};
+        L.appendChild(el)}
+    }catch(e){L.innerHTML='필기 목록을 불러오지 못했어요: '+escH(String(e&&e.message||e))+'<br>Drive 연결이 끊겼으면 ⚙ 설정에서 다시 연결해 주세요.'}
+  };
+  $('#rRe').onclick=run;run();
+}
 $('#bSet').onclick=openSettings;
 $('#cloud').onclick=async()=>{
   if(G.state==='off'||G.state==='auth'){await connect();return}
