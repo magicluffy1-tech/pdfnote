@@ -381,7 +381,7 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
       <button class="btn" id="bOpen" title="내 컴퓨터에서 PDF 열기 (Ctrl+O)">PDF 열기</button>
       <button class="btn" id="bDrive" title="Google Drive에서 PDF 열기">☁ Drive에서 열기</button>
     </div>
-    <div class="grp"><select id="clsSel" title="반 선택 — 필기·수업 활동·모둠 명단이 반마다 따로 저장돼요"></select><button class="btn" id="bCls" title="반 추가·이름 바꾸기·삭제">✎ 반</button></div>
+    <div class="grp"><select id="clsSel" title="반·분류 선택 — 필기·수업 활동·모둠 명단이 반마다 따로 저장돼요. 학년과 상관없는 메모는 ‘분류’를 고르세요"></select><button class="btn" id="bCls" title="반 추가·이름 바꾸기·삭제">✎ 반·분류</button></div>
     <span id="title" class="hide" title="더블클릭해서 이름 바꾸기"></span>
     <button class="btn hide" id="bUnit" title="이 책의 학년·단원 (시뮬레이션 연결에 써요)">🧪 단원 고르기</button>
     <button class="btn hide" id="bAttach" title="칠판 노트에 교과서 PDF 붙이기">📖 교과서 붙이기</button>
@@ -2924,9 +2924,13 @@ function setStatus(s){$('#status').textContent=s}
 
 /* ---------- 반(학급) · 필기장(layer) · 끼운 쪽 ---------- */
 const CFG_KEY='pdfnote.cfg';
-const newClass=(id,name,c)=>({id,name,c,m:0,rosterText:'',absent:[],separateText:'',history:[],gcount:4});
-let CFG=(()=>{try{const j=JSON.parse(localStorage.getItem(CFG_KEY)||'null');if(j&&Array.isArray(j.classes)&&j.classes.length)return {classes:j.classes,del:j.del||{},active:j.active||j.classes[0].id}}catch(e){}
+const newClass=(id,name,c,kind)=>{const o={id,name,c,m:0,rosterText:'',absent:[],separateText:'',history:[],gcount:4};if(kind)o.kind=kind;return o};
+const CATS=[['cat-free','자유 분류'],['cat-meet','회의'],['cat-etc','기타']];
+const isCat=c=>!!(c&&c.kind==='cat');
+let CFG=(()=>{try{const j=JSON.parse(localStorage.getItem(CFG_KEY)||'null');if(j&&Array.isArray(j.classes)&&j.classes.length)return {classes:j.classes,del:j.del||{},active:j.active||j.classes[0].id,gactive:j.gactive||null}}catch(e){}
   return {classes:[newClass('c1','1학년',1),newClass('c2','2학년',2),newClass('c3','3학년',3)],del:{},active:'c1'}})();
+CATS.forEach(([id,nm],i)=>{if(!CFG.classes.some(c=>c.id===id)&&!CFG.del[id])CFG.classes.push(newClass(id,nm,100+i,'cat'))});
+function bookCls(){const ok=id=>CFG.classes.some(c=>c.id===id&&!isCat(c));return ok(CFG.active)?CFG.active:ok(CFG.gactive)?CFG.gactive:(CFG.classes.find(c=>!isCat(c))||CFG.classes[0]).id}
 function cfgSave(){try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG))}catch(e){}}
 function activeClass(){return CFG.classes.find(c=>c.id===CFG.active)||CFG.classes[0]}
 function cfgTouch(c){if(c)c.m=Date.now();cfgSave();try{localStorage.setItem('pdfnote.cfgdirty','1')}catch(e){}scheduleCfgSync(3000)}
@@ -3020,7 +3024,7 @@ async function switchClass(cid){
   const keyNow=(S.pages[S.curPage-1]||{}).key;
   S.layers[S.cls]=collectLayer();
   await saveNow(true);
-  S.cls=cid;CFG.active=cid;cfgSave();
+  S.cls=cid;CFG.active=cid;if(!isCat(CFG.classes.find(c=>c.id===cid)))CFG.gactive=cid;cfgSave();
   const L=normLayer(S.layers[cid]);delete S.layers[cid];
   S.tomb=L.tomb;S.acts=L.acts;S.ins=L.ins;
   rebuildPages(L.annots,keyNow);
@@ -3043,7 +3047,9 @@ async function autoClassForGrade(g){
 function renderClassUi(){
   const sel=$('#clsSel');if(!sel)return;
   const cur=(S.pdf&&S.cls)||CFG.active;
-  sel.innerHTML='';for(const c of CFG.classes){const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o)}
+  sel.innerHTML='';
+  const mk=(arr,label)=>{if(!arr.length)return;const og=document.createElement('optgroup');og.label=label;for(const c of arr){const o=document.createElement('option');o.value=c.id;o.textContent=c.name;og.appendChild(o)}sel.appendChild(og)};
+  mk(CFG.classes.filter(c=>!isCat(c)),'학급 (반별 필기)');mk(CFG.classes.filter(isCat),'분류 (학년 없음)');
   sel.value=cur;
   const g=$('#grpSel');if(g){g.innerHTML=sel.innerHTML;g.value=cur}
 }
@@ -3112,7 +3118,7 @@ async function openBlob(blob,name,opts={}){
     let legacy=false,layers={};
     if(rec&&rec.layers)layers=rec.layers;
     else if(rec&&(rec.annots||rec.acts)){legacy=true;layers={[CFG.active]:{annots:rec.annots||{},tomb:rec.tomb||{},acts:rec.acts||[],ins:[]}}}
-    S.cls=CFG.classes.some(c=>c.id===CFG.active)?CFG.active:CFG.classes[0].id;CFG.active=S.cls;
+    S.cls=bookCls();CFG.active=S.cls;
     const L=normLayer(layers[S.cls]);S.layers={};for(const k in layers)if(k!==S.cls)S.layers[k]=normLayer(layers[k]);
     S.sim=(rec&&rec.sim)||null;S.simAsked=!!(rec&&rec.simAsked);
     S.tomb=L.tomb;S.acts=L.acts;S.ins=L.ins;S.notesId=rec&&rec.notesId||null;S.remoteMod=rec&&rec.remoteMod||null;S.remoteDirty=!!(rec&&rec.remoteDirty);S.fresh=!rec;
@@ -4732,9 +4738,10 @@ function openClassMgr(){
   const draw=()=>{
     const cur=(S.pdf&&S.cls)||CFG.active;
     card.innerHTML=`<div class="hd"><span>✎ 반 관리</span><button class="btn x" id="cX">닫기</button></div><div class="bd2">
-      <div class="hint" style="margin-bottom:10px">반마다 <b>필기·수업 활동·모둠 명단</b>이 따로 저장돼요. 같은 교과서로 여러 반을 가르칠 때 판서가 섞이지 않아요.</div>
-      ${CFG.classes.map(c=>`<div class="row"><input type="text" data-n="${c.id}" style="flex:1"><span class="hint" style="white-space:nowrap">${parseRosterCount(c)}명 ${c.id===cur?'· 사용 중':''}</span><button class="btn" data-d="${c.id}" style="color:#c92a2a">삭제</button></div>`).join('')}
-      <div class="row" style="margin-top:12px"><input type="text" id="cNew" placeholder="새 반 이름 (예: 2학년 3반)" style="flex:1"><button class="btn pri" id="cAdd">＋ 추가</button></div>
+      <div class="hint" style="margin-bottom:10px">반마다 <b>필기·수업 활동·모둠 명단</b>이 따로 저장돼요. 같은 교과서로 여러 반을 가르칠 때 판서가 섞이지 않아요.<br><b>분류</b>(자유 분류·회의·기타 등)는 학년과 상관없는 메모용이에요. 빈 종이를 새로 열면 ‘자유 분류’로 시작해요.</div>
+      ${CFG.classes.map(c=>`<div class="row"><input type="text" data-n="${c.id}" style="flex:1"><span class="hint" style="white-space:nowrap">${isCat(c)?'분류':parseRosterCount(c)+'명'} ${c.id===cur?'· 사용 중':''}</span><button class="btn" data-d="${c.id}" style="color:#c92a2a">삭제</button></div>`).join('')}
+      <div class="row" style="margin-top:12px"><input type="text" id="cNew" placeholder="새 반 이름 (예: 2학년 3반)" style="flex:1"><button class="btn pri" id="cAdd">＋ 반 추가</button></div>
+      <div class="row" style="margin-top:8px"><input type="text" id="cNewCat" placeholder="새 분류 이름 (예: 연수, 동아리)" style="flex:1"><button class="btn" id="cAddCat">＋ 분류 추가</button></div>
       ${S.pdf?`<h4 style="margin:18px 0 6px;font-size:13px;color:var(--sub)">이 책의 필기를 다른 반으로 복사</h4><div class="row"><select id="cTo" style="flex:1;padding:6px;border:1px solid var(--line);border-radius:8px">${CFG.classes.filter(c=>c.id!==S.cls).map(c=>`<option value="${c.id}">${escH(c.name)}</option>`).join('')}</select><button class="btn" id="cCopy">복사 (덮어씀)</button></div><div class="hint">예: 1반에서 만든 판서를 2반 필기장에도 그대로 쓰고 싶을 때</div>`:''}
     </div>`;
     card.querySelectorAll('[data-n]').forEach(i=>{const c=CFG.classes.find(x=>x.id===i.dataset.n);i.value=c.name;i.onchange=()=>{const v=i.value.trim();if(!v){i.value=c.name;return}c.name=v;cfgTouch(c);renderClassUi();grpSync()}});
@@ -4749,6 +4756,8 @@ function openClassMgr(){
     });
     $('#cX').onclick=closeModal;
     $('#cAdd').onclick=()=>{const v=$('#cNew').value.trim();if(!v){toast('반 이름을 입력해 주세요');return}const c=newClass('c'+uid(),v,Date.now());c.m=Date.now();CFG.classes.push(c);cfgTouch(c);renderClassUi();grpSync();draw()};
+    $('#cAddCat').onclick=()=>{const v=$('#cNewCat').value.trim();if(!v){toast('분류 이름을 입력해 주세요');return}const c=newClass('k'+uid(),v,Date.now(),'cat');c.m=Date.now();CFG.classes.push(c);cfgTouch(c);renderClassUi();grpSync();draw()};
+    $('#cNewCat').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')$('#cAddCat').click()});
     $('#cNew').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')$('#cAdd').click()});
     if($('#cCopy'))$('#cCopy').onclick=()=>{const tid=$('#cTo').value;if(!tid)return;const tn=CFG.classes.find(c=>c.id===tid).name;
       if(!confirm(`이 책의 ‘${tn}’ 필기장을 지금 반(${activeClass().name})의 필기로 덮어쓸까요?`))return;
@@ -4918,7 +4927,11 @@ async function openBoard(o){
     if(blob){const buf=await blob.arrayBuffer();S.bytes=buf;S.pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;S.sizes=await readSizes(S.pdf)}
     else{S.bytes=null;S.pdf=nullPdf(id);S.sizes=[]}
     let layers=(rec&&rec.layers)||{};
-    S.cls=CFG.classes.some(c=>c.id===CFG.active)?CFG.active:CFG.classes[0].id;CFG.active=S.cls;
+    {const has=id=>CFG.classes.some(c=>c.id===id);
+     if(!rec&&!o.id&&has('cat-free'))S.cls='cat-free';
+     else if(has(CFG.active)&&(!Object.keys(layers).length||layers[CFG.active]))S.cls=CFG.active;
+     else S.cls=Object.keys(layers).find(has)||(has(CFG.active)?CFG.active:CFG.classes[0].id);
+     CFG.active=S.cls;}
     const L=normLayer(layers[S.cls]);S.layers={};for(const k in layers)if(k!==S.cls)S.layers[k]=normLayer(layers[k]);
     S.sim=(rec&&rec.sim)||null;S.simAsked=!!(rec&&rec.simAsked);
     S.tomb=L.tomb;S.acts=L.acts;S.ins=L.ins;S.notesId=rec&&rec.notesId||null;S.remoteMod=rec&&rec.remoteMod||null;S.remoteDirty=!!(rec&&rec.remoteDirty);S.fresh=!rec;
