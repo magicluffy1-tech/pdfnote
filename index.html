@@ -3,21 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>수업판 — 교과서에 쓰는 나만의 칠판</title>
+<title>펼침 — 수업을 펼치는 곳</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
-:root{--bg:#e9ebef;--bar:#fff;--line:#d9dce3;--ink:#1f2430;--sub:#6b7280;--acc:#3b6cf6;--accbg:#e8eefe}
+:root{--bg:#e9ebef;--bar:#FFFBF1;--line:#E2D8BE;--ink:#1f2430;--sub:#6b7280;--acc:#1F4D3A;--accbg:#E4EEE6}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;font-family:"Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
+@font-face{font-family:"GmarketSans";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff") format("woff");font-weight:700;font-display:swap}
+html,body{margin:0;height:100%;font-family:"Pretendard","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
 button,input,select{font:inherit;color:inherit}
 #app{display:flex;flex-direction:column;height:100%}
 #bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:6px 10px;background:var(--bar);border-bottom:1px solid var(--line);z-index:20}
 .grp{display:flex;align-items:center;gap:4px}
 .sep{width:1px;height:24px;background:var(--line)}
-.btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;cursor:pointer;white-space:nowrap;line-height:1.2}
-.btn:hover{background:#f4f5f8}
+.btn,#bar select{font-family:"GmarketSans","Pretendard","Noto Sans KR",sans-serif;font-weight:700;letter-spacing:-.01em;font-size:12.5px}
+#bar{gap:4px 7px;padding:4px 8px}
+.btn{border:1px solid var(--line);background:#FFFBF1;border-radius:8px;padding:4px 8px;cursor:pointer;white-space:nowrap;line-height:1.2}
+.btn:hover{background:#EADFC2}
 .btn:disabled{opacity:.35;cursor:default}
 .btn.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:600}
 .btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
@@ -53,38 +57,46 @@ body[data-tool=text] .tbox,body[data-tool=hand] .tbox,body[data-tool=eraser] .tb
 .tbox textarea{display:block;border:none;outline:none;background:transparent;resize:none;padding:0;margin:0;font:inherit;color:inherit;line-height:inherit;white-space:pre;overflow:hidden;min-width:2ch}
 #home{position:absolute;top:0;right:0;bottom:0;left:0;overflow:auto;padding:28px 20px 48px;background:var(--bg);z-index:10}
 #home .wrap{max-width:940px;margin:0 auto}
-.hero{position:relative;padding:14px 14px 0;border-radius:10px 10px 6px 6px;background:linear-gradient(#c29660,#a97c47);box-shadow:0 18px 34px rgba(48,34,14,.28);margin-bottom:34px}
-.hero .board{padding:36px 5vw 40px;padding:36px clamp(22px,5vw,44px) 40px;border-radius:4px;color:#f3f5ef;background:radial-gradient(120% 95% at 28% 12%,#2d4d3f 0%,#223a30 55%,#1a2e26 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 10px 26px rgba(0,0,0,.3)}
-.hero .ledge{position:relative;height:42px;margin:14px -14px 0;border-radius:0 0 6px 6px;background:linear-gradient(#d8b07a,#b88a55 45%,#8d6a3d);box-shadow:0 2px 0 rgba(0,0,0,.2)}
-.hero .chalks{position:absolute;left:26px;top:11px;display:flex;gap:8px;align-items:center}
-.hero .chalks i{display:block;width:34px;height:9px;border-radius:3px;box-shadow:0 1px 1px rgba(0,0,0,.3)}
-.hero .chalks i:nth-child(1){background:#f3f5ef;transform:rotate(-2deg)}
-.hero .chalks i:nth-child(2){background:#f6e27a;transform:rotate(1.5deg);width:28px}
-.hero .chalks i:nth-child(3){background:#f4a6b8;transform:rotate(-1deg);width:22px}
-.hero .madeby{position:absolute;right:20px;top:50%;transform:translateY(-50%)}
-h1.brand{margin:0;font-family:"Do Hyeon","Noto Sans KR","Malgun Gothic",sans-serif;font-weight:400;line-height:1}
-h1.brand .name{display:inline-block;font-size:100px;font-size:clamp(68px,13vw,124px);letter-spacing:.015em;color:#f6f7f1;text-shadow:0 0 2px rgba(255,255,255,.35);filter:url(#chalk)}
-h1.brand .stroke{display:block;width:min(100%,440px);height:30px;margin:-4px 0 0 2px;overflow:visible;filter:url(#chalk)}
-h1.brand .stroke path{fill:none;stroke:#f6e27a;stroke-width:5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
-@media (prefers-reduced-motion:no-preference){h1.brand .stroke path{stroke-dashoffset:1;animation:chalkdraw .95s cubic-bezier(.4,.1,.2,1) .25s forwards}}
-@keyframes chalkdraw{to{stroke-dashoffset:0}}
-.hero .tag{margin:14px 0 0;max-width:34em;font-size:18px;font-size:clamp(16px,2.2vw,20px);line-height:1.6;color:#cfdad2;font-weight:500}
-#drop{margin-top:28px;border:2px dashed rgba(243,245,239,.42);border-radius:14px;padding:20px 22px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 14px;color:#e4ebe5}
-#drop.over{border-color:#f6e27a;background:rgba(246,226,122,.09)}
-#drop .dz{flex:1 1 220px;font-size:15px}
-#drop .btn{border:2px solid rgba(243,245,239,.55);background:transparent;color:#f3f5ef;font-weight:700;padding:10px 18px;border-radius:10px}
-#drop .btn:hover{background:rgba(243,245,239,.12);border-color:#f3f5ef}
-#drop .btn.pri{background:#f6e27a;border-color:#f6e27a;color:#1f3329}
-#drop .btn.pri:hover{background:#ffee95;border-color:#ffee95}
+#home{background:#F7F1E3}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:6px 0 26px}
+h1.brand{margin:0;font-family:"GmarketSans","Pretendard","Noto Sans KR",sans-serif;font-weight:700;line-height:1.05;font-size:clamp(46px,8vw,72px);color:#1F4D3A;letter-spacing:.16em;margin-right:-.16em}
+h1.brand b{color:#D9A441;font-weight:700}
+.wm{display:inline-block}
+.stk{display:block;width:100%;height:12px;margin:4px 0 0;overflow:visible}
+.stk path{fill:none;stroke:#D9A441;stroke-width:4;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:0}
+@media (prefers-reduced-motion:no-preference){.stk path{stroke-dashoffset:1;animation:stkdraw .8s cubic-bezier(.4,.1,.2,1) .2s forwards}}
+@keyframes stkdraw{to{stroke-dashoffset:0}}
+.tag{margin:10px 0 0;font-size:clamp(15px,2vw,18px);color:#7A6E55;font-weight:500}
+#home .madeby{background:#FFFBF1;border-color:#E2D8BE}
+.q{font-family:"GmarketSans","Pretendard",sans-serif;font-weight:700;font-size:19px;color:#1F4D3A;margin:0 0 12px}
+#drop{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:12px;padding:0;border-radius:18px;margin-bottom:26px}
+#drop.over .sc.main{outline:3px dashed #D9A441;outline-offset:3px}
+.sc{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;cursor:pointer;border:1px solid #E2D8BE;background:#FFFBF1;color:#1F4D3A;border-radius:18px;padding:20px 20px 22px;min-height:150px;transition:transform .12s,box-shadow .12s,border-color .12s}
+.sc:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(80,60,20,.12);border-color:#C9BA93}
+.sc svg{width:34px;height:34px;margin-bottom:auto;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sc b{font-family:"GmarketSans","Pretendard",sans-serif;font-weight:700;font-size:18px}
+.sc span{font-size:13px;color:#7A6E55}
+.sc.main{background:#1F4D3A;border-color:#1F4D3A;color:#fff}
+.sc.main span{color:#BFE3D2}
+.sc.main:hover{border-color:#1F4D3A}
+.sec{font-size:13px;color:#7A6E55;font-weight:600;margin:0 0 9px;letter-spacing:.3px}
+#htools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px}
+.tp{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:#EADFC2;color:#4F4326;font-size:14px;font-weight:600;padding:8px 8px 8px 15px;cursor:pointer;border:0}
+.tp:hover{background:#E0D2AB}
+.tp .qr{width:26px;height:26px;border-radius:50%;background:#FFFBF1;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#1F4D3A}
+.tp.more{background:transparent;border:1px dashed #C9BA93;padding:8px 15px;color:#7A6E55}
+#recent{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
+#recent>.hint,#recent>div:not(.rec){grid-column:1/-1}
 .madeby{display:inline-flex;align-items:center;gap:7px;padding:4px 15px 4px 5px;border:1px solid #d3dbdf;border-radius:999px;background:#fff;font-size:14px;line-height:1;white-space:nowrap}
 .madeby .av{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#1f6f5c;color:#fff;font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:14px}
 .madeby .by{color:#5c6c73}
 .madeby .nm{color:#1f6f5c;font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:16px}
 .madeby.mini{padding:3px 11px 3px 4px;font-size:12px;gap:6px}.madeby.mini .av{width:20px;height:20px;font-size:12px}.madeby.mini .nm{font-size:14px}
-.homehint{margin:-14px 0 28px;font-size:13px;color:var(--sub)}
-@media (max-width:560px){.hero .chalks{display:none}.hero .madeby{right:12px}}
-.rec{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px;cursor:pointer}
-.rec:hover{border-color:var(--acc)}
+.homehint{margin:0 0 24px;font-size:13px;color:#9A8E73}
+@media (max-width:700px){#drop{grid-template-columns:1fr}.sc{min-height:0;padding:16px 18px}.sc svg{margin:0 0 8px}.sc b{white-space:nowrap}}
+.rec{display:flex;align-items:center;gap:12px;background:#FFFBF1;border:1px solid #E2D8BE;border-radius:14px;padding:12px 14px;cursor:pointer}
+.rec:hover{border-color:#1F4D3A}
+.rec .ic{width:42px;height:42px;border-radius:11px;background:#EADFC2;display:flex;align-items:center;justify-content:center;font-size:21px;flex:none}
 .rec .n{flex:1;min-width:0}
 .rec .n b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .rec .n small{color:var(--sub)}
@@ -436,31 +448,28 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v41 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v41</small></span></span>
+      <span class="madeby mini" title="펼침 v42 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v42</small></span></span>
     </div>
   </div>
   <main>
     <div id="viewer"><div id="pages"></div></div>
     <aside id="act" class="hide"><div class="ah"><div class="atabs"><button data-t="quiz">❓ 퀴즈</button><button data-t="check">🚦 이해도</button><button data-t="ask">🙋 질문함</button><button data-t="ops">💬 의견</button><button data-t="ai">📓 질문</button><button data-t="sim">🧪 시뮬</button></div><button class="sm" id="aBig" title="크게 (프로젝터)">⤢</button><button class="sm" id="aX">✕</button></div><div class="ab" id="aBody"></div></aside>
     <div id="home">
-      <svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="chalk" x="-5%" y="-10%" width="110%" height="125%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
       <div class="wrap">
-        <header class="hero">
-          <div class="board">
-            <h1 class="brand"><span class="name">수업판</span>
-              <svg class="stroke" viewBox="0 0 440 30" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M6 18 C 70 6, 130 26, 200 14 S 330 8, 434 17"/></svg></h1>
-            <p class="tag">교과서 위에 판서하고, 질문하고, 모둠까지 짜는 나만의 칠판</p>
-            <div id="drop">
-              <div class="dz">PDF를 끌어다 놓거나, 책 없이 칠판부터 시작해도 돼요</div>
-              <button class="btn pri" id="bOpen2">PDF 파일 열기</button>
-              <button class="btn" id="bNewBoard">🟩 칠판 노트 시작</button>
-              <button class="btn" id="bOpenDrive">Google Drive에서 열기</button>
-            </div>
-          </div>
-          <div class="ledge"><span class="chalks" aria-hidden="true"><i></i><i></i><i></i></span><span class="madeby"><span class="av" aria-hidden="true">C</span><span class="by">Made by</span><span class="nm">Cho</span></span></div>
+        <header class="top">
+          <div><div class="wm"><h1 class="brand">펼<b>침</b></h1><svg class="stk" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M3 8 C 40 2, 80 12, 120 6 S 175 4, 197 8"/></svg></div><p class="tag">교과서도 생각도 수업도, 펼치면 시작돼요</p></div>
+          <span class="madeby"><span class="av" aria-hidden="true">C</span><span class="by">Made by</span><span class="nm">Cho</span></span>
         </header>
+        <p class="q">오늘은 무엇을 펼칠까요?</p>
+        <div id="drop">
+          <button class="sc main" id="bOpen2"><svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v15H5.5A1.5 1.5 0 0 0 4 20.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v15h5.5a1.5 1.5 0 0 1 1.5 1.5z"/></svg><b>교과서 펼치기</b><span>PDF를 여기에 끌어다 놓거나 눌러서 선택</span></button>
+          <button class="sc" id="bNewBoard"><svg viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2 2 0 0 1 3 3L8 19z"/><path d="M14 7l3 3"/></svg><b>빈 종이 펼치기</b><span>아이디어 메모, 판서 연습</span></button>
+          <button class="sc" id="bOpenDrive"><svg viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.95A5.5 5.5 0 0 1 17 8.6 3.8 3.8 0 0 1 17 18z"/></svg><b>이어서 펼치기</b><span>Google Drive에 저장한 필기</span></button>
+        </div>
+        <p class="sec">수업 준비 도구</p>
+        <div id="htools"></div>
         <p class="homehint">필기는 이 브라우저에 자동 저장돼요. Google Drive에 연결하면 어느 기기에서나 이어서 쓸 수 있어요.</p>
-        <h3 style="margin:0 0 10px">최근 책 · 칠판 노트</h3>
+        <p class="sec">최근 펼친 것</p>
         <div id="recent"></div>
       </div>
     </div>
@@ -3059,6 +3068,7 @@ async function showHome(){
   $('#home').classList.remove('hide');
   $('#title').classList.add('hide');
   setStatus('열린 책 없음');
+  if(window.__homeTools)window.__homeTools();
   const list=(await DB.all('docs')).sort((a,b)=>b.updated-a.updated);
   const box=$('#recent');box.innerHTML='';
   if(!list.length){box.innerHTML='<div style="color:var(--sub)">아직 연 책이나 칠판 노트가 없어요.</div>';showRemoteList(list);return}
@@ -3066,7 +3076,7 @@ async function showHome(){
     const cnt=o=>Object.values(o||{}).reduce((a,l)=>a+l.length,0);const n=d.layers?Object.values(d.layers).reduce((s,L)=>s+cnt(L.annots),0):cnt(d.annots);
     const el=document.createElement('div');el.className='rec';
     const insN=d.layers?Math.max(0,...Object.values(d.layers).map(L=>(L.ins||[]).length)):0;
-    el.innerHTML=`<div style="font-size:26px">${d.board?'🟩':d.driveId?'☁️':'📘'}</div><div class="n"><b></b><small>${d.board?'칠판 노트 · '+((d.pages||0)+insN)+'쪽':d.pages+'쪽'} · 필기 ${n}개 · ${d.board?'':fmtSize(d.size||0)+' · '}${fmtTime(d.updated)}${(d.hasFile||d.board)?'':' · (파일 미보관)'}</small></div><button class="btn">삭제</button>`;
+    el.innerHTML=`<div class="ic">${d.board?'🟩':d.driveId?'☁️':'📘'}</div><div class="n"><b></b><small>${d.board?'칠판 노트 · '+((d.pages||0)+insN)+'쪽':d.pages+'쪽'} · 필기 ${n}개 · ${d.board?'':fmtSize(d.size||0)+' · '}${fmtTime(d.updated)}${(d.hasFile||d.board)?'':' · (파일 미보관)'}</small></div><button class="btn">삭제</button>`;
     el.querySelector('b').textContent=d.name;
     el.addEventListener('click',async e=>{
       if(e.target.tagName==='BUTTON'){
@@ -3952,7 +3962,7 @@ async function showRemoteList(local){
     for(const f of rest){
       const el=document.createElement('div');el.className='rec';
       const isB=f.appProperties.pdfnoteSrc==='board';
-      el.innerHTML=`<div style="font-size:26px">${isB?'🟩':'☁️'}</div><div class="n"><b></b><small>${isB?'칠판 노트 · ':''}${fmtTime(f.modifiedTime)} 마지막 저장</small></div>`;
+      el.innerHTML=`<div class="ic">${isB?'🟩':'☁️'}</div><div class="n"><b></b><small>${isB?'칠판 노트 · ':''}${fmtTime(f.modifiedTime)} 마지막 저장</small></div>`;
       el.querySelector('b').textContent=f.name.replace(/\.필기\.json$/,'');
       el.onclick=()=>isB?openBoard({id:f.appProperties.pdfnoteId,name:f.name.replace(/\.필기\.json$/,'')}):openDrivePdf({id:f.appProperties.pdfnoteId});
       box.appendChild(el);
@@ -4191,7 +4201,7 @@ function markSel(kind,info){
   function stopAlarm(){alarming=false;clearTimeout(alarmTimer)}
   function showEnd(){
     $('#tEndSub').textContent=(T.up?'':fmt(T.dur)+' 타이머가 끝났어요')+((prefs.snd&&AC&&AC.state!=='running')?' · 소리가 안 나면 화면을 한 번 터치하세요':'');
-    $('#tEnd').classList.remove('hide');document.title='⏰ 시간이 끝났어요! — 수업판';
+    $('#tEnd').classList.remove('hide');document.title='⏰ 시간이 끝났어요! — 펼침';
   }
   function hideEnd(){$('#tEnd').classList.add('hide');stopAlarm();if(document.title.startsWith('⏰'))document.title=oldTitle}
   function onFinish(){
@@ -5403,7 +5413,7 @@ showHome();
   const KEY='pdfnote.tools',DEF=[{n:'실험 데이터 분석 스튜디오',u:'https://share.gemini.google/1WMP8iacYjIp'}];
   const E=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   function load(){try{const a=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(a))return a}catch(e){}return DEF.slice()}
-  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}}
+  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}if(window.__homeTools)window.__homeTools()}
   function qrSvg(text){
     const q=qrcode(0,'M');q.addData(text);q.make();
     const n=q.getModuleCount(),m=4,N=n+m*2;let d='';
@@ -5443,6 +5453,19 @@ showHome();
     });
   }
   document.getElementById('bTools').onclick=()=>{render();modal().classList.remove('hide')};
+  const CMAP='https://magicluffy1-tech.github.io/pdfnote/concept.html';
+  function homeTools(){
+    const box=document.getElementById('htools');if(!box)return;box.innerHTML='';
+    const items=[{n:'개념도',u:CMAP}].concat(load().filter(t=>t.u!==CMAP));
+    items.forEach(t=>{
+      const b=document.createElement('button');b.className='tp';b.title=t.u;b.appendChild(document.createTextNode(t.n+' '));
+      const q=document.createElement('span');q.className='qr';q.textContent='QR';q.title='학생 화면으로 QR 보내기';
+      q.onclick=e=>{e.stopPropagation();showQR(t)};b.appendChild(q);
+      b.onclick=()=>window.open(t.u,'_blank','noopener');box.appendChild(b);
+    });
+    const m=document.createElement('button');m.className='tp more';m.textContent='＋ 도구 관리';m.onclick=()=>{render();modal().classList.remove('hide')};box.appendChild(m);
+  }
+  window.__homeTools=homeTools;homeTools();
   window.__tools={load,showQR,qrSvg};
 })();
 </script>
