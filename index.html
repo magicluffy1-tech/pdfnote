@@ -243,6 +243,23 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #grpSel{display:none}
 #grp iframe{flex:1;border:none;width:100%;min-height:0}
 #pageMenu .pop .btn{width:100%}
+/* ---- 메뉴 위치(도킹): 위·아래·왼쪽·오른쪽 ---- */
+body[data-dock=bottom] #app{flex-direction:column-reverse}
+body[data-dock=bottom] #bar{border-bottom:0;border-top:1px solid var(--line)}
+body[data-dock=bottom] details.menu .pop{top:auto!important;bottom:36px}
+body[data-dock=left] #app{flex-direction:row}
+body[data-dock=right] #app{flex-direction:row-reverse}
+body[data-dock=left] #bar,body[data-dock=right] #bar{flex-direction:column;flex-wrap:nowrap;align-items:stretch;width:212px;flex:none;overflow-x:hidden;overflow-y:auto;gap:8px;padding:8px;border-bottom:0}
+body[data-dock=left] #bar{border-right:1px solid var(--line)}
+body[data-dock=right] #bar{border-left:1px solid var(--line)}
+body[data-dock=left] main,body[data-dock=right] main{min-width:0}
+body[data-dock=left] #bar .grp,body[data-dock=right] #bar .grp{flex-wrap:wrap}
+body[data-dock=left] #bar .sep,body[data-dock=right] #bar .sep{width:100%;height:1px}
+body[data-dock=left] #bar .grp[style*="margin-left:auto"],body[data-dock=right] #bar .grp[style*="margin-left:auto"]{margin-left:0!important}
+body[data-dock=left] #status,body[data-dock=right] #status{text-align:left;min-width:0}
+body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{position:fixed!important;left:var(--px,0)!important;top:var(--py,0)!important;right:auto!important;bottom:auto!important}
+#dockMenu .pop{min-width:150px}
+#dockMenu .btn.on{background:var(--accbg);color:var(--acc);font-weight:600}
 </style>
 </head>
 <body data-tool="pen">
@@ -314,10 +331,12 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
           <button class="btn" id="mClear">이 책 필기 모두 지우기</button>
         </div>
       </details>
+      <details class="menu" id="dockMenu"><summary class="btn" title="메뉴(도구 막대)를 위·아래·왼쪽·오른쪽으로 옮겨요">⇄ 위치</summary><div class="pop"><div class="hint" style="padding:4px 8px">메뉴 위치</div>
+          <button class="btn" data-dock="top">⬆ 위</button><button class="btn" data-dock="bottom">⬇ 아래</button><button class="btn" data-dock="left">⬅ 왼쪽</button><button class="btn" data-dock="right">➡ 오른쪽</button></div></details>
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="수업판 v35 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v35</small></span></span>
+      <span class="madeby mini" title="수업판 v36 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v36</small></span></span>
     </div>
   </div>
   <main>
@@ -2878,6 +2897,32 @@ setInterval(()=>{if(!document.hidden)scheduleCfgSync(50)},60000);
 setTool('pen');updateUndo();renderClassUi();
 window.__pdfnote={S,openBlob,G,syncDoc,insertImages,openBoard,setZoom,cursorFor};
 showHome();
+})();
+
+/* ---------- 메뉴 위치(도킹) ---------- */
+(function(){
+  const KEY='pdfnote.dock',OK=['top','bottom','left','right'];
+  let cur='top';try{const v=localStorage.getItem(KEY);if(OK.includes(v))cur=v}catch(_){}
+  const mark=()=>document.querySelectorAll('#dockMenu [data-dock]').forEach(b=>b.classList.toggle('on',b.dataset.dock===cur));
+  function apply(v,save){
+    cur=OK.includes(v)?v:'top';document.body.dataset.dock=cur;mark();
+    if(save){try{localStorage.setItem(KEY,cur)}catch(_){}}
+    document.querySelectorAll('details.menu[open]').forEach(d=>d.removeAttribute('open'));
+    window.dispatchEvent(new Event('resize'));
+  }
+  function place(d){
+    if(cur!=='left'&&cur!=='right')return;
+    const pop=d.querySelector('.pop'),sm=d.querySelector('summary');if(!pop||!sm)return;
+    const r=sm.getBoundingClientRect(),pw=pop.offsetWidth,ph=pop.offsetHeight;
+    const br=document.getElementById('bar').getBoundingClientRect();let x=cur==='left'?br.right+6:br.left-pw-6;x=Math.max(8,Math.min(x,innerWidth-pw-8));
+    const y=Math.max(8,Math.min(r.top,innerHeight-ph-8));
+    pop.style.setProperty('--px',x+'px');pop.style.setProperty('--py',y+'px');
+  }
+  document.addEventListener('toggle',e=>{const d=e.target;if(d&&d.matches&&d.matches('details.menu')&&d.open)place(d)},true);
+  document.addEventListener('click',e=>{const b=e.target.closest('#dockMenu [data-dock]');if(b)apply(b.dataset.dock,true)});
+  document.addEventListener('pointerdown',e=>{if(!e.target.closest('#dockMenu'))document.getElementById('dockMenu')?.removeAttribute('open')});
+  apply(cur,false);
+  window.__dock=apply;
 })();
 </script>
 </body>
