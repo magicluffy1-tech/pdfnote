@@ -3753,7 +3753,9 @@ async function pushNotes(fs,retry=true){
   const body=JSON.stringify(payload()),out=[];
   try{
     for(const f of fs||[]){
-      try{out.push(await (await gapi(`${UP}/files/${f.id}?uploadType=media&fields=id,modifiedTime&supportsAllDrives=true`,{method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body})).json())}
+      try{const bd='pn'+uid(),meta={name:S.name+'.필기.json'};
+        const mp=`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${body}\r\n--${bd}--`;
+        out.push(await (await gapi(`${UP}/files/${f.id}?uploadType=multipart&fields=id,modifiedTime&supportsAllDrives=true`,{method:'PATCH',headers:{'Content-Type':'multipart/related; boundary='+bd},body:mp})).json())}
       catch(e){if(e.status!==404)throw e}
     }
     if(out.length)return out;
