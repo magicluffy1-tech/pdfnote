@@ -2927,8 +2927,9 @@ const CFG_KEY='pdfnote.cfg';
 const newClass=(id,name,c,kind)=>{const o={id,name,c,m:0,rosterText:'',absent:[],separateText:'',history:[],gcount:4};if(kind)o.kind=kind;return o};
 const CATS=[['cat-free','자유 분류'],['cat-meet','회의'],['cat-etc','기타']];
 const isCat=c=>!!(c&&c.kind==='cat');
-let CFG=(()=>{try{const j=JSON.parse(localStorage.getItem(CFG_KEY)||'null');if(j&&Array.isArray(j.classes)&&j.classes.length)return {classes:j.classes,del:j.del||{},active:j.active||j.classes[0].id,gactive:j.gactive||null}}catch(e){}
-  return {classes:[newClass('c1','1학년',1),newClass('c2','2학년',2),newClass('c3','3학년',3)],del:{},active:'c1'}})();
+let CFG=(()=>{try{const j=JSON.parse(localStorage.getItem(CFG_KEY)||'null');if(j&&Array.isArray(j.classes)&&j.classes.length)return {classes:j.classes,del:j.del||{},active:j.active||j.classes[0].id,gactive:j.gactive||null,tools:Array.isArray(j.tools)?j.tools:null,tdel:j.tdel||{}}}catch(e){}
+  return {classes:[newClass('c1','1학년',1),newClass('c2','2학년',2),newClass('c3','3학년',3)],del:{},active:'c1',tools:null,tdel:{}}})();
+window.__cfgApi={get:()=>CFG,touch:()=>cfgTouch(null)};
 CATS.forEach(([id,nm],i)=>{if(!CFG.classes.some(c=>c.id===id)&&!CFG.del[id])CFG.classes.push(newClass(id,nm,100+i,'cat'))});
 function bookCls(){const ok=id=>CFG.classes.some(c=>c.id===id&&!isCat(c));return ok(CFG.active)?CFG.active:ok(CFG.gactive)?CFG.gactive:(CFG.classes.find(c=>!isCat(c))||CFG.classes[0]).id}
 function cfgSave(){try{localStorage.setItem(CFG_KEY,JSON.stringify(CFG))}catch(e){}}
@@ -5327,11 +5328,18 @@ function mergeCfg(rm){
   if(!out.length)out=[newClass('c1','1학년',1)];
   if(out.map(c=>c.id).join()!==CFG.classes.map(c=>c.id).join())changed=true;
   CFG.classes=out;CFG.del=del;
+  {const td={...(CFG.tdel||{})};for(const k in (rm.tdel||{}))if(!(td[k]>=rm.tdel[k]))td[k]=rm.tdel[k];
+   const tm=new Map((CFG.tools||[]).map(t=>[t.id,t]));
+   for(const r of (rm.tools||[])){const l=tm.get(r.id);if(!l||(r.m||0)>(l.m||0))tm.set(r.id,r)}
+   const tl=[...tm.values()].filter(t=>!(td[t.id]&&td[t.id]>=(t.m||0)));
+   const sg=a=>(a||[]).map(t=>t.id+':'+t.n+':'+t.u).join('|');
+   if(sg(tl)!==sg(CFG.tools))changed=true;
+   CFG.tools=(rm.tools||CFG.tools)?tl:null;CFG.tdel=td}
   if(!CFG.classes.some(c=>c.id===CFG.active))CFG.active=CFG.classes[0].id;
   return changed;
 }
 async function pushCfg(id){
-  const body=JSON.stringify({app:'pdfnote-cfg',version:1,classes:CFG.classes,del:CFG.del});
+  const body=JSON.stringify({app:'pdfnote-cfg',version:1,classes:CFG.classes,del:CFG.del,tools:CFG.tools,tdel:CFG.tdel});
   if(id)return await (await gapi(`${UP}/files/${id}?uploadType=media&fields=id,modifiedTime&supportsAllDrives=true`,{method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body})).json();
   const folder=await notesFolder();
   const meta={name:'PDF필기노트 설정(반·명단).json',mimeType:'application/json',parents:[folder],appProperties:{pdfnoteKind:'config',pdfnoteId:CFG_SYNC_KEY}};
@@ -5350,7 +5358,7 @@ async function syncCfg(){
       changed=mergeCfg(data);lsSet('pdfnote.cfgmod',f.modifiedTime);
     }
     if(changed){
-      cfgSave();renderClassUi();grpSync();
+      cfgSave();renderClassUi();grpSync();if(window.__homeTools)window.__homeTools();
       if(S.pdf&&!CFG.classes.some(c=>c.id===S.cls))switchClass(CFG.active);
     }
     if(!f||lsGet('pdfnote.cfgdirty')==='1'){
@@ -5458,8 +5466,17 @@ showHome();
 (function(){
   const KEY='pdfnote.tools',DEF=[{n:'실험 데이터 분석 스튜디오',u:'https://share.gemini.google/1WMP8iacYjIp'}];
   const E=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-  function load(){try{const a=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(a))return a}catch(e){}return DEF.slice()}
-  function save(a){try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}if(window.__homeTools)window.__homeTools()}
+  const API_=()=>window.__cfgApi,rid=()=>'t'+Math.random().toString(36).slice(2,8);
+  function legacy(){try{const a=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(a))return a}catch(e){}return DEF.slice()}
+  function norm(a){return a.map(t=>({id:t.id||(t.u===DEF[0].u?'def-exp':rid()),n:t.n,u:t.u,m:t.m||1}))}
+  function load(){const c=API_()&&API_().get();if(c&&Array.isArray(c.tools))return c.tools;return norm(legacy())}
+  function save(a){
+    const c=API_()&&API_().get();const prev=load(),out=[];
+    for(const t of a){const p=prev.find(x=>x.id===t.id);out.push({id:t.id||rid(),n:t.n,u:t.u,m:(p&&p.n===t.n&&p.u===t.u)?(p.m||1):Date.now()})}
+    if(c){c.tdel=c.tdel||{};for(const p of prev)if(!out.some(t=>t.id===p.id))c.tdel[p.id]=Date.now();c.tools=out;API_().touch()}
+    try{localStorage.setItem(KEY,JSON.stringify(out))}catch(e){}
+    if(window.__homeTools)window.__homeTools()}
+  (function(){const c=API_()&&API_().get();if(c&&!Array.isArray(c.tools)){c.tools=norm(legacy());API_().touch()}})();
   function qrSvg(text){
     const q=qrcode(0,'M');q.addData(text);q.make();
     const n=q.getModuleCount(),m=4,N=n+m*2;let d='';
@@ -5488,7 +5505,7 @@ showHome();
       const n=N.value.trim(),u=fix(U.value);
       if(!n){toast('이름을 입력하세요');return}
       if(!u){toast('https:// 로 시작하는 올바른 링크를 입력하세요');return}
-      const a=load();if(ed>=0)a[ed]={n,u};else a.push({n,u});save(a);render();
+      const a=load();if(ed>=0)a[ed]={...a[ed],n,u};else a.push({n,u});save(a);render();
     };
     card().querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{
       const i=+b.dataset.i,a=load(),t=a[i];if(!t)return;
