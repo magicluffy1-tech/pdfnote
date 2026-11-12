@@ -230,6 +230,19 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #act .fchip.on{background:var(--accbg);border-color:var(--acc);color:var(--acc);font-weight:700}
 
 #blank{position:fixed;top:0;right:0;bottom:0;left:0;z-index:80;background:#111;color:#fff;display:flex;flex-direction:column}
+#pk{position:fixed;top:0;right:0;bottom:0;left:0;z-index:85;background:#14241c;color:#fff;display:flex;flex-direction:column;align-items:center;font-family:"Pretendard",system-ui,sans-serif}
+#pk.hide{display:none}
+#pk .bar{display:flex;gap:8px;align-items:center;padding:10px 14px;width:100%;box-sizing:border-box;background:#0d1a13;flex-wrap:wrap}
+#pk .bar b{font-size:16px;color:#ffd43b;margin-right:6px}
+#pk button{font-family:inherit;font-size:15px;font-weight:700;border:0;border-radius:10px;padding:9px 15px;cursor:pointer;background:#2f6a4f;color:#fff}
+#pk button.g{background:#3a4a41}#pk button.on{background:#e8590c}
+#pk input{font-size:15px;padding:8px 10px;border-radius:9px;border:0;width:64px;text-align:center;font-family:inherit}
+#pk .bar .sp{margin-left:auto}
+#pk #pkNum{flex:1;display:flex;align-items:center;justify-content:center;font-size:min(38vw,62vh);font-weight:800;line-height:1;font-family:"GmarketSans","Pretendard",sans-serif;letter-spacing:-.02em}
+#pk #pkNum.roll{opacity:.55}
+#pk #pkNum small{font-size:.22em;font-weight:600;margin-left:.15em;opacity:.8}
+#pk #pkGo{font-size:26px;padding:16px 46px;background:#f5b700;color:#1b2a21;margin-bottom:14px}
+#pk #pkHist{padding:0 16px 18px;color:#9fc4b0;font-size:15px;text-align:center;min-height:24px;max-width:90vw;word-break:keep-all}
 #blank.hide{display:none}
 #blank .bar{display:flex;gap:8px;align-items:center;padding:8px 10px;background:#222;flex-wrap:wrap}
 #blank .bar .t{font-weight:800;font-size:15px;margin-right:4px;color:#ffd43b}
@@ -428,6 +441,7 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
       <label class="grp" style="font-size:12px;color:var(--sub);cursor:pointer" title="켜면 손가락은 스크롤만 하고 펜/마우스로만 필기합니다"><input type="checkbox" id="fingerScroll" checked>손가락=스크롤</label>
       <button class="btn" id="bGrp" title="모둠 배치기 (반별 명단·기록)">👥 모둠</button>
       <button class="btn" id="bSim" title="단원별 PhET 시뮬레이션">🧪 시뮬</button>
+      <button class="btn" id="bPick" title="오늘 수업 학년의 번호를 무작위로 뽑아 발표자 정하기">🎯 발표자 뽑기</button>
       <button class="btn" id="bBlank" title="학생들이 올린 백지 복습 사진 불러오기">📝 오늘의 백지</button>
       <button class="btn" id="bTools" title="자주 쓰는 도구 링크 · QR로 학생에게 보여주기">🔗 내 도구</button>
       <button class="btn" id="bAct" title="퀴즈 · 이해도 체크 · 학생 질문함 · 의견 모으기">🎓 수업 활동</button>
@@ -448,7 +462,7 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="펼침 v42 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v42</small></span></span>
+      <span class="madeby mini" title="펼침 v44 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v44</small></span></span>
     </div>
   </div>
   <main>
@@ -512,7 +526,7 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
     <button class="g" id="blStat">📋 제출 현황</button>
     <button class="g" id="blHide" title="큰 화면에 학년·반·번호를 가려요">🙈 번호 가리기</button>
     <button class="g" id="blRotL" title="왼쪽으로 회전 (Shift+R)">↺</button><button class="g" id="blRotR" title="오른쪽으로 회전 (R)">↻ 회전</button>
-    <button class="g" id="blIns" title="지금 보는 사진을 노트의 새 쪽으로 넣어 그 위에 판서해요 (회전한 모습 그대로)">🖼 판서에 끼우기</button>
+    <button class="g" id="blIns" title="이 학생의 사진을 모두(1~여러 장) 노트의 새 쪽으로 넣어 그 위에 판서해요 (회전한 모습 그대로)">🖼 판서에 끼우기</button>
     <button class="g" id="blReset">뽑은 기록 초기화</button>
     <button class="g" id="blCfg" title="연결 설정">⚙</button>
     <button class="g" id="blX">닫기 ✕</button>
@@ -531,6 +545,17 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
       <div style="margin-top:14px;display:flex;gap:8px"><button class="g" id="blCfOk" style="padding:9px 16px;border:0;border-radius:9px;background:#2f6fed;color:#fff;font-weight:700;cursor:pointer">저장</button><button class="g" id="blCfX" style="padding:9px 16px;border:0;border-radius:9px;background:#444;color:#fff;font-weight:700;cursor:pointer">닫기</button></div>
     </div></div>
   </div>
+</div>
+<div id="pk" class="hide" role="dialog" aria-label="발표자 뽑기">
+  <div class="bar"><b>🎯 발표자 뽑기</b>
+    <button class="g" data-g="1">1학년</button><button class="g" data-g="2">2학년</button><button class="g" data-g="3">3학년</button>
+    <span style="color:#9fc4b0;font-size:14px">인원</span><input type="number" id="pkN" min="1" max="60"><span style="color:#9fc4b0;font-size:14px">명</span>
+    <label style="font-size:14px;color:#cfe3d6;cursor:pointer"><input type="checkbox" id="pkNoRep" checked style="width:auto"> 뽑힌 번호는 빼고</label>
+    <button class="g sp" id="pkReset">초기화</button><button class="g" id="pkX">닫기 ✕</button>
+  </div>
+  <div id="pkNum">?</div>
+  <button id="pkGo">🎯 번호 뽑기</button>
+  <div id="pkHist"></div>
 </div>
 <div id="toast"></div>
 
@@ -3119,7 +3144,7 @@ async function openBlob(blob,name,opts={}){
     let legacy=false,layers={};
     if(rec&&rec.layers)layers=rec.layers;
     else if(rec&&(rec.annots||rec.acts)){legacy=true;layers={[CFG.active]:{annots:rec.annots||{},tomb:rec.tomb||{},acts:rec.acts||[],ins:[]}}}
-    S.cls=bookCls();CFG.active=S.cls;
+    {const lc=(rec&&rec.lastCls)||opts.cls,okc=lc&&CFG.classes.some(c=>c.id===lc&&!isCat(c));S.cls=okc?lc:bookCls()}CFG.active=S.cls;if(!isCat(CFG.classes.find(c=>c.id===S.cls)))CFG.gactive=S.cls;cfgSave();
     const L=normLayer(layers[S.cls]);S.layers={};for(const k in layers)if(k!==S.cls)S.layers[k]=normLayer(layers[k]);
     S.sim=(rec&&rec.sim)||null;S.simAsked=!!(rec&&rec.simAsked);
     S.tomb=L.tomb;S.acts=L.acts;S.ins=L.ins;S.notesId=rec&&rec.notesId||null;S.remoteMod=rec&&rec.remoteMod||null;S.remoteDirty=!!(rec&&rec.remoteDirty);S.fresh=!rec;
@@ -3140,7 +3165,7 @@ async function openBlob(blob,name,opts={}){
     const lp=(rec&&rec.lastPage)||1;S.curPage=lp;S.lastPage=lp;$('#pageno').value=lp;
     requestAnimationFrame(()=>gotoPage(lp,false));
     // 최초 저장 (파일 보관 포함)
-    const meta={...(rec||{}),id:S.id,name:S.name,size:buf.byteLength,pages:n,layers:allLayers(),updated:rec?rec.updated:Date.now(),lastPage:lp,zoom:S.zoom,hasFile:true,driveId:S.driveId,syncKey:S.syncKey,md5:S.md5||(rec&&rec.md5)||null};delete meta.annots;delete meta.tomb;delete meta.acts;
+    const meta={...(rec||{}),id:S.id,name:S.name,size:buf.byteLength,pages:n,layers:allLayers(),updated:rec?rec.updated:Date.now(),lastPage:lp,zoom:S.zoom,hasFile:true,driveId:S.driveId,syncKey:S.syncKey,md5:S.md5||(rec&&rec.md5)||null,lastCls:S.cls};delete meta.annots;delete meta.tomb;delete meta.acts;
     try{const has=await DB.tx('files','readonly',st=>st.count(S.id));if(!has||(S.md5&&rec&&rec.md5!==S.md5))await DB.put('files',new Blob([buf],{type:'application/pdf'}),S.id)}catch(e){meta.hasFile=false;toast('저장 공간이 부족해 PDF 파일은 보관하지 못했어요(필기는 저장됩니다).',4000)}
     await DB.put('docs',meta);
     setStatus(rec?'필기 불러옴 ✓':'저장됨 ✓');
@@ -3476,7 +3501,7 @@ async function saveNow(silent){
   try{
     const prev=await DB.get('docs',S.id)||{};
     const cut=Date.now()-90*864e5;for(const k in S.tomb)if(S.tomb[k]<cut)delete S.tomb[k];
-    const rec={...prev,id:S.id,name:S.name,pages:S.sizes.length,layers:allLayers(),sim:S.sim,simAsked:S.simAsked,board:S.board,attach:S.attach,updated:Date.now(),lastPage:S.lastPage,zoom:S.zoom,driveId:S.driveId,syncKey:S.syncKey,notesId:S.notesId,remoteMod:S.remoteMod,remoteDirty:S.remoteDirty};
+    const rec={...prev,id:S.id,name:S.name,pages:S.sizes.length,layers:allLayers(),sim:S.sim,simAsked:S.simAsked,board:S.board,attach:S.attach,updated:Date.now(),lastPage:S.lastPage,zoom:S.zoom,driveId:S.driveId,syncKey:S.syncKey,notesId:S.notesId,remoteMod:S.remoteMod,remoteDirty:S.remoteDirty,lastCls:S.cls};
     delete rec.annots;delete rec.tomb;delete rec.acts;await DB.put('docs',rec);
     S.dirty=false;const d=new Date();setStatus(`저장됨 ✓ ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
     if(silent!==true&&saveNow.manual){toast('저장했어요');saveNow.manual=false}
@@ -3723,7 +3748,7 @@ async function findNotes(key){
   const r=await (await gapi(`${API}/files?q=${enc(q)}&orderBy=${enc('modifiedTime desc')}&pageSize=1&fields=files(id,modifiedTime)&supportsAllDrives=true&includeItemsFromAllDrives=true`)).json();
   return r.files&&r.files[0]||null;
 }
-function payload(){return {app:'pdfnote',version:3,syncKey:S.syncKey,name:S.name,pages:S.sizes.length,lastPage:S.lastPage,zoom:S.zoom,updated:Date.now(),layers:allLayers(),sim:S.sim,board:S.board,attach:S.attach}}
+function payload(){return {app:'pdfnote',version:3,syncKey:S.syncKey,name:S.name,pages:S.sizes.length,lastPage:S.lastPage,zoom:S.zoom,updated:Date.now(),layers:allLayers(),sim:S.sim,board:S.board,attach:S.attach,lastCls:S.cls}}
 const docFp=()=>(!S.board&&S.pdf&&S.pdf.fingerprints&&S.pdf.fingerprints[0])||null;
 const notesSig=fs=>fs.map(f=>f.id+'@'+f.modifiedTime).sort().join('|');
 async function listNotes(q){
@@ -3754,14 +3779,14 @@ async function pushNotes(fs,retry=true){
   const body=JSON.stringify(payload()),out=[];
   try{
     for(const f of fs||[]){
-      try{const bd='pn'+uid(),meta={name:S.name+'.필기.json'};
+      try{const bd='pn'+uid(),meta={name:S.name+'.필기.json',appProperties:{pdfnoteCls:S.cls||''}};
         const mp=`--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${body}\r\n--${bd}--`;
         out.push(await (await gapi(`${UP}/files/${f.id}?uploadType=multipart&fields=id,modifiedTime&supportsAllDrives=true`,{method:'PATCH',headers:{'Content-Type':'multipart/related; boundary='+bd},body:mp})).json())}
       catch(e){if(e.status!==404)throw e}
     }
     if(out.length)return out;
     const folder=await notesFolder();
-    const ap={pdfnoteKind:'notes',pdfnoteId:S.syncKey,pdfnoteSrc:S.board?'board':(S.driveId?'drive':'local')};const fp=docFp();if(fp)ap.pdfnoteFp=fp;
+    const ap={pdfnoteKind:'notes',pdfnoteCls:S.cls||'',pdfnoteId:S.syncKey,pdfnoteSrc:S.board?'board':(S.driveId?'drive':'local')};const fp=docFp();if(fp)ap.pdfnoteFp=fp;
     const meta={name:S.name+'.필기.json',mimeType:'application/json',parents:[folder],appProperties:ap};
     const b='pn'+uid();
     const mp=`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(meta)}\r\n--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${body}\r\n--${b}--`;
@@ -3840,15 +3865,21 @@ async function syncDoc(){
     await saveNow(true);
     const pre=new Map();
     const fs=await findDocNotes(pre);
-    const sig=notesSig(fs);let merged=false,nm=0;
+    const sig=notesSig(fs);let merged=false,nm=0,remoteCls=null;
     if(fs.length&&sig!==S.remoteMod){
       for(const f of fs){
         const data=pre.get(f.id)||await (await gapi(`${API}/files/${f.id}?alt=media&supportsAllDrives=true`)).json();
         if(S.id!==doc)return;
+        if(f===fs[0])remoteCls=data.lastCls||null;
         if(mergeRemote(data))merged=true;nm++;
         if(S.fresh&&data.lastPage>1&&f===fs[0])gotoPage(data.lastPage,false);
       }
-      if(S.id===doc){if(S.sim&&S.sim.g)await autoClassForGrade(S.sim.g);await noteOtherClasses()}
+      if(S.id===doc){
+        const lc=S.fresh&&(remoteCls||(fs[0]&&(fs[0].appProperties||{}).pdfnoteCls));
+        let sw=false;
+        if(lc&&lc!==S.cls&&CFG.classes.some(c=>c.id===lc&&(S.board||!isCat(c)))){await switchClass(lc);sw=true}
+        if(!sw){if(S.sim&&S.sim.g)await autoClassForGrade(S.sim.g);await noteOtherClasses()}
+      }
       S.remoteMod=sig;
     }
     S.fresh=false;
@@ -3953,7 +3984,7 @@ async function openDrivePdf(f){
     const key='drive:'+f.id,rec=await DB.get('docs',key);
     let blob=rec&&rec.md5&&rec.md5===f.md5Checksum?await DB.get('files',key):null;
     if(!blob)blob=await downloadPdf(f);
-    await openBlob(blob,f.name,{driveId:f.id,md5:f.md5Checksum});
+    await openBlob(blob,f.name,{driveId:f.id,md5:f.md5Checksum,cls:f.cls});
   }catch(e){console.error(e);busy('');toast('Drive에서 열기 실패: '+e.message,4500)}
 }
 async function showRemoteList(local){
@@ -3973,7 +4004,7 @@ async function showRemoteList(local){
       const isB=f.appProperties.pdfnoteSrc==='board';
       el.innerHTML=`<div class="ic">${isB?'🟩':'☁️'}</div><div class="n"><b></b><small>${isB?'칠판 노트 · ':''}${fmtTime(f.modifiedTime)} 마지막 저장</small></div>`;
       el.querySelector('b').textContent=f.name.replace(/\.필기\.json$/,'');
-      el.onclick=()=>isB?openBoard({id:f.appProperties.pdfnoteId,name:f.name.replace(/\.필기\.json$/,'')}):openDrivePdf({id:f.appProperties.pdfnoteId});
+      el.onclick=()=>isB?openBoard({id:f.appProperties.pdfnoteId,name:f.name.replace(/\.필기\.json$/,''),cls:f.appProperties.pdfnoteCls}):openDrivePdf({id:f.appProperties.pdfnoteId,cls:f.appProperties.pdfnoteCls});
       box.appendChild(el);
     }
   }catch(e){console.warn('remote list',e)}
@@ -4034,7 +4065,7 @@ async function openRemoteNotes(){
         const el=document.createElement('div');el.className='rec';el.style.marginBottom='8px';
         el.innerHTML=`<div class="ic">${isB?'📝':'📘'}</div><div class="n"><b></b><small>${isB?'빈 종이 · ':'교과서 · '}${fmtTime(f.modifiedTime)} 마지막 저장${here?' · 이 기기에도 있음':''}</small></div>`;
         el.querySelector('b').textContent=f.name.replace(/\.필기\.json$/,'');
-        el.onclick=()=>{closeModal();isB?openBoard({id:ap.pdfnoteId,name:f.name.replace(/\.필기\.json$/,'')}):openDrivePdf({id:ap.pdfnoteId})};
+        el.onclick=()=>{closeModal();isB?openBoard({id:ap.pdfnoteId,name:f.name.replace(/\.필기\.json$/,''),cls:ap.pdfnoteCls}):openDrivePdf({id:ap.pdfnoteId,cls:ap.pdfnoteCls})};
         L.appendChild(el)}
     }catch(e){L.innerHTML='필기 목록을 불러오지 못했어요: '+escH(String(e&&e.message||e))+'<br>Drive 연결이 끊겼으면 ⚙ 설정에서 다시 연결해 주세요.'}
   };
@@ -4962,10 +4993,12 @@ async function openBoard(o){
     else{S.bytes=null;S.pdf=nullPdf(id);S.sizes=[]}
     let layers=(rec&&rec.layers)||{};
     {const has=id=>CFG.classes.some(c=>c.id===id);
-     if(!rec&&!o.id&&has('cat-free'))S.cls='cat-free';
+     const lc=(rec&&rec.lastCls)||o.cls;
+     if(lc&&has(lc))S.cls=lc;
+     else if(!rec&&!o.id&&has('cat-free'))S.cls='cat-free';
      else if(has(CFG.active)&&(!Object.keys(layers).length||layers[CFG.active]))S.cls=CFG.active;
      else S.cls=Object.keys(layers).find(has)||(has(CFG.active)?CFG.active:CFG.classes[0].id);
-     CFG.active=S.cls;}
+     CFG.active=S.cls;if(!isCat(CFG.classes.find(c=>c.id===S.cls)))CFG.gactive=S.cls;cfgSave();}
     const L=normLayer(layers[S.cls]);S.layers={};for(const k in layers)if(k!==S.cls)S.layers[k]=normLayer(layers[k]);
     S.sim=(rec&&rec.sim)||null;S.simAsked=!!(rec&&rec.simAsked);
     S.tomb=L.tomb;S.acts=L.acts;S.ins=L.ins;S.notesId=rec&&rec.notesId||null;S.remoteMod=rec&&rec.remoteMod||null;S.remoteDirty=!!(rec&&rec.remoteDirty);S.fresh=!rec;
@@ -5050,6 +5083,49 @@ function updateDocUi(){
   const act=document.querySelector('#act');if(act&&!act.classList.contains('hide'))refreshAct();
 }
 $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'})};
+// ---- 발표자 뽑기 (학년별 인원 안에서 번호 무작위)
+(function(){
+  const o=document.getElementById('pk'),$p=id=>document.getElementById(id);
+  const DEF={1:7,2:20,3:12};let g=1,done=[],busy=false,tm=null;
+  const nKey=x=>'pdfnote.pkn.'+x;
+  const cnt=x=>+lsGet(nKey(x))||DEF[x];
+  function guessGrade(){
+    if(S.sim&&S.sim.g)return +S.sim.g;
+    const m=/(\d)\s*학년/.exec((activeClass()||{}).name||'');if(m&&DEF[m[1]])return +m[1];
+    return +lsGet('pdfnote.pkg')||1;
+  }
+  function ui(){
+    o.querySelectorAll('[data-g]').forEach(b=>b.classList.toggle('on',+b.dataset.g===g));
+    $p('pkN').value=cnt(g);
+    const n=cnt(g),left=n-done.length;
+    $p('pkHist').textContent=done.length?`뽑은 번호: ${done.join(', ')}  ·  남은 ${left}명`:`${g}학년 · 1~${n}번 중에서 뽑아요`;
+  }
+  function setGrade(x){g=x;done=[];lsSet('pdfnote.pkg',String(x));$p('pkNum').textContent='?';$p('pkNum').classList.remove('roll');ui()}
+  function draw(){
+    if(busy)return;const n=cnt(g),noRep=$p('pkNoRep').checked;
+    let pool=[];for(let i=1;i<=n;i++)if(!noRep||!done.includes(i))pool.push(i);
+    if(!pool.length){$p('pkHist').textContent='모두 뽑았어요! [초기화]를 눌러 다시 시작해요.';return}
+    const r=pool[Math.floor(Math.random()*pool.length)];
+    busy=true;const el=$p('pkNum');el.classList.add('roll');
+    let k=0,total=16;
+    (function step(){
+      if(k<total){el.textContent=1+Math.floor(Math.random()*n);k++;tm=setTimeout(step,45+k*9)}
+      else{el.classList.remove('roll');el.innerHTML=r+'<small>번</small>';done.push(r);busy=false;ui()}
+    })();
+  }
+  function open(){g=guessGrade();done=[];$p('pkNum').textContent='?';ui();o.classList.remove('hide')}
+  function close(){clearTimeout(tm);busy=false;o.classList.add('hide')}
+  $('#bPick').onclick=open;$p('pkX').onclick=close;$p('pkGo').onclick=draw;
+  $p('pkReset').onclick=()=>{done=[];$p('pkNum').textContent='?';ui()};
+  o.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>setGrade(+b.dataset.g));
+  $p('pkN').onchange=()=>{const v=Math.max(1,Math.min(60,+$p('pkN').value||DEF[g]));lsSet(nKey(g),String(v));done=[];ui()};
+  document.addEventListener('keydown',e=>{
+    if(o.classList.contains('hide'))return;
+    if(e.target&&e.target.tagName==='INPUT')return;
+    if(e.key==='Escape'){close();e.preventDefault()}
+    else if(e.key===' '||e.key==='Enter'){draw();e.preventDefault()}
+  });
+})();
 // ---- 오늘의 백지 (학생 백지 복습 사진 불러오기)
 (function(){
   const DEFAULT_BLANK_URL='https://script.google.com/macros/s/AKfycbynjXzAQlKr1vDbgV6cH7L7rZcn2VtxncQJFtCzMnktUt_j4W469kNIW0z_S_fmHh4vhw/exec';
@@ -5164,22 +5240,29 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
     loadN();renderStatus();$$('blSt').classList.add('on');
   }
   // 판서에 끼우기
+  async function photoFile(ph){
+    let d=cache.get(ph.id);
+    if(!d){d=await call('photo',{pin:pin(),id:ph.id});cache.set(ph.id,d);if(cache.size>14)cache.delete(cache.keys().next().value)}
+    let b=await (await fetch(d)).blob();
+    const deg=(((rot[ph.id]||0)%360)+360)%360;
+    if(deg){ // 회전한 모습 그대로 쪽에 넣기
+      const bmp=await createImageBitmap(b),side=deg%180!==0;
+      const c=document.createElement('canvas');c.width=side?bmp.height:bmp.width;c.height=side?bmp.width:bmp.height;
+      const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
+      x.translate(c.width/2,c.height/2);x.rotate(deg*Math.PI/180);x.drawImage(bmp,-bmp.width/2,-bmp.height/2);
+      b=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));
+    }
+    return new File([b],'백지-'+ph.id+'.jpg',{type:b.type||'image/jpeg'});
+  }
+  // 판서에 끼우기: 이 학생이 올린 사진 전부를 순서대로 새 쪽으로 넣음
   async function insert(){
-    if(!curData||!curData.data){toast('먼저 뽑기로 사진을 불러와 주세요');return}
+    if(!curStu){toast('먼저 뽑기로 사진을 불러와 주세요');return}
     if(!S.pdf){toast('노트를 먼저 열어 주세요');return}
     try{
-      let b=await (await fetch(curData.data)).blob();
-      const deg=(((rot[curId]||0)%360)+360)%360;
-      if(deg){ // 회전한 모습 그대로 쪽에 넣기
-        const bmp=await createImageBitmap(b),side=deg%180!==0;
-        const c=document.createElement('canvas');c.width=side?bmp.height:bmp.width;c.height=side?bmp.width:bmp.height;
-        const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);
-        x.translate(c.width/2,c.height/2);x.rotate(deg*Math.PI/180);x.drawImage(bmp,-bmp.width/2,-bmp.height/2);
-        b=await new Promise(r=>c.toBlob(r,'image/jpeg',.92));
-      }
-      const f=new File([b],'백지.jpg',{type:b.type||'image/jpeg'});
+      const files=[];const n=curStu.photos.length;
+      for(let i=0;i<n;i++){if(n>1)toast(`사진 ${i+1}/${n} 준비 중…`,1500);files.push(await photoFile(curStu.photos[i]))}
       ov.classList.add('hide');
-      await insertImages([f],'after');
+      await insertImages(files,'after');
     }catch(e){toast('끼우지 못했어요: '+(e.message||e),4000)}
   }
   function openCfg(){$$('blUrl').value=url();$$('blSave').checked=lsGet('pdfnote.blpinsave')==='1';$$('blCf').classList.add('on')}
