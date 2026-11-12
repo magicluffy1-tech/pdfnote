@@ -266,7 +266,7 @@ body[data-tool=select] .page{touch-action:auto;cursor:text}
 #blank .box label{display:block;margin:10px 0 4px;color:#9fb0c3;font-size:13px}
 #blank #blGrid{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
 #blank .chip{width:56px;padding:12px 0;text-align:center;border-radius:10px;font-weight:800;font-size:20px}
-#blank .chip.ok{background:#1f9d55}#blank .chip.no{background:#c0392b}
+#blank .chip.ok{background:#1f9d55;cursor:pointer}#blank .chip.ok:hover{background:#27b868;outline:2px solid #fff}#blank .chip.no{cursor:default}#blank .chip.no{background:#c0392b}
 #blank #blMiss{font-size:18px;line-height:1.6;color:#ffd7d2}
 .blcard{display:block;width:100%;text-align:left;border:2px solid var(--acc,#2f6fed);background:#f3f7ff;border-radius:14px;padding:16px 18px;cursor:pointer;font-family:inherit}
 .blcard b{display:block;font-size:20px;color:#1b2a4a}.blcard small{display:block;margin-top:4px;color:#566}
@@ -463,7 +463,7 @@ body[data-dock=left] details.menu .pop,body[data-dock=right] details.menu .pop{p
       <button class="btn" id="bSet" title="Drive 설정">⚙</button>
       <button class="btn" id="cloud" title="Google Drive 동기화 상태">☁ Drive 연결</button>
       <span id="status">열린 책 없음</span>
-      <span class="madeby mini" title="펼침 v46 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v46</small></span></span>
+      <span class="madeby mini" title="펼침 v47 · Made by Cho"><span class="av" aria-hidden="true">C</span><span class="nm">Cho <small style="opacity:.6;font-weight:400">v47</small></span></span>
     </div>
   </div>
   <main>
@@ -5236,9 +5236,10 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
     const g=+$$('blSg').value,c=+$$('blSc').value,n=+$$('blSn').value||0,have={};
     all.forEach(x=>{if(+x.grade===g&&+x.cls===c)have[x.num]=1});
     const miss=[];let h='';
-    for(let i=1;i<=n;i++){const ok=have[i];if(!ok)miss.push(i);h+=`<div class="chip ${ok?'ok':'no'}">${i}</div>`}
+    for(let i=1;i<=n;i++){const ok=have[i];if(!ok)miss.push(i);const ph=ok?students.find(t=>+t.grade===g&&+t.cls===c&&+t.num===i):null;
+      h+=`<div class="chip ${ok?'ok':'no'}"${ok?` data-n="${i}" title="눌러서 ${i}번 학생 사진 보기${ph&&ph.photos.length>1?' ('+ph.photos.length+'장)':''}"`:''}>${i}</div>`}
     $$('blGrid').innerHTML=h;
-    $$('blSum').textContent=`${g}학년 ${c}반 · 제출 ${n-miss.length} / ${n}명`;
+    $$('blSum').textContent=`${g}학년 ${c}반 · 제출 ${n-miss.length} / ${n}명 · 초록 번호를 누르면 그 학생 사진이 열려요`;
     $$('blMiss').textContent=miss.length?`미제출: ${miss.join(', ')}번`:(n?'전원 제출 완료! 🎉':'');
   }
   function openStatus(){
@@ -5313,6 +5314,15 @@ $('#bUnit').onclick=()=>{if(S.pdf)askUnit({title:'🧪 학년·단원 정하기'
   $$('blHide').onclick=()=>{hideNo=!hideNo;lsSet('pdfnote.blhide',hideNo?'1':'0');renderHide()};
   $$('blIns').onclick=insert;
   $$('blStat').onclick=openStatus;$$('blSx').onclick=()=>$$('blSt').classList.remove('on');
+  // 제출 현황에서 번호를 누르면 그 학생 사진을 바로 보여줌
+  $$('blGrid').onclick=e=>{
+    const el=e.target.closest&&e.target.closest('.chip.ok');if(!el)return;
+    const g=+$$('blSg').value,c=+$$('blSc').value,n=+el.dataset.n;
+    const st=students.find(t=>+t.grade===g&&+t.cls===c&&+t.num===n);
+    if(!st){toast('이 학생의 사진을 찾지 못했어요');return}
+    $$('blSt').classList.remove('on');
+    curStu=st;photoIdx=0;showPhoto();
+  };
   $$('blSg').innerHTML=[1,2,3].map(g=>`<option value="${g}">${g}학년</option>`).join('');
   $$('blSg').onchange=$$('blSc').oninput=()=>{loadN();renderStatus()};
   $$('blSn').oninput=()=>{lsSet(nKey(),$$('blSn').value);renderStatus()};
